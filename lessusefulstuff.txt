@@ -1,0 +1,102 @@
+    # def getEx(self, th):
+    #     m, n = self.getmn(th)
+    #     recipEx = m**4/self.E1+(1/self.G12-2*self.v12/self.E1)*m**2*n**2+n**4/self.E2
+    #     return 1/recipEx
+
+    # def getEy(self, th):
+    #     m, n = self.getmn(th)
+    #     recipEy = n**4/self.E1+(1/self.G12-2*self.v12/self.E1)*m**2*n**2+m**4/self.E2
+    #     return 1/recipEy
+
+    # def getvxy(self, th, Ex):
+    #     m, n = self.getmn(th)
+    #     return Ex*(self.v12/self.E1*(m**4+n**4)-(1/self.E1+1/self.E2-1/self.G12)*m**2*n**2)
+
+    # def getGxy(self, th):
+    #     m, n = self.getmn(th)
+    #     recipGxy = 2*(2/self.E1+2/self.E2+4*self.v12/self.E1-1/self.G12)*m**2*n**2+1/self.G12*(m**4+n**4)
+    #     return 1/recipGxy
+
+    # def getnxs(self, th, Ex):
+    #     m, n = self.getmn(th)
+    #     return Ex*((2/self.E1+2*self.v12/self.E1-1/self.G12)*m**3*n-(2/self.E2+2*self.v12/self.E1-1/self.G12)*n**3*m)
+
+    # def getnys(self, th, Ey):
+    #     m, n = self.getmn(th)
+    #     return Ey*((2/self.E1+2*self.v12/self.E1-1/self.G12)*n**3*m-(2/self.E2+2*self.v12/self.E1-1/self.G12)*m**3*n)
+    
+    # def getQ(self, v12, v21):
+    #     return 1-v12*v21
+
+    # def getQ11(self, E1, Q):
+    #     return E1*1/Q
+
+    # def getQ22(self, E2, Q):
+    #     return E2*1/Q
+
+    # def getQ12(self, v12, E2, Q):
+    #     """_summary_
+
+    #     Args:
+    #         v12 (_type_): Can equally be v21
+    #         E2 (_type_): if v21, then E1
+    #         Q (_type_): _description_
+
+    #     Returns:
+    #         _type_: _description_
+    #     """
+    #     return v12*E2*1/Q
+
+    # def getQ66(self, G12):
+    #     return G12
+
+    # def getU1(self, Q11, Q22, Q12, Q66):
+    #     return 1/8*(3*Q11+3*Q22+2*Q12+4*Q66)
+
+    # def getU2(self, Q11, Q22):
+    #     return 1/2*(Q11-Q22)
+
+    # def getU3(self, Q11, Q22, Q12, Q66):
+    #     return 1/8*(Q11+Q22-2*Q12-4*Q66)
+
+    # def getU4(self, Q11, Q22, Q12, Q66):
+    #     return 1/8*(Q11+Q22+6*Q12-4*Q66)
+
+    # def getU5(self, Q11, Q22, Q12, Q66):
+    #     return 1/8*(Q11+Q22-2*Q12+4*Q66)
+
+    # def getQxx(self, U1, U2, U3, th):
+    #     return U1+U2*np.cos(2*th)+U3*np.cos(4*th)
+
+    # def getQyy(self, U1, U2, U3, th):
+    #     return U1-U2*np.cos(2*th)+U3*np.cos(4*th)
+
+    # def getQss(self, U3, U5, th):
+    #     return U5-U3*np.cos(4*th)
+
+    # def getQxy(self, U3, U4, th):
+    #     return U4-U3*np.cos(4*th)
+
+    # def getQxs(self, U2, U3, th):
+    #     return 1/2*U2*np.sin(2*th)+U3*np.sin(4*th)
+
+    # def getQys(self, U2, U3, th):
+    #     return 1/2*U2*np.sin(2*th)-U3*np.sin(4*th)
+
+    # def getSxx(self, U1, U2, U3, th):
+    #     return U1+U2*np.cos(2*th)+U3*np.cos(4*th)
+
+    # def getSyy(self, U1, U2, U3, th):
+    #     return U1-U2*np.cos(2*th)+U3*np.cos(4*th)
+
+    # def getSss(self, U3, U5, th):
+    #     return U5-4*U3*np.cos(4*th)
+
+    # def getSxy(self, U3, U4, th):
+    #     return U4-U3*np.cos(4*th)
+
+    # def getSxs(self, U2, U3, th):
+    #     return U2*np.sin(2*th)+2*U3*np.sin(4*th)
+
+    # def getQys(self, U2, U3, th):
+    #     return U2*np.sin(2*th)-2*U3*np.sin(4*th)

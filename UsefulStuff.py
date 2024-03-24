@@ -118,8 +118,8 @@ class Laminate:
         self.A = np.zeros([3, 3])
         self.B = np.zeros([3, 3])
         self.D = np.zeros([3, 3])
-
-        z = 0 # Define the bottom of the laminate as z = 0
+        
+        z = 0# Define the bottom of the laminate as z = 0
         for ply in self.plys:
             self.A += ply.Qbarmat * ((z + ply.t) - z)
             self.B += 1 / 2 * ply.Qbarmat * ((z + ply.t) ** 2 - z**2)
@@ -151,10 +151,10 @@ if __name__ == "__main__":
 
 #assignment part 
  #lamina properties for overall assignment DO NOT change this properties 
-E1 = 145.3 
-E2 = 8.5 
+E1 = 145.3
+E2 = 8.5
 v12 = 0.31 
-G12 = 4.58 
+G12 = 4.58
 Xt = 1932 
 Yt = 108 
 Xc = 1480
@@ -166,7 +166,7 @@ t= 0.125 #this one is assumption can be changed
 
 thetaquestion1  = list(range(0,91,5)) #input angle in the laminate definition reason for 0 to 90 range is that the properties after 
                                                                                                     #90 would be the same as before 90 
-nquestion1 = list(range(1,5,1)) # n can be only integers 
+nquestion1 = list(range(1,2,1)) # n can be only integers 
 Exmatrix = np.zeros((len(nquestion1),len(thetaquestion1)))
 Eymatrix = np.zeros((len(nquestion1),len(thetaquestion1)))
 Vxymatrix= np.zeros((len(nquestion1),len(thetaquestion1)))
@@ -180,22 +180,26 @@ for j in range(len(nquestion1)):
 
         
         layup  = [15,+thetaquestion1[i],-thetaquestion1[i],75,75,75,75,-thetaquestion1[i],+thetaquestion1[i],15]
+
         layup *= nquestion1[j]
         for angle in layup:
             plylist.append(Lamina(angle,E1,E2,G12,v12,Xt,Xc,Yt,Yc,S,t))
         Result = Laminate(plylist)
         h = t* len(layup)
+        
         Amatrix = Result.A
-        EX = (Amatrix[0][0] * Amatrix[1][1] - Amatrix[0][1]**2) / h* Amatrix[1][1] 
-        EY = (Amatrix[0][0] * Amatrix[1][1] - Amatrix[0][1]**2) / h* Amatrix[0][0] 
+        EX = (Amatrix[0][0] * Amatrix[1][1] - Amatrix[0][1]**2) / (h* Amatrix[1][1]) 
+        EY = (Amatrix[0][0] * Amatrix[1][1] - Amatrix[0][1]**2) / (h* Amatrix[0][0]) 
         VXY  = Amatrix[0][1] / Amatrix[1][1]
         VYX  = Amatrix[0][1] / Amatrix[0][0]
         GXY = Amatrix[2][2] / h 
+        print(EX)
         Exmatrix[j][i] = EX
         Eymatrix [j][i] = EY
         Vxymatrix [j][i] = VXY
         Vyxmatrix[j][i] = VYX  
         Gxymatrix [j][i] = GXY  
+print(plylist)
 
 # Create subplots
 fig, ax = plt.subplots(figsize=(10, 8))
@@ -212,6 +216,71 @@ ax.legend()
 # Set labels
 ax.set_xlabel('Angle (degrees)')
 ax.set_ylabel('EX')
+
+# Show plot
+plt.show()
+fig, ax = plt.subplots(figsize=(10, 8))
+
+# Plot properties for each n value
+for j in range(len(nquestion1)):
+    # Plot EX for the current n value
+    ax.plot(thetaquestion1, Eymatrix[j], label=f'n = {nquestion1[j]}')
+
+# Set title and legend
+ax.set_title('Laminate Properties for Different n Values')
+ax.legend()
+
+# Set labels
+ax.set_xlabel('Angle (degrees)')
+ax.set_ylabel('Ey')
+
+# Show plot
+plt.show()
+fig, ax = plt.subplots(figsize=(10, 8))
+# Plot properties for each n value
+for j in range(len(nquestion1)):
+    # Plot EX for the current n value
+    ax.plot(thetaquestion1, Vxymatrix[j], label=f'n = {nquestion1[j]}')
+
+# Set title and legend
+ax.set_title('Laminate Properties for Different n Values')
+ax.legend()
+
+# Set labels
+ax.set_xlabel('Angle (degrees)')
+ax.set_ylabel('Vxy')
+
+# Show plot
+plt.show()
+fig, ax = plt.subplots(figsize=(10, 8))
+# Plot properties for each n value
+for j in range(len(nquestion1)):
+    # Plot EX for the current n value
+    ax.plot(thetaquestion1, Vyxmatrix[j], label=f'n = {nquestion1[j]}')
+
+# Set title and legend
+ax.set_title('Laminate Properties for Different n Values')
+ax.legend()
+
+# Set labels
+ax.set_xlabel('Angle (degrees)')
+ax.set_ylabel('vyx')
+
+# Show plot
+plt.show()
+fig, ax = plt.subplots(figsize=(10, 8))
+# Plot properties for each n value
+for j in range(len(nquestion1)):
+    # Plot EX for the current n value
+    ax.plot(thetaquestion1, Gxymatrix[j], label=f'n = {nquestion1[j]}')
+
+# Set title and legend
+ax.set_title('Laminate Properties for Different n Values')
+ax.legend()
+
+# Set labels
+ax.set_xlabel('Angle (degrees)')
+ax.set_ylabel('Gxy')
 
 # Show plot
 plt.show()

@@ -122,11 +122,12 @@ class Laminate:
         
         # define the z-position of laminae. Datum = bottom 
         for i in range(self.n_plys):
-            self.z[i+1] = self.plys[i].t 
-            
+            self.z[i+1] = (i+1)*self.plys[i].t 
+                    
         # change datum of z-position from bottom to midplane
         if self.midplane: 
-            self.z -= np.sum(self.z)/2
+            self.z -= np.max(self.z)/2
+            
     
         for i in range(self.n_plys):
             self.A += self.plys[i].Qbarmat * (self.z[i+1] - self.z[i])

@@ -17,7 +17,7 @@ class Lamina:
         self.E2 = E2  # E across fibres
         self.G12 = G12  # Shear modulus
         self.v12 = v12  # Major Poisson
-        self.v21 = self.v12 * self.E1 / self.E2  # Minor Poisson
+        self.v21 = self.v12 * self.E2 / self.E1  # Minor Poisson
         self.Xt = Xt  # Strength along fibres (tensile)
         self.Xc = Xc  # Strength along fibres (compression)
         self.Yt = Yt  # Strength across fibres (tensile)
@@ -51,7 +51,7 @@ class Lamina:
     def getQmat(self):
         self.Q = 1-self.v12*self.v21
         self.Q11 = self.E1 / self.Q
-        self.Q12 = self.v12 * self.E2 * self.Q 
+        self.Q12 = self.v12 * self.E2 / self.Q 
         self.Q22 = self.E2 / self.Q
         self.Q66 = self.G12
         self.Qmat = np.array(
@@ -128,7 +128,7 @@ class Laminate:
         # change datum of z-position from bottom to midplane
         if self.midplane: 
             self.z -= np.max(self.z)/2
-            
+        
     
         for i in range(self.n_plys):
             self.A += self.plys[i].Qbarmat * (self.z[i+1] - self.z[i])

@@ -1,0 +1,23 @@
+DATE: Sunday, 24-03-2024
+Verification performed on Lamina and Laminate class. ABD matrix incorrect.
+
+-Initial Problem:
+--Ex was increasing with theta
+-Corrections:
+--defined z from midplane (it was initially defined from bottom plane)
+--array correction (plylist array was being appended instead of overwritten at every loop)
+
+
+-A matrix is still incorrect. It was cross-checked against an online calculator.
+--A matrix incorrect due to incorrect computation of Qbarmat
+--Qmat was correctly implemented 
+--z-positions of the laminae correctly implemented
+--triple-checked algebraic expressions of Qbarmat
+--computed Qbarmat with transformation matrix
+--in lamina class, Qbarmat computed with algebraic expressions matches with multiplication with transformation/inv. transformation  matrix 
+--HOWEVER, Qbarmat is still incorrect. Thus, A is still incorrect.
+--checked that m is cos, n is sin
+--Nachos wrote a quick, dirty script to implement ABD matrices (w/o functions and w/o classes). Q,A, ABD matrices match with online calculator.
+
+Final verdict: error on conversion from deg to rad
+

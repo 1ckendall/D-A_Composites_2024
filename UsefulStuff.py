@@ -103,7 +103,7 @@ class Lamina:
 
 
 class Laminate:
-    def __init__(self, plys, Nx=0, Ny=0, Ns=0, Mx=0, My=0, Ms=0):
+    def __init__(self, plys, Nx=0, Ny=0, Ns=0, Mx=0, My=0, Ms=0, midplane = True):
         self.plys = plys
         self.Nx = Nx
         self.Ny = Ny
@@ -111,20 +111,29 @@ class Laminate:
         self.Mx = Mx
         self.My = My
         self.Ms = Ms
+        self.midplane = midplane
         self.getABD()
         self.abd = np.linalg.inv(self.ABD)
 
     def getABD(self):
+        self.n_plys = len(self.plys)
         self.A = np.zeros([3, 3])
         self.B = np.zeros([3, 3])
         self.D = np.zeros([3, 3])
+        self.z = np.zeros(self.n_plys+1)
         
-        z = 0# Define the bottom of the laminate as z = 0
-        for ply in self.plys:
-            self.A += ply.Qbarmat * ((z + ply.t) - z)
-            self.B += 1 / 2 * ply.Qbarmat * ((z + ply.t) ** 2 - z**2)
-            self.D += 1 / 3 * ply.Qbarmat * ((z + ply.t) ** 3 - z**3)
-            z += ply.t
+        # define the z-position of laminae. Datum = bottom 
+        for i in range(self.n_plys):
+            self.z[i+1] = self.plys[i].t 
+            
+        # change datum of z-position from bottom to midplane
+        if self.midplane: 
+            self.z -= np.sum(self.z)/2
+    
+        for i in range(self.n_plys):
+            self.A += self.plys[i].Qbarmat * (self.z[i+1] - self.z[i])
+            self.B += 1 / 2 * self.plys[i].Qbarmat * ((self.z[i+1]) ** 2 - self.z[i]**2)
+            self.D += 1 / 3 * self.plys[i].Qbarmat * ((self.z[i+1]) ** 3 - self.z[i]**3)
         AB = np.concatenate((self.A, self.B), axis=0)
         BD = np.concatenate((self.B, self.D), axis=0)
         self.ABD = np.concatenate((AB, BD), axis=1)

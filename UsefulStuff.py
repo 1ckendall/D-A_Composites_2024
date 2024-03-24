@@ -173,7 +173,7 @@ t= 0.125 #this one is assumption can be changed
 #question 1 Daniel 
     #first defining angles for theta in question 
 
-thetaquestion1  = list(range(0,91,5)) #input angle in the laminate definition reason for 0 to 90 range is that the properties after 
+thetaquestion1  = list(range(0,10,1)) #input angle in the laminate definition reason for 0 to 90 range is that the properties after 
                                                                                                     #90 would be the same as before 90 
 nquestion1 = list(range(1,2,1)) # n can be only integers 
 Exmatrix = np.zeros((len(nquestion1),len(thetaquestion1)))
@@ -189,7 +189,7 @@ for j in range(len(nquestion1)):
 
         
         layup  = [15,+thetaquestion1[i],-thetaquestion1[i],75,75,75,75,-thetaquestion1[i],+thetaquestion1[i],15]
-
+        print(layup)
         layup *= nquestion1[j]
         for angle in layup:
             plylist.append(Lamina(angle,E1,E2,G12,v12,Xt,Xc,Yt,Yc,S,t))
@@ -197,18 +197,20 @@ for j in range(len(nquestion1)):
         h = t* len(layup)
         
         Amatrix = Result.A
+        print(Amatrix)
         EX = (Amatrix[0][0] * Amatrix[1][1] - Amatrix[0][1]**2) / (h* Amatrix[1][1]) 
         EY = (Amatrix[0][0] * Amatrix[1][1] - Amatrix[0][1]**2) / (h* Amatrix[0][0]) 
         VXY  = Amatrix[0][1] / Amatrix[1][1]
         VYX  = Amatrix[0][1] / Amatrix[0][0]
         GXY = Amatrix[2][2] / h 
-        print(EX)
+        
         Exmatrix[j][i] = EX
         Eymatrix [j][i] = EY
         Vxymatrix [j][i] = VXY
         Vyxmatrix[j][i] = VYX  
         Gxymatrix [j][i] = GXY  
-print(plylist)
+
+print(Exmatrix)
 
 # Create subplots
 fig, ax = plt.subplots(figsize=(10, 8))

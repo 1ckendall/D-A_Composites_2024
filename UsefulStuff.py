@@ -49,9 +49,10 @@ class Lamina:
         self.failuremode = None # 1 -> Tensile fibre failure, 2 -> Compressive fibre failure
 
     def getQmat(self):
-        self.Q11 = self.E1**2 / (self.E1 - v12**2 * self.E2)
-        self.Q12 = self.v12 * self.E1 * self.E2 / (self.E1 - v12**2 * self.E2)
-        self.Q22 = self.E1 * self.E2 / (self.E1 - v12**2 * self.E2)
+        self.Q = 1-self.v12*self.v21
+        self.Q11 = self.E1 / self.Q
+        self.Q12 = self.v12 * self.E2 * self.Q 
+        self.Q22 = self.E2 / self.Q
         self.Q66 = self.G12
         self.Qmat = np.array(
             [[self.Q11, self.Q12, 0], [self.Q12, self.Q22, 0], [0, 0, self.Q66]]
@@ -138,7 +139,7 @@ class Laminate:
         self.ABD = np.concatenate((AB, BD), axis=1)
 
 if __name__ == "__main__":
-    E1 = 140e9
+    E1 = 140
     E2 = 10
     G12 = 5
     v12 = 0.3
@@ -159,21 +160,21 @@ if __name__ == "__main__":
 
 #assignment part 
  #lamina properties for overall assignment DO NOT change this properties 
-E1 = 145.3
-E2 = 8.5
-v12 = 0.31 
-G12 = 4.58
-Xt = 1932 
-Yt = 108 
-Xc = 1480
-Yc = 220
-S = 132.8   
-t= 0.125 #this one is assumption can be changed 
+E1 = 145.3e3 #[MPa]
+E2 = 8.5e3 #[MPa]
+v12 = 0.31 #[--]
+G12 = 4.58e3 #[MPa]
+Xt = 1932 #[MPa]
+Yt = 108 #[MPa]
+Xc = 1480 #[MPa]
+Yc = 220 #[MPa]
+S = 132.8 #[MPa]
+t= 0.125 #[mm] #this one is assumption can be changed 
 #question 1 Daniel 
     #first defining angles for theta in question 
 
 thetaquestion1  = list(range(0,10,1)) #input angle in the laminate definition reason for 0 to 90 range is that the properties after 
-                                                                                                    #90 would be the same as before 90 
+                                                                                               #90 would be the same as before 90 
 nquestion1 = list(range(1,2,1)) # n can be only integers 
 Exmatrix = np.zeros((len(nquestion1),len(thetaquestion1)))
 Eymatrix = np.zeros((len(nquestion1),len(thetaquestion1)))
@@ -186,22 +187,24 @@ for j in range(len(nquestion1)):
 
     for i in range(len(thetaquestion1)) :
 
-        
         layup  = [15,+thetaquestion1[i],-thetaquestion1[i],75,75,75,75,-thetaquestion1[i],+thetaquestion1[i],15]
-        print(layup)
         layup *= nquestion1[j]
+        # print(layup)
+
         for angle in layup:
             plylist.append(Lamina(angle,E1,E2,G12,v12,Xt,Xc,Yt,Yc,S,t))
         Result = Laminate(plylist)
         h = t* len(layup)
         
         Amatrix = Result.A
-        print(Amatrix)
+        # print(Amatrix)
         EX = (Amatrix[0][0] * Amatrix[1][1] - Amatrix[0][1]**2) / (h* Amatrix[1][1]) 
         EY = (Amatrix[0][0] * Amatrix[1][1] - Amatrix[0][1]**2) / (h* Amatrix[0][0]) 
         VXY  = Amatrix[0][1] / Amatrix[1][1]
         VYX  = Amatrix[0][1] / Amatrix[0][0]
         GXY = Amatrix[2][2] / h 
+        
+        print(f'Theta: {thetaquestion1[i]}, Ex: {EX}, Ey: {EY} \n ')
         
         Exmatrix[j][i] = EX
         Eymatrix [j][i] = EY
@@ -240,60 +243,60 @@ for j in range(len(nquestion1)):
 ax.set_title('Laminate Properties for Different n Values')
 ax.legend()
 
-# Set labels
-ax.set_xlabel('Angle (degrees)')
-ax.set_ylabel('Ey')
+# # Set labels
+# ax.set_xlabel('Angle (degrees)')
+# ax.set_ylabel('Ey')
 
-# Show plot
-plt.show()
-fig, ax = plt.subplots(figsize=(10, 8))
-# Plot properties for each n value
-for j in range(len(nquestion1)):
-    # Plot EX for the current n value
-    ax.plot(thetaquestion1, Vxymatrix[j], label=f'n = {nquestion1[j]}')
+# # Show plot
+# plt.show()
+# fig, ax = plt.subplots(figsize=(10, 8))
+# # Plot properties for each n value
+# for j in range(len(nquestion1)):
+#     # Plot EX for the current n value
+#     ax.plot(thetaquestion1, Vxymatrix[j], label=f'n = {nquestion1[j]}')
 
-# Set title and legend
-ax.set_title('Laminate Properties for Different n Values')
-ax.legend()
+# # Set title and legend
+# ax.set_title('Laminate Properties for Different n Values')
+# ax.legend()
 
-# Set labels
-ax.set_xlabel('Angle (degrees)')
-ax.set_ylabel('Vxy')
+# # Set labels
+# ax.set_xlabel('Angle (degrees)')
+# ax.set_ylabel('Vxy')
 
-# Show plot
-plt.show()
-fig, ax = plt.subplots(figsize=(10, 8))
-# Plot properties for each n value
-for j in range(len(nquestion1)):
-    # Plot EX for the current n value
-    ax.plot(thetaquestion1, Vyxmatrix[j], label=f'n = {nquestion1[j]}')
+# # Show plot
+# plt.show()
+# fig, ax = plt.subplots(figsize=(10, 8))
+# # Plot properties for each n value
+# for j in range(len(nquestion1)):
+#     # Plot EX for the current n value
+#     ax.plot(thetaquestion1, Vyxmatrix[j], label=f'n = {nquestion1[j]}')
 
-# Set title and legend
-ax.set_title('Laminate Properties for Different n Values')
-ax.legend()
+# # Set title and legend
+# ax.set_title('Laminate Properties for Different n Values')
+# ax.legend()
 
-# Set labels
-ax.set_xlabel('Angle (degrees)')
-ax.set_ylabel('vyx')
+# # Set labels
+# ax.set_xlabel('Angle (degrees)')
+# ax.set_ylabel('vyx')
 
-# Show plot
-plt.show()
-fig, ax = plt.subplots(figsize=(10, 8))
-# Plot properties for each n value
-for j in range(len(nquestion1)):
-    # Plot EX for the current n value
-    ax.plot(thetaquestion1, Gxymatrix[j], label=f'n = {nquestion1[j]}')
+# # Show plot
+# plt.show()
+# fig, ax = plt.subplots(figsize=(10, 8))
+# # Plot properties for each n value
+# for j in range(len(nquestion1)):
+#     # Plot EX for the current n value
+#     ax.plot(thetaquestion1, Gxymatrix[j], label=f'n = {nquestion1[j]}')
 
-# Set title and legend
-ax.set_title('Laminate Properties for Different n Values')
-ax.legend()
+# # Set title and legend
+# ax.set_title('Laminate Properties for Different n Values')
+# ax.legend()
 
-# Set labels
-ax.set_xlabel('Angle (degrees)')
-ax.set_ylabel('Gxy')
+# # Set labels
+# ax.set_xlabel('Angle (degrees)')
+# ax.set_ylabel('Gxy')
 
-# Show plot
-plt.show()
+# # Show plot
+# plt.show()
 
 
 

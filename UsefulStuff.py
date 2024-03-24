@@ -58,9 +58,7 @@ class Lamina:
         )
 
     def getQbarmat(self):
-        self.Qxx = self.Q11 * self.m**4 + 2 * (
-            self.Q12 + 2 * self.Q66 * self.m**2 * self.n**2
-        )
+        self.Qxx = self.Q11 * self.m**4 + 2 * (self.Q12 + self.Q66) * self.m**2 * self.n**2 + self.Q22 * self.n**4
         self.Qxy = (
             self.Q11 + self.Q22 - 4 * self.Q66
         ) * self.m**2 * self.n**2 + self.Q12 * (self.m**4 + self.n**4)

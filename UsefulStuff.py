@@ -129,9 +129,11 @@ class Laminate:
         if self.midplane: 
             self.z -= np.max(self.z)/2
         
+        # print(f'Z-arr: {self.z}')
     
         for i in range(self.n_plys):
             self.A += self.plys[i].Qbarmat * (self.z[i+1] - self.z[i])
+            #print(f'Z-diff: {(self.z[i+1] - self.z[i])}, Qbarmat: {self.plys[i].Qbarmat}, A-contribution: { self.plys[i].Qbarmat * (self.z[i+1] - self.z[i])}')
             self.B += 1 / 2 * self.plys[i].Qbarmat * ((self.z[i+1]) ** 2 - self.z[i]**2)
             self.D += 1 / 3 * self.plys[i].Qbarmat * ((self.z[i+1]) ** 3 - self.z[i]**3)
         AB = np.concatenate((self.A, self.B), axis=0)
@@ -173,7 +175,7 @@ t= 0.125 #[mm] #this one is assumption can be changed
 #question 1 Daniel 
     #first defining angles for theta in question 
 
-thetaquestion1  = list(range(0,10,1)) #input angle in the laminate definition reason for 0 to 90 range is that the properties after 
+thetaquestion1  = list(range(0,1,1)) #input angle in the laminate definition reason for 0 to 90 range is that the properties after 
                                                                                                #90 would be the same as before 90 
 nquestion1 = list(range(1,2,1)) # n can be only integers 
 Exmatrix = np.zeros((len(nquestion1),len(thetaquestion1)))
@@ -197,7 +199,7 @@ for j in range(len(nquestion1)):
         h = t* len(layup)
         
         Amatrix = Result.A
-        # print(Amatrix)
+        print(f'A_matrix: {Amatrix}')
         EX = (Amatrix[0][0] * Amatrix[1][1] - Amatrix[0][1]**2) / (h* Amatrix[1][1]) 
         EY = (Amatrix[0][0] * Amatrix[1][1] - Amatrix[0][1]**2) / (h* Amatrix[0][0]) 
         VXY  = Amatrix[0][1] / Amatrix[1][1]

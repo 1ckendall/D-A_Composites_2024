@@ -99,3 +99,19 @@ plt.show()
 #         plylist.append(Lamina(angle, E1, E2, G12, v12, Xt, Xc, Yt, Yc, S, t))
 #     L = Laminate(plylist)
 #     pprint(L.ABD)
+
+#Question  2 damage progression 
+anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
+stressinput = np.linspace(0,10000,100) 
+angleinput = np.radians(np.linspace(0,360,100))
+plylist = []
+failuretracking = np.full(len(anglelist), True, dtype=bool)
+firstfailuremaxstress = []
+firstfailurePUCK =[]
+lastplyfailuremaxstress= []
+lastplypuck=[]
+firsfailureplyindex = [] 
+lastplyfailureplyindex=[]
+for i in angleinput: 
+  for j in stressinput: 
+      a=2

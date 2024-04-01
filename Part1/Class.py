@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from pprint import pprint
+import warnings.warn as warn
 
 class Lamina:
     def __init__(self, th, E1, E2, G12, v12, Xt, Xc, Yt, Yc, S, t,
@@ -45,8 +46,7 @@ class Lamina:
         self.getQmat()
         self.getQbarmat()
         
-        self.failed = False
-        self.failuremode = None # 1 -> Tensile fibre failure, 2 -> Compressive fibre failure
+        self.failuremode = None
 
     def getQmat(self):
         self.Q = 1-self.v12*self.v21
@@ -101,11 +101,41 @@ class Lamina:
                 self.failed = True
                 self.failuremode = "Compressive Fibre Failure"
         
-    def PuckFibreFail(self):
-        pass
+    def PuckFibreFail(self, sigma_2, gamma_21, epsilon1T, epsilon1C, epsilon1, m_sigmaf):
+        if sigma_2 < 0:
+            failurecriterion = 1/epsilon1T*(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)
+            if failurecriterion >= 1:
+                self.failuremode = "FFT"
+                print(f"Ply failed at {sigma_2}: Tensile Fibre Failure")
+        elif sigma_2 > 0:
+            failurecriterion = 1/epsilon1T*(abs(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)) + 10(gamma_21)**2
+            if failurecriterion >= 1
+                self.failuremode = "FFC"
+                print(f"Ply failed at {sigma_2}: Compressive Fibre Failure (Kinking)")
+    
+    def get_RAperpperp(self, S21, p_perppara_minus, Yc):
+        """RA⊥⊥: Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing"""
+        return S21/2*p_perppara_minus*(np.sqrt(1+2*p_perppara_minus*Yc/S21)-1)
         
-    def PuckIFF(self):
-        pass
+    def PuckIFF(self, sigma_2, tau_21, RAperpperp, tau_21c, S21, p_perppara_plus, p_perppara_minus, p_perpperp_minus, Y_T, Y_C, sigma_1, sigma_1D):
+        if sigma_2 >= 0:
+            # IFF A
+            failurecriterion = np.sqrt((tau_21/S21)**2+(1+p_perppara_plus*Y_T/S21)**2*(sigma_2/Y_T)**2)+p_perppara_plus*sigma_2/S21+abs(sigma_1/sigma_1D)
+            if failurecriterion >= 1:
+                self.failuremode = "IFF A"
+        elif sigma_2 < 0 and 0<=abs(sigma_2/tau_21)<=RAperpperp/abs(tau_21c):
+            # IFF B
+            failurecriterion = 1/S21*(np.sqrt(tau_21**2+(p_perppara_minus*sigma_2)**2)+p_perppara_minus*sigma_2)+abs(sigma_1/sigma_1D)
+            if failurecriterion >= 1:
+                self.failuremode = "IFF B"
+        elif sigma_2 < 0 and 0<=abs(tau_21/sigma_2<=abs(tau_21c)/RAperpperp):
+            # IFF C
+            failurecriterion = ((tau_21/(2*(1+p_perpperp_minus)*S21))**2+(sigma_2/Y_C)**2)*Y_C/(-sigma_2)+abs(sigma_1/sigma_1D)
+            if failurecriterion >=1:
+                self.failuremode = "IFF C"
+        else:
+            # Something is funky
+            warn("Something is wrong in IFF calculation")
 
 
 class Laminate:

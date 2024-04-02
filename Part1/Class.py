@@ -59,7 +59,6 @@ class Lamina:
         )
 
     def getQbarmat(self):
-        
         ## version 1: Transformation Matrix (used as verification check)
         self.T = np.matrix([[self.m**2, self.n**2, 2*self.m*self.n],
                             [self.n**2, self.m**2, -2*self.m*self.n],
@@ -101,7 +100,7 @@ class Lamina:
                 self.failed = True
                 self.failuremode = "Compressive Fibre Failure"
         
-    def PuckFibreFail(self, sigma_2, gamma_21, epsilon1T, epsilon1C, epsilon1, m_sigmaf):
+    def PuckFibreFail(self, sigma_2, gamma_21, epsilon1T, epsilon1C, epsilon1, m_sigmaf = 1.3):
         if sigma_2 < 0:
             failurecriterion = 1/epsilon1T*(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)
             if failurecriterion >= 1:
@@ -117,7 +116,7 @@ class Lamina:
         """RA⊥⊥: Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing"""
         return S21/2*p_perppara_minus*(np.sqrt(1+2*p_perppara_minus*Yc/S21)-1)
         
-    def PuckIFF(self, sigma_2, tau_21, RAperpperp, tau_21c, S21, p_perppara_plus, p_perppara_minus, p_perpperp_minus, Y_T, Y_C, sigma_1, sigma_1D):
+    def PuckIFF(self, sigma_2, sigma_1, sigma_1D, tau_21, tau_21c, S21, RAperpperp, p_perppara_plus, p_perppara_minus, p_perpperp_minus, Y_T, Y_C):
         if sigma_2 >= 0:
             # IFF A
             failurecriterion = np.sqrt((tau_21/S21)**2+(1+p_perppara_plus*Y_T/S21)**2*(sigma_2/Y_T)**2)+p_perppara_plus*sigma_2/S21+abs(sigma_1/sigma_1D)

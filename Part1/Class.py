@@ -92,13 +92,22 @@ class Lamina:
         assert np.allclose(self.Qbarmat, Qbarmat)
         
     def maxStressFibreFail(self):
-        if self.sigma_1 > 0: #???
-            if self.sigma_1 / self.Rfpt >= 1:
-                self.failed = True
-                self.failuremode = "Tensile Fibre Failure"
-            if self.sigma_1 / -self.Rfpc >= 1:
-                self.failed = True
-                self.failuremode = "Compressive Fibre Failure"
+        if self.sigma_1 / self.Rfpt >= 1:
+            self.failuremode = "Tensile Fibre"
+        elif self.sigma_1 / -self.Rfpc >= 1:
+            self.failuremode = "Compressive Fibre"
+    
+    def maxStressInterFibreFail(self):
+        if self.sigma_2 / self.Rtt >= 1 or self.sigma_3 / self.Rtt >= 1:
+            self.failuremode = "Tensile Inter-Fibre"
+        elif self.sigma_2 / self.Rtc >= 1 or self.sigma_3 / self.Rtc >=1:
+            self.failuremode = "Compressive Inter-Fibre"
+            
+    def maxStressShearFail(self):
+        if self.tau_21 / self.Rls >= 1 or self.tau_31 / self.Rls >= 1:
+            self.failuremode = "Shear Parallel to Fibres"
+        elif self.tau_23 / self.Rts >= 1:
+            self.failuremode = "Shear Perpendicular to Fibres"
         
     def PuckFibreFail(self, sigma_2, gamma_21, epsilon1T, epsilon1C, epsilon1, m_sigmaf = 1.3):
         """Calculates the Puck failure of the fibres in the UD lamina
@@ -115,12 +124,12 @@ class Lamina:
             failurecriterion = 1/epsilon1T*(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)
             if failurecriterion >= 1:
                 self.failuremode = "FFT"
-                print(f"Ply failed at {sigma_2}: Tensile Fibre Failure")
+                #print(f"Ply failed at {sigma_2}: Tensile Fibre Failure")
         elif sigma_2 > 0:
             failurecriterion = 1/epsilon1C*(abs(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)) + 10*(gamma_21)**2
             if failurecriterion >= 1:
                 self.failuremode = "FFC"
-                print(f"Ply failed at {sigma_2}: Compressive Fibre Failure (Kinking)")
+                #print(f"Ply failed at {sigma_2}: Compressive Fibre Failure (Kinking)")
     
     def get_RAperpperp(self, S21, p_perppara_minus, Yc):
         """RA⊥⊥: Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing"""
@@ -167,7 +176,6 @@ class Lamina:
         else:
             # Something is funky
             warn("Something is wrong in IFF calculation")
-
 
 class Laminate:
     def __init__(self, plys, Nx=0, Ny=0, Ns=0, Mx=0, My=0, Ms=0, midplane = True):

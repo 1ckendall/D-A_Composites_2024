@@ -202,5 +202,27 @@ class Laminate:
         self.Gxyb = 12/(self.h**3 * self.dss)
         self.vxyb = -self.dxy/self.dxx
         self.vyxb = -self.dxy/self.dyy
+        
+    def getStressStrain(self):
+        # compute global strain (laminate level) on mid-plane
+        self.load = np.array([self.Nx, self.Ny, self.Ns, self.Mx, self.My, self.Ms]).T
+        self.strainMidplane = self.abd @ self.load # [e^0_x, e^0_y, e^0_s, kx, ky, ks]
+        self.globalstrainVector = np.zeros((3*self.n_plys))
+        self.globalstressVector = np.zeros((3*self.n_plys))
+        self.localstrainVector = np.zeros((3*self.n_plys))
+        self.localstressVector = np.zeros((3*self.n_plys))
+        
+        # compute loacal strain (lamina level)
+        for i in range(self.n_plys):
+            # global coordinate system (x,y)
+            self.globalstrainVector[i:i+3] = self.strainMidplane[:3] + 0.5*(self.z[i+1]-self.z[i])*self.strainMidplane[3:] # [ex, ey, es], computed on the midplane of each lamina
+            self.globalstressVector[i:i+3]  = self.plys[i].Qbarmat @ self.globalstrainVector[i:i+3]
+            
+            # local/principal coordinate system (1,2)
+            self.localstrainVector[i:i+3]  = self.plys[i].T @ self.globalstrainVector[i:i+3]
+            self.localstressVector[i:i+3]  = self.plys[i].T @ self.globalstressVector[i:i+3]
+            
+        return(self.localstrainVector, self.localstressVector)
+
 
     

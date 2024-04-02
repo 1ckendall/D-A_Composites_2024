@@ -102,16 +102,25 @@ plt.show()
 
 #Question  2 damage progression 
 anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
-stressinput = np.linspace(0,10000,100) 
-angleinput = np.radians(np.linspace(0,360,100))
+stressinputvector = np.linspace(0,10000,10) 
+angleinputvector = np.radians(np.linspace(0,360,10))
 plylist = []
 failuretracking = np.full(len(anglelist), True, dtype=bool)
 firstfailuremaxstress = []
 firstfailurePUCK =[]
 lastplyfailuremaxstress= []
 lastplypuck=[]
-firsfailureplyindex = [] 
-lastplyfailureplyindex=[]
-for i in angleinput: 
-  for j in stressinput: 
-      a=2
+
+for i in angleinputvector: 
+  for j in stressinputvector: 
+      m = np.cos(i)
+      n = np.sin(i)
+      stressloading = np.array([0,j,0])
+      print(i)
+      print(j)
+      stresstransformmatrix =np.array([[m**2, n**2,-2*m*n],
+                              [n**2,m**2,2*m*n],
+                                [-m*n,m*n,m**2-n**2]])
+      stressused = stresstransformmatrix @ stressloading
+      print(stressused)
+      

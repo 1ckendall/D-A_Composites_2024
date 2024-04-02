@@ -115,6 +115,12 @@ class Lamina:
     def get_RAperpperp(self, S21, p_perppara_minus, Yc):
         """RA⊥⊥: Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing"""
         return S21/2*p_perppara_minus*(np.sqrt(1+2*p_perppara_minus*Yc/S21)-1)
+    
+    def get_p_perpperp_minus(self, p_perppara_minus, RAperpperp, S21):
+        return p_perppara_minus*RAperpperp/S21
+    
+    def get_tau_21c(self, S21, p_perpperp_minus):
+        return S21*np.sqrt(1-2*p_perpperp_minus)
         
     def PuckIFF(self, sigma_2, sigma_1, sigma_1D, tau_21, tau_21c, S21, RAperpperp, p_perppara_plus, p_perppara_minus, p_perpperp_minus, Y_T, Y_C):
         if sigma_2 >= 0:

@@ -92,7 +92,7 @@ class Lamina:
         assert np.allclose(self.Qbarmat, Qbarmat)
         
     def maxStressFibreFail(self):
-        if self.sigma_1 > 0:
+        if self.sigma_1 > 0: #???
             if self.sigma_1 / self.Rfpt >= 1:
                 self.failed = True
                 self.failuremode = "Tensile Fibre Failure"
@@ -101,6 +101,16 @@ class Lamina:
                 self.failuremode = "Compressive Fibre Failure"
         
     def PuckFibreFail(self, sigma_2, gamma_21, epsilon1T, epsilon1C, epsilon1, m_sigmaf = 1.3):
+        """Calculates the Puck failure of the fibres in the UD lamina
+
+        Args:
+            sigma_2 (_type_): Stress across fibres
+            gamma_21 (_type_): Shear strain of the unidirectional layer
+            epsilon1T (_type_): Tensile failure strain of a unidirectional layer in x1 direction
+            epsilon1C (_type_): Compression failure strain of a unidirectional layer in x1 direction
+            epsilon1 (_type_): Strain in x1 direction
+            m_sigmaf (float, optional): _description_. Defaults to 1.3.
+        """
         if sigma_2 < 0:
             failurecriterion = 1/epsilon1T*(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)
             if failurecriterion >= 1:
@@ -123,6 +133,22 @@ class Lamina:
         return S21*np.sqrt(1-2*p_perpperp_minus)
         
     def PuckIFF(self, sigma_2, sigma_1, sigma_1D, tau_21, tau_21c, S21, RAperpperp, p_perppara_plus, p_perppara_minus, p_perpperp_minus, Y_T, Y_C):
+        """Calculates the Puck inter-fibre failure
+
+        Args:
+            sigma_2 (_type_): Stress across fibres
+            sigma_1 (_type_): Stress along fibres
+            sigma_1D (_type_): Stress value for linear degradation(sigma1D>0 for sigma1>0; sigma1D<0 for sigma1<0)
+            tau_21 (_type_): Shear stresses of a unidirectional layer
+            tau_21c (_type_): Shear stress at the `turning point' of the (sigma2, tau21) fracture curve
+            S21 (_type_): Shear strength of a unidirectional layer transverse and parallel to the fibre direction
+            RAperpperp (_type_): Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing
+            p_perppara_plus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n geq 0 at sigma_n=0
+            p_perppara_minus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n leq 0 at sigma_n=0
+            p_perpperp_minus (_type_): Slope of the sigma_n-tau_nt fracture envelope for sigma_n leq 0 at sigma_n=0
+            Y_T (_type_): Tensile strength of the unidirectional layer transverse to the fibre direction
+            Y_C (_type_): Compressive strength of the unidirectional layer transverse to the fibre direction
+        """
         if sigma_2 >= 0:
             # IFF A
             failurecriterion = np.sqrt((tau_21/S21)**2+(1+p_perppara_plus*Y_T/S21)**2*(sigma_2/Y_T)**2)+p_perppara_plus*sigma_2/S21+abs(sigma_1/sigma_1D)

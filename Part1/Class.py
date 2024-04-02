@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from pprint import pprint
-import warnings.warn as warn
+from warnings import warn
 
 class Lamina:
     def __init__(self, th, E1, E2, G12, v12, Xt, Xc, Yt, Yc, S, t,
@@ -108,8 +108,8 @@ class Lamina:
                 self.failuremode = "FFT"
                 print(f"Ply failed at {sigma_2}: Tensile Fibre Failure")
         elif sigma_2 > 0:
-            failurecriterion = 1/epsilon1T*(abs(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)) + 10(gamma_21)**2
-            if failurecriterion >= 1
+            failurecriterion = 1/epsilon1C*(abs(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)) + 10(gamma_21)**2
+            if failurecriterion >= 1:
                 self.failuremode = "FFC"
                 print(f"Ply failed at {sigma_2}: Compressive Fibre Failure (Kinking)")
     

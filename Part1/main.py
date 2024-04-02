@@ -6,18 +6,18 @@ from Class import Lamina, Laminate
 # plot controls (Booleans)
 plot_1a = False # plot 1a: engineering constants for laminae (default = True)
 
+
 # UD Lamina Mean Properties 
-E1 = 147E9# 145.3E9 # [Pa]
-E2 = 10.3E9#8.5E9 # [Pa]
-v12 = 0.27#0.31 # [--]
-G12 = 7e9#4.58E9 # [Pa]
+E1 = 145.3E9 # [Pa]
+E2 = 8.5E9 # [Pa]
+v12 = 0.31 # [--]
+G12 = 4.58E9 # [Pa]
 Xt = 1932E6 # [Pa]
 Yt = 108E6 # [Pa]
 Xc = 1480E6 # [Pa]
 Yc = 220E6 # [Pa]
 S = 132.8E6 # [Pa]
 t= 0.125E-3 # [m] # free variable, can be changed 
-
 # UD Lamina Std. Dev Properties 
 pass
 
@@ -160,7 +160,7 @@ Nx = 0.2E2 # [N/m]
 Ny = 1.8E4 # [N/m]
 Mx = 18E3 # [N]
 
-layup =  [0, 30, -30, 90] #[0, 0, 90, 30, 90]  #transverse symmetric: [90, 30, 90, 0, 0, 0, 0, 90, 30, 90] # symmetric: [0, 0, 90, 30, 90, 90, 30, 90, 0, 0]  # truncated: [0, 0, 90, 30, 90] 
+layup =  [0, 0, 90, 30, 90]  #verification (abd): [0, 30, -30, 90] ##transverse symmetric: [90, 30, 90, 0, 0, 0, 0, 90, 30, 90] # symmetric: [0, 0, 90, 30, 90, 90, 30, 90, 0, 0]  # truncated: [0, 0, 90, 30, 90] 
 plylist = []
 
 for angle in layup:
@@ -169,6 +169,9 @@ for angle in layup:
 Laminate = Laminate(plylist, Nx=Nx, Ny=Ny, Ns=0, Mx=Mx, My=0, Ms=0)
 lamina_strain, lamina_stress = Laminate.getStressStrain()
 print(f'Strain: {lamina_strain}\nStress: {lamina_stress}')
+
+
+
 # if __name__ == "__main__":
 #     print("Running Main")
 #     E1 = 140

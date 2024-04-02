@@ -181,10 +181,10 @@ class Laminate:
         self.Ass = self.A[2,2]
         self.Axy = self.A[0,1]
         
-        self.Dxx = self.D[0,0]
-        self.Dyy = self.D[1,1]
-        self.Dss = self.D[2,2]
-        self.Dxy = self.D[0,1]
+        self.dxx = self.abd[3,3]
+        self.dyy = self.abd[4,4]
+        self.dss = self.abd[5,5]
+        self.dxy = self.abd[3,4]
         
         self.A_const = self.Axx*self.Ayy - self.Axy*self.Axy
         self.h = np.max(self.z)-np.min(self.z)
@@ -197,10 +197,10 @@ class Laminate:
         self.vyx = self.Axy/self.Axx
         
         # flexural engineering constants
-        self.Exb = 12/(self.h**3 * self.Dxx)
-        self.Eyb = 12/(self.h**3 * self.Dyy)
-        self.Gxyb = 12/(self.h**3 * self.Dss)
-        self.vxyb = -self.Dxy/self.Dxx
-        self.vyxb = -self.Dxy/self.Dyy
+        self.Exb = 12/(self.h**3 * self.dxx)
+        self.Eyb = 12/(self.h**3 * self.dyy)
+        self.Gxyb = 12/(self.h**3 * self.dss)
+        self.vxyb = -self.dxy/self.dxx
+        self.vyxb = -self.dxy/self.dyy
 
     

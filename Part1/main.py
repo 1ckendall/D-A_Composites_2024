@@ -32,6 +32,12 @@ Gxy_arr = np.zeros((len(n_arr), len(theta_arr)))
 vxy_arr = np.zeros((len(n_arr), len(theta_arr)))
 vyx_arr = np.zeros((len(n_arr), len(theta_arr)))
 
+Exb_arr = np.zeros((len(n_arr), len(theta_arr)))
+Eyb_arr = np.zeros((len(n_arr), len(theta_arr)))
+Gxyb_arr = np.zeros((len(n_arr), len(theta_arr)))
+vxyb_arr = np.zeros((len(n_arr), len(theta_arr)))
+vyxb_arr = np.zeros((len(n_arr), len(theta_arr)))
+
 # simulation loop
 for i in range(len(n_arr)):
     for j in range(len(theta_arr)):
@@ -53,6 +59,13 @@ for i in range(len(n_arr)):
         Gxy_arr[i, j] = Laminate_ij.Gxy
         vxy_arr[i, j] = Laminate_ij.vxy
         vyx_arr[i, j] = Laminate_ij.vyx
+        
+        Exb_arr[i, j] = Laminate_ij.Exb
+        Eyb_arr[i, j] = Laminate_ij.Eyb
+        Gxyb_arr[i, j] = Laminate_ij.Gxyb
+        vxyb_arr[i, j] = Laminate_ij.vxyb
+        vyxb_arr[i, j] = Laminate_ij.vyxb
+
         
         
 fig, axes = plt.subplots(2, 2, figsize=(10, 8))

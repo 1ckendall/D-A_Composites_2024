@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.linalg as la
 from pprint import pprint
 from warnings import warn
 
@@ -92,22 +93,24 @@ class Lamina:
         assert np.allclose(self.Qbarmat, Qbarmat)
         
     def maxStressFibreFail(self):
-        if self.sigma_1 / self.Rfpt >= 1:
+        if self.sigma_1 / self.Xt >= 1:
             self.failuremode = "Tensile Fibre"
-        elif self.sigma_1 / -self.Rfpc >= 1:
+        elif self.sigma_1 / -self.Xc >= 1:
             self.failuremode = "Compressive Fibre"
     
     def maxStressInterFibreFail(self):
-        if self.sigma_2 / self.Rtt >= 1 or self.sigma_3 / self.Rtt >= 1:
+        if self.sigma_2 / self.Yt >= 1: #or self.sigma_3 / self.Rtt >= 1:
             self.failuremode = "Tensile Inter-Fibre"
-        elif self.sigma_2 / self.Rtc >= 1 or self.sigma_3 / self.Rtc >=1:
+        elif self.sigma_2 / -self.Yc >= 1 :#or self.sigma_3 / self.Rtc >=1
             self.failuremode = "Compressive Inter-Fibre"
             
     def maxStressShearFail(self):
-        if self.tau_21 / self.Rls >= 1 or self.tau_31 / self.Rls >= 1:
+        if self.tau_21 / self.S >= 1 : #or self.tau_31 / self.Rls >= 1:
             self.failuremode = "Shear Parallel to Fibres"
-        elif self.tau_23 / self.Rts >= 1:
-            self.failuremode = "Shear Perpendicular to Fibres"
+        elif self.tau_21 / -self.S >=1:  
+            self.failuremode = "Shear Parallel to Fibres" 
+        #elif self.tau_23 / self.Rts >= 1: 
+           # self.failuremode = "Shear Perpendicular to Fibres"
         
     def PuckFibreFail(self, sigma_2, gamma_21, epsilon1T, epsilon1C, epsilon1, m_sigmaf = 1.3):
         """Calculates the Puck failure of the fibres in the UD lamina
@@ -188,7 +191,7 @@ class Laminate:
         self.Ms = Ms
         self.midplane = midplane
         self.getABD()
-        self.abd = np.linalg.inv(self.ABD)
+        self.abd = la.inv(self.ABD)
         self.getEngineeringConst()
 
     def getABD(self):
@@ -196,6 +199,9 @@ class Laminate:
         self.A = np.zeros([3, 3])
         self.B = np.zeros([3, 3])
         self.D = np.zeros([3, 3])
+       
+        
+
         self.z = np.zeros(self.n_plys+1)
         
         # define the z-position of laminae. Datum = bottom 

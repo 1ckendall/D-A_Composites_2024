@@ -188,20 +188,20 @@ plylist = []
 for angle in layup:
     plylist.append(Lamina(angle,E1,E2,G12,v12,Xt,Xc,Yt,Yc,S,t))
 
-Laminate = Laminate(plylist, Nx=Nx, Ny=Ny, Ns=0, Mx=Mx, My=0, Ms=0)
+Laminate1 = Laminate(plylist, Nx=Nx, Ny=Ny, Ns=0, Mx=Mx, My=0, Ms=0)
 
-Laminate.getStressStrain()
+Laminate1.getStressStrain()
 
 
 if plot_1b:
     fig, axes = plt.subplots(2, 3, figsize=(15, 10))
     # fig.subplots_adjust(hspace=0.5)  # Adjust vertical spacing between subplots
     
-    y2plot = Laminate.z
+    y2plot = Laminate1.z
     
     # Plotting Strain along e11
-    x2plot = Laminate.e11
-    x2plot = np.append(x2plot, Laminate.e11[-1])
+    x2plot = Laminate1.e11
+    x2plot = np.append(x2plot, Laminate1.e11[-1])
     ax = axes[0, 0]
     ax.step(x2plot, y2plot, where='pre', color='red', linewidth=2)  
     ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='red', linewidth=2)  
@@ -211,19 +211,19 @@ if plot_1b:
     ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
     setscale = 0.2
     textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
-    for j in range(len(Laminate.plys)):
+    for j in range(len(Laminate1.plys)):
         text2plot = f'k={j + 1} '
-        textypos = Laminate.z_lamina_midplane[j]
+        textypos = Laminate1.z_lamina_midplane[j]
         ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
-    for z in Laminate.z[1:-1]:
+    for z in Laminate1.z[1:-1]:
         ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
     ax.set_xlabel(r'$\epsilon_{11}$ [-]')
     ax.set_ylabel('z [m]')
     
     
     # Plotting Strain along e22
-    x2plot = Laminate.e22
-    x2plot = np.append(x2plot, Laminate.e22[-1])
+    x2plot = Laminate1.e22
+    x2plot = np.append(x2plot, Laminate1.e22[-1])
     ax = axes[0, 1]
     ax.step(x2plot, y2plot, where='pre', color='red', linewidth=2)  
     ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='red', linewidth=2)  
@@ -232,11 +232,11 @@ if plot_1b:
     ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
     setscale = 0.2
     textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
-    for j in range(len(Laminate.plys)):
+    for j in range(len(Laminate1.plys)):
         text2plot = f'k={j + 1} '
-        textypos = Laminate.z_lamina_midplane[j]
+        textypos = Laminate1.z_lamina_midplane[j]
         ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
-    for z in Laminate.z[1:-1]:
+    for z in Laminate1.z[1:-1]:
         ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
     ax.set_xlabel(r'$\epsilon_{22}$ [-]')
     # ax.set_ylabel('z [m]')
@@ -244,8 +244,8 @@ if plot_1b:
     
     
     # Plotting Strain along e12
-    x2plot = Laminate.e12
-    x2plot = np.append(x2plot, Laminate.e12[-1])
+    x2plot = Laminate1.e12
+    x2plot = np.append(x2plot, Laminate1.e12[-1])
     ax = axes[0, 2]
     ax.step(x2plot, y2plot, where='pre', color='red', linewidth=2)  
     ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='red', linewidth=2)  
@@ -254,19 +254,19 @@ if plot_1b:
     ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
     setscale = 0.2
     textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
-    for j in range(len(Laminate.plys)):
+    for j in range(len(Laminate1.plys)):
         text2plot = f'k={j + 1} '
-        textypos = Laminate.z_lamina_midplane[j]
+        textypos = Laminate1.z_lamina_midplane[j]
         ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
-    for z in Laminate.z[1:-1]:
+    for z in Laminate1.z[1:-1]:
         ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
     ax.set_xlabel(r'$\epsilon_{12}$ []')
     # ax.set_ylabel('z [m]')
     ax.set_yticklabels([])
     
     # Plotting Stress along sigma11
-    x2plot = Laminate.sigma11
-    x2plot = np.append(x2plot, Laminate.sigma11[-1])
+    x2plot = Laminate1.sigma11
+    x2plot = np.append(x2plot, Laminate1.sigma11[-1])
     ax = axes[1, 0]
     ax.step(x2plot, y2plot, where='pre', color='blue', linewidth=2)  
     ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='blue', linewidth=2)  
@@ -275,19 +275,19 @@ if plot_1b:
     ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
     setscale = 0.2
     textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
-    for j in range(len(Laminate.plys)):
+    for j in range(len(Laminate1.plys)):
         text2plot = f'k={j + 1} '
-        textypos = Laminate.z_lamina_midplane[j]
+        textypos = Laminate1.z_lamina_midplane[j]
         ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
-    for z in Laminate.z[1:-1]:
+    for z in Laminate1.z[1:-1]:
         ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
     ax.set_xlabel(r'$\sigma_{11}$ [Pa]')
     ax.set_ylabel('z [m]')
     
     
     # Plotting Stress along sigma22
-    x2plot = Laminate.sigma22
-    x2plot = np.append(x2plot, Laminate.sigma22[-1])
+    x2plot = Laminate1.sigma22
+    x2plot = np.append(x2plot, Laminate1.sigma22[-1])
     ax = axes[1, 1]
     ax.step(x2plot, y2plot, where='pre', color='blue', linewidth=2)  
     ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='blue', linewidth=2)  
@@ -296,19 +296,19 @@ if plot_1b:
     ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
     setscale = 0.2
     textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
-    for j in range(len(Laminate.plys)):
+    for j in range(len(Laminate1.plys)):
         text2plot = f'k={j + 1} '
-        textypos = Laminate.z_lamina_midplane[j]
+        textypos = Laminate1.z_lamina_midplane[j]
         ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
-    for z in Laminate.z[1:-1]:
+    for z in Laminate1.z[1:-1]:
         ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
     ax.set_xlabel(r'$\sigma_{22}$ [Pa]')
     # ax.set_ylabel('z [m]')
     ax.set_yticklabels([])
     
     # Plotting Stress along sigma12
-    x2plot = Laminate.sigma12
-    x2plot = np.append(x2plot, Laminate.sigma12[-1])
+    x2plot = Laminate1.sigma12
+    x2plot = np.append(x2plot, Laminate1.sigma12[-1])
     ax = axes[1, 2]
     ax.step(x2plot, y2plot, where='pre', color='blue', linewidth=2)  
     ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='blue', linewidth=2)  
@@ -317,11 +317,11 @@ if plot_1b:
     ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
     setscale = 0.2
     textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
-    for j in range(len(Laminate.plys)):
+    for j in range(len(Laminate1.plys)):
         text2plot = f'k={j + 1} '
-        textypos = Laminate.z_lamina_midplane[j]
+        textypos = Laminate1.z_lamina_midplane[j]
         ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
-    for z in Laminate.z[1:-1]:
+    for z in Laminate1.z[1:-1]:
         ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
     ax.set_xlabel(r'$\sigma_{12}$ [Pa]')
     # ax.set_ylabel('z [m]')
@@ -355,17 +355,40 @@ if plot_1b:
 #     pprint(L.ABD)
 
 #Question  2 damage progression 
-anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
-stressinputvector = np.linspace(0,10000,10) 
-angleinputvector = np.radians(np.linspace(0,360,10))
-plylist = []
-failuretracking = np.full(len(anglelist), True, dtype=bool)
-firstfailuremaxstress = []
-firstfailurePUCK =[]
-lastplyfailuremaxstress= []
-lastplypuck=[]
+E1 = 145.3E9 # [Pa]
 
-for i in angleinputvector: 
+E2 = 8.5E9 # [Pa]
+v12 = 0.31 # [--]
+G12 = 4.58E9 # [Pa]
+Xt = 1932E9 # [Pa]
+Yt = 108E9 # [Pa]
+Xc = 1480E9 # [Pa]
+Yc = 220E9 # [Pa]
+S = 132.8E9 # [Pa]
+t= 0.125E-3 # [m] # free variable, can be changed 
+        
+anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
+stressinputvector = np.linspace(1000000,1000000000,1000) 
+angleinputvector = np.radians(np.linspace(0,0,1))
+
+
+
+failuretracking = np.zeros(len(anglelist))
+firstfailuremaxstress = np.empty((0,2),dtype=int)
+firstfailurePUCK =np.empty((0,2),dtype=int)
+lastplyfailuremaxstress=np.empty((0,2),dtype=int)
+lastplypuck=np.empty((0,2),dtype=int)
+
+for i in angleinputvector:
+  #initialiazing fresh lamina properties for new angle
+  plylist = []
+  E1 = np.full(len(anglelist),E1)
+  E2 = np.full(len(anglelist),E2)
+  v12 = np.full(len(anglelist),v12)
+  G12 = np.full(len(anglelist),G12)
+  firstplyfailureoccurence = False
+  lastplyfailureoccurence = False
+  failuretracking = np.zeros(len(anglelist))
   for j in stressinputvector: 
       m = np.cos(i)
       n = np.sin(i)
@@ -374,10 +397,81 @@ for i in angleinputvector:
                               [n**2,m**2,2*m*n],
                                 [-m*n,m*n,m**2-n**2]])
       stressused = stresstransformmatrix @ stressloading
-      for angle in plylist: 
-          plylist.append(Lamina(angle,E1,E2,G12,v12,Xt,Xc,Yt,Yc,S,t))
-      LaminaQ3 = Laminate(plylist)
-    
+      Nx= stressused[0]
+      Ny=stressused[1]
+      Ns=stressused[2]
+      for k in range(len(anglelist)): 
+          plylist.append(Lamina(anglelist[k],E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t))
+      LaminateQ3 = Laminate(plylist,Nx=Nx,Ny=Ny,Ns=Ns,Mx=0,My=0,Ms=0)
+      LaminateQ3.getStressStrain()
+      stressperlamina = LaminateQ3.localstressVector  
+      #checking for failure per lamina 
+      for k in range(len( anglelist)): 
+          laminaangle = anglelist[k]
+          Sigma1 = stressperlamina[3*k]
+          Sigma2 = stressperlamina[3*k+1]
+          tau21 = stressperlamina[3*k+2]
+          failurechecking  = Lamina(laminaangle,E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t,sigma_1=Sigma1,sigma_2=Sigma2,tau_21=tau21)
+          failurechecking.maxStressFibreFail() #fiber failure
+          failurechecking.maxStressInterFibreFail() #InterFiberfailure
+          failurechecking.maxStressShearFail() #Shearfailure
+          if failurechecking.failuremode == 'Tensile Fibre' or failurechecking.failuremode == 'Compressive' :
+              failuretracking[k] = 2
+              E1[k] = 1E-9 
+              E2[k]=1E-9
+              v12[k] =1E-9
+              G12[k]=1E-9
+          elif failurechecking.failuremode == 'Tensile Inter-Fibre' or failurechecking.failuremode=="Compressive Inter-Fibre" or failurechecking.failuremode ==  "Shear Parallel to Fibres":
+                failuretracking[k] +=1
+                E1[k] = 0.1*E1[k] 
+                E2[k]=1E-9
+                v12[k] =0.1*v12[k]
+                G12[k]=0.1*G12[k]
+
+          for firsplyfail in  failuretracking : 
+            if firsplyfail >= 2 and  not firstplyfailureoccurence: 
+                firstplyfailureoccurence = True
+                firstfailureload =np.array([[Ny,Ns]])
+                firstfailuremaxstress = np.append(firstfailuremaxstress,firstfailureload,axis=0)
+          for lastplyfail in failuretracking:
+           if all(lastplyfail >=2 for lastplyfail in failuretracking):
+               lastplyfailureoccurence = True 
+               lastplyfailureload =np.array([[Ny,Ns]])
+               lastplyfailuremaxstress = np.append(lastplyfailuremaxstress,lastplyfailureload,axis=0)
+
+           if failuretracking[k] >= 2 :
+             E1[k] = 1E-9 
+             E2[k]=1E-9
+             v12[k] =1E-9
+             G12[k]=1E-9
+
+
+      if lastplyfailureoccurence == True: 
+          break
+           
+            
+
+           
+          
+
+
+      
+              
+          
+print(failuretracking) 
+print(firstfailuremaxstress)
+print(lastplyfailuremaxstress)   
+          
+     
+
+
+
+
+      
+      
+
+
+
 
 
 

@@ -4,7 +4,11 @@ from pprint import pprint
 from Class import Lamina, Laminate
 
 # plot controls (Booleans)
-plot_1a = False # plot 1a: engineering constants for laminae (default = True)
+plot_1a = True # plot 1a: engineering constants for laminae (default = True)
+plot_1b = False # plot 1b: stress-strain (default = True)
+
+# savefig controls
+savefig = False # default = False
 
 
 # UD Lamina Mean Properties 
@@ -18,6 +22,8 @@ Xc = 1480E6 # [Pa]
 Yc = 220E6 # [Pa]
 S = 132.8E6 # [Pa]
 t= 0.125E-3 # [m] # free variable, can be changed 
+
+
 # UD Lamina Std. Dev Properties 
 pass
 
@@ -25,7 +31,7 @@ pass
 # Question 1a: Engineering Constants
 # Consider symmtric laminate [15, +theta, - theta, 75, 75]_ns
 
-n_arr = np.array((10,)) #,2,5,10)) # number of repetitions of symmetric laminate
+n_arr = np.array((1, 5, 10,)) #,2,5,10)) # number of repetitions of symmetric laminate
 theta_arr = np.arange(0,90,5) # theta variation in laminate
 
 # initialise engineering constants
@@ -79,18 +85,18 @@ if plot_1a:
             axes[0, 0].plot(theta_arr, Gxy_arr[i, :], color='green', label=r'$G_{xy}$')
             if np.allclose(Ex_arr[1:,:], Ex_arr[:-1,:]):
                 text2plot = 'n = ' + ','.join(map(str, n_arr))
-                axes[0, 0].text(60, 0.4*np.max(Ex_arr), text2plot)
+                axes[0, 0].text(60, 0.5*np.max(Ex_arr), text2plot, verticalalignment = 'top', color=(0, 0, 1))
             if np.allclose(Ey_arr[1:,:], Ey_arr[:-1,:]):
                 text2plot = 'n = ' + ','.join(map(str, n_arr))
-                axes[0, 0].text(60, 0.9*np.max(Ey_arr), text2plot)
+                axes[0, 0].text(60, 0.9*np.max(Ey_arr), text2plot,  verticalalignment = 'top', color=(1, 0, 0))
             if np.allclose(Gxy_arr[1:,:], Gxy_arr[:-1,:]):
                 text2plot = 'n = ' + ','.join(map(str, n_arr))
-                axes[0, 0].text(50, np.max(Gxy_arr), text2plot)
+                axes[0, 0].text(50, np.max(Gxy_arr), text2plot,  verticalalignment = 'bottom', color=(0, 0.5, 0))
         else:
             axes[0, 0].plot(theta_arr, Ex_arr[i, :], color='blue')
             axes[0, 0].plot(theta_arr, Ey_arr[i, :], color='red')
             axes[0, 0].plot(theta_arr, Gxy_arr[i, :], color='green')  
-    axes[0, 0].grid()
+    #axes[0, 0].grid()
     axes[0, 0].legend()
     axes[0, 0].set_title('Inplane Stiffness')
     axes[0, 0].set_xlabel(r'$\theta$ [deg]')
@@ -103,57 +109,73 @@ if plot_1a:
             axes[0, 1].plot(theta_arr, vyx_arr[i, :], color='blue', label=r'$\nu_{yx}$')
             if np.allclose(vxy_arr[1:,:], vxy_arr[:-1,:]):
                 text2plot = 'n = ' + ','.join(map(str, n_arr))
-                axes[0, 1].text(40, np.max(vxy_arr), text2plot)
+                axes[0, 1].text(40, 1.1*np.max(vxy_arr), text2plot, color=(1, 0, 0))
             if np.allclose(vyx_arr[1:,:], vyx_arr[:-1,:]):
                 text2plot = 'n = ' + ','.join(map(str, n_arr))
-                axes[0, 1].text(30, 0.9*np.max(vyx_arr), text2plot)
+                axes[0, 1].text(30, np.max(vyx_arr), text2plot, color=(0, 0, 1))
         else:
             axes[0, 1].plot(theta_arr, vxy_arr[i, :], color='red')
             axes[0, 1].plot(theta_arr, vyx_arr[i, :], color='blue')
-    axes[0, 1].grid()
+    #axes[0, 1].grid()
     axes[0, 1].legend()
     axes[0, 1].set_title('Inplane Poisson Ratio')
-    axes[0, 1].set_xlabel(r'$\theta [deg]$')
+    axes[0, 1].set_xlabel(r'$\theta$ [deg]')
     axes[0, 1].set_ylabel('[-]')
     
     # Plot 3: Flexural Engineering Stiffness
+    opacity_control = 0.3
+    valign_control = 0.05
     for i in range(len(n_arr)):
+        alpha = 1 - opacity_control*i
         if i == 0:
-            axes[1, 0].plot(theta_arr, Exb_arr[i, :], color='blue', label=r'$E_{xb}$')
-            axes[1, 0].plot(theta_arr, Eyb_arr[i, :], color='red', label=r'$E_{yb}$')
-            axes[1, 0].plot(theta_arr, Gxyb_arr[i, :], color='green', label=r'$G_{xyb}$')
+            axes[1, 0].plot(theta_arr, Exb_arr[i, :], alpha = alpha,color='blue', label=r'$E_{xb}$')
+            axes[1, 0].plot(theta_arr, Eyb_arr[i, :], alpha = alpha,color='red', label=r'$E_{yb}$')
+            axes[1, 0].plot(theta_arr, Gxyb_arr[i, :], alpha = alpha,color='green', label=r'$G_{xyb}$')
         else:
-            axes[1, 0].plot(theta_arr, Exb_arr[i, :], color='blue')
-            axes[1, 0].plot(theta_arr, Eyb_arr[i, :], color='red')
-            axes[1, 0].plot(theta_arr, Gxyb_arr[i, :], color='green')
+            axes[1, 0].plot(theta_arr, Exb_arr[i, :], alpha = alpha,color='blue')
+            axes[1, 0].plot(theta_arr, Eyb_arr[i, :], alpha = alpha, color='red')
+            axes[1, 0].plot(theta_arr, Gxyb_arr[i, :],alpha = alpha, color='green')
         text2plot = f'n = {n_arr[i]}'
-        axes[1, 0].text(theta_arr[np.argmax(Exb_arr[i, :])], np.max(Exb_arr[i, :]), text2plot)
-        axes[1, 0].text(theta_arr[np.argmax(Eyb_arr[i, :])], np.max(Eyb_arr[i, :]), text2plot)
-        axes[1, 0].text(theta_arr[np.argmax(Gxyb_arr[i, :])], np.max(Gxyb_arr[i, :]), text2plot)
-    axes[1, 0].grid()
+        if i == 0: # hacky formatting fix
+            axes[1, 0].text(theta_arr[np.argmax(Exb_arr[i, :])], 1.02*np.max(Exb_arr[i, :]), text2plot, verticalalignment = 'top', color=(0, 0, 1, alpha))
+        elif i == 1: 
+            axes[1, 0].text(theta_arr[np.argmax(Exb_arr[i, :])], 1.05*np.max(Exb_arr[i, :]), text2plot,verticalalignment = 'top', color=(0, 0, 1, alpha))
+        else: 
+            axes[1, 0].text(theta_arr[np.argmax(Exb_arr[i, :])], 0.9*np.max(Exb_arr[i, :]), text2plot,verticalalignment = 'bottom', color=(0, 0, 1, alpha))
+        axes[1, 0].text(theta_arr[np.argmax(Eyb_arr[i, :])], (0.9+valign_control*i)*np.max(Eyb_arr[i, :]), text2plot, color=(1, 0, 0, alpha))
+        axes[1, 0].text(theta_arr[np.argmax(Gxyb_arr[i, :])], (0.8+2*valign_control*i)*np.max(Gxyb_arr[i, :]), text2plot, color=(0, 0.5, 0, alpha), fontsize = 9)
+    #axes[1, 0].grid()
     axes[1, 0].legend()
     axes[1, 0].set_title('Flexural Stiffness')
-    axes[1, 0].set_xlabel(r'$\theta [deg]$')
+    axes[1, 0].set_xlabel(r'$\theta$ [deg]')
     axes[1, 0].set_ylabel('[Pa]')
     
     # Plot 4: Flexural Engineering Poisson Ratio
     for i in range(len(n_arr)):
+        alpha = 1 - opacity_control*i
         if i == 0:
-            axes[1, 1].plot(theta_arr, vxyb_arr[i, :], color='red', label=r'$\nu_{xyb}$')
-            axes[1, 1].plot(theta_arr, vyxb_arr[i, :], color='blue', label=r'$\nu_{yxb}$')
+            axes[1, 1].plot(theta_arr, vxyb_arr[i, :], alpha = alpha, color='red', label=r'$\nu_{xyb}$')
+            axes[1, 1].plot(theta_arr, vyxb_arr[i, :], alpha = alpha, color='blue', label=r'$\nu_{yxb}$')
         else:
-            axes[1, 1].plot(theta_arr, vxyb_arr[i, :], color='red')
-            axes[1, 1].plot(theta_arr, vyxb_arr[i, :], color='blue')
+            axes[1, 1].plot(theta_arr, vxyb_arr[i, :],  alpha = alpha,color='red')
+            axes[1, 1].plot(theta_arr, vyxb_arr[i, :],  alpha = alpha,color='blue')
         text2plot = f'n = {n_arr[i]}'
-        axes[1, 1].text(theta_arr[np.argmax(vxyb_arr[i, :])], np.max(vxyb_arr[i, :]), text2plot)
-        axes[1, 1].text(theta_arr[np.argmax(vyxb_arr[i, :])], np.max(vyxb_arr[i, :]), text2plot)
-    axes[1, 1].grid()
+        if i != 2: # hacky formatting fix
+            axes[1, 1].text(theta_arr[np.argmax(vxyb_arr[i, :])], np.max(vxyb_arr[i, :]), text2plot, color=(1, 0, 0, alpha), fontsize = 8)
+        else:
+            axes[1, 1].text(theta_arr[np.argmin(vxyb_arr[i, :])], 0.85*np.min(vxyb_arr[i, :]), text2plot, color=(1, 0, 0, alpha), verticalalignment = 'bottom', fontsize = 8)
+
+        axes[1, 1].text(theta_arr[np.argmax(vyxb_arr[i, :])], np.max(vyxb_arr[i, :]), text2plot, color=(0, 0, 1, alpha), fontsize = 8)
+    #axes[1, 1].grid()
     axes[1, 1].legend()
     axes[1, 1].set_title('Flexural Poisson Ratio')
-    axes[1, 1].set_xlabel(r'$\theta [deg]$')
+    axes[1, 1].set_xlabel(r'$\theta$ [deg]')
     axes[1, 1].set_ylabel('[-]')
     plt.tight_layout()
     plt.show()
+    
+    if savefig:
+        plt.savefig('1a_Engineering_Constants_v1.png', dpi=500)
 
 # Question 1b: Lamina Stress and Strain
 Nx = 0.2E2 # [N/m]
@@ -166,10 +188,151 @@ plylist = []
 for angle in layup:
     plylist.append(Lamina(angle,E1,E2,G12,v12,Xt,Xc,Yt,Yc,S,t))
 
-Laminate = Laminate(plylist, Nx=Nx, Ny=Ny, Ns=0, Mx=Mx, My=0, Ms=0)
-lamina_strain, lamina_stress = Laminate.getStressStrain()
-print(f'Strain: {lamina_strain}\nStress: {lamina_stress}')
+Laminate1 = Laminate(plylist, Nx=Nx, Ny=Ny, Ns=0, Mx=Mx, My=0, Ms=0)
 
+Laminate1.getStressStrain()
+
+
+if plot_1b:
+    fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+    # fig.subplots_adjust(hspace=0.5)  # Adjust vertical spacing between subplots
+    
+    y2plot = Laminate1.z
+    
+    # Plotting Strain along e11
+    x2plot = Laminate1.e11
+    x2plot = np.append(x2plot, Laminate1.e11[-1])
+    ax = axes[0, 0]
+    ax.step(x2plot, y2plot, where='pre', color='red', linewidth=2)  
+    ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='red', linewidth=2)  
+    ax.plot((x2plot[-1], 0), (y2plot[-1], y2plot[-1]), color='red', linewidth=2)  
+    ax.plot((0, 0), (y2plot[0], y2plot[-1]), color='black')  
+    ax.plot((0, 0), (y2plot[0], y2plot[-1]), color='black')  # Adjusted for midplane
+    ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
+    setscale = 0.2
+    textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
+    for j in range(len(Laminate1.plys)):
+        text2plot = f'k={j + 1} '
+        textypos = Laminate1.z_lamina_midplane[j]
+        ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
+    for z in Laminate1.z[1:-1]:
+        ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
+    ax.set_xlabel(r'$\epsilon_{11}$ [-]')
+    ax.set_ylabel('z [m]')
+    
+    
+    # Plotting Strain along e22
+    x2plot = Laminate1.e22
+    x2plot = np.append(x2plot, Laminate1.e22[-1])
+    ax = axes[0, 1]
+    ax.step(x2plot, y2plot, where='pre', color='red', linewidth=2)  
+    ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='red', linewidth=2)  
+    ax.plot((x2plot[-1], 0), (y2plot[-1], y2plot[-1]), color='red', linewidth=2)  
+    ax.plot((0, 0), (y2plot[0], y2plot[-1]), color='black')  # Adjusted for midplane
+    ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
+    setscale = 0.2
+    textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
+    for j in range(len(Laminate1.plys)):
+        text2plot = f'k={j + 1} '
+        textypos = Laminate1.z_lamina_midplane[j]
+        ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
+    for z in Laminate1.z[1:-1]:
+        ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
+    ax.set_xlabel(r'$\epsilon_{22}$ [-]')
+    # ax.set_ylabel('z [m]')
+    ax.set_yticklabels([])
+    
+    
+    # Plotting Strain along e12
+    x2plot = Laminate1.e12
+    x2plot = np.append(x2plot, Laminate1.e12[-1])
+    ax = axes[0, 2]
+    ax.step(x2plot, y2plot, where='pre', color='red', linewidth=2)  
+    ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='red', linewidth=2)  
+    ax.plot((x2plot[-1], 0), (y2plot[-1], y2plot[-1]), color='red', linewidth=2)  
+    ax.plot((0, 0), (y2plot[0], y2plot[-1]), color='black')  # Adjusted for midplane
+    ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
+    setscale = 0.2
+    textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
+    for j in range(len(Laminate1.plys)):
+        text2plot = f'k={j + 1} '
+        textypos = Laminate1.z_lamina_midplane[j]
+        ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
+    for z in Laminate1.z[1:-1]:
+        ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
+    ax.set_xlabel(r'$\epsilon_{12}$ []')
+    # ax.set_ylabel('z [m]')
+    ax.set_yticklabels([])
+    
+    # Plotting Stress along sigma11
+    x2plot = Laminate1.sigma11
+    x2plot = np.append(x2plot, Laminate1.sigma11[-1])
+    ax = axes[1, 0]
+    ax.step(x2plot, y2plot, where='pre', color='blue', linewidth=2)  
+    ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='blue', linewidth=2)  
+    ax.plot((x2plot[-1], 0), (y2plot[-1], y2plot[-1]), color='blue', linewidth=2)  
+    ax.plot((0, 0), (y2plot[0], y2plot[-1]), color='black')  # Adjusted for midplane
+    ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
+    setscale = 0.2
+    textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
+    for j in range(len(Laminate1.plys)):
+        text2plot = f'k={j + 1} '
+        textypos = Laminate1.z_lamina_midplane[j]
+        ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
+    for z in Laminate1.z[1:-1]:
+        ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
+    ax.set_xlabel(r'$\sigma_{11}$ [Pa]')
+    ax.set_ylabel('z [m]')
+    
+    
+    # Plotting Stress along sigma22
+    x2plot = Laminate1.sigma22
+    x2plot = np.append(x2plot, Laminate1.sigma22[-1])
+    ax = axes[1, 1]
+    ax.step(x2plot, y2plot, where='pre', color='blue', linewidth=2)  
+    ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='blue', linewidth=2)  
+    ax.plot((x2plot[-1], 0), (y2plot[-1], y2plot[-1]), color='blue', linewidth=2)  
+    ax.plot((0, 0), (y2plot[0], y2plot[-1]), color='black')  # Adjusted for midplane
+    ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
+    setscale = 0.2
+    textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
+    for j in range(len(Laminate1.plys)):
+        text2plot = f'k={j + 1} '
+        textypos = Laminate1.z_lamina_midplane[j]
+        ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
+    for z in Laminate1.z[1:-1]:
+        ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
+    ax.set_xlabel(r'$\sigma_{22}$ [Pa]')
+    # ax.set_ylabel('z [m]')
+    ax.set_yticklabels([])
+    
+    # Plotting Stress along sigma12
+    x2plot = Laminate1.sigma12
+    x2plot = np.append(x2plot, Laminate1.sigma12[-1])
+    ax = axes[1, 2]
+    ax.step(x2plot, y2plot, where='pre', color='blue', linewidth=2)  
+    ax.plot((x2plot[0], 0), (y2plot[0], y2plot[0]), color='blue', linewidth=2)  
+    ax.plot((x2plot[-1], 0), (y2plot[-1], y2plot[-1]), color='blue', linewidth=2)  
+    ax.plot((0, 0), (y2plot[0], y2plot[-1]), color='black')  # Adjusted for midplane
+    ax.plot((np.min(x2plot), np.max(x2plot)), (0, 0), color='black')
+    setscale = 0.2
+    textxpos = np.min(x2plot) + (np.max(x2plot)-np.min(x2plot))*setscale
+    for j in range(len(Laminate1.plys)):
+        text2plot = f'k={j + 1} '
+        textypos = Laminate1.z_lamina_midplane[j]
+        ax.text(textxpos, textypos, text2plot, verticalalignment='bottom', horizontalalignment='right')
+    for z in Laminate1.z[1:-1]:
+        ax.plot((np.min(x2plot), np.max(x2plot)), (z, z), color='black', linestyle='--', linewidth = 1)
+    ax.set_xlabel(r'$\sigma_{12}$ [Pa]')
+    # ax.set_ylabel('z [m]')
+    ax.set_yticklabels([])
+    
+    plt.tight_layout()
+    plt.show()
+    
+
+    if savefig:
+        plt.savefig('1b_stress_strain_v2.png', dpi=500)
 
 
 # if __name__ == "__main__":
@@ -192,17 +355,40 @@ print(f'Strain: {lamina_strain}\nStress: {lamina_stress}')
 #     pprint(L.ABD)
 
 #Question  2 damage progression 
-anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
-stressinputvector = np.linspace(0,10000,10) 
-angleinputvector = np.radians(np.linspace(0,360,10))
-plylist = []
-failuretracking = np.full(len(anglelist), True, dtype=bool)
-firstfailuremaxstress = []
-firstfailurePUCK =[]
-lastplyfailuremaxstress= []
-lastplypuck=[]
+E1 = 145.3E9 # [Pa]
 
-for i in angleinputvector: 
+E2 = 8.5E9 # [Pa]
+v12 = 0.31 # [--]
+G12 = 4.58E9 # [Pa]
+Xt = 1932E9 # [Pa]
+Yt = 108E9 # [Pa]
+Xc = 1480E9 # [Pa]
+Yc = 220E9 # [Pa]
+S = 132.8E9 # [Pa]
+t= 0.125E-3 # [m] # free variable, can be changed 
+        
+anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
+stressinputvector = np.linspace(1000000,1000000000,1000) 
+angleinputvector = np.radians(np.linspace(0,0,1))
+
+
+
+failuretracking = np.zeros(len(anglelist))
+firstfailuremaxstress = np.empty((0,2),dtype=int)
+firstfailurePUCK =np.empty((0,2),dtype=int)
+lastplyfailuremaxstress=np.empty((0,2),dtype=int)
+lastplypuck=np.empty((0,2),dtype=int)
+
+for i in angleinputvector:
+  #initialiazing fresh lamina properties for new angle
+  plylist = []
+  E1 = np.full(len(anglelist),E1)
+  E2 = np.full(len(anglelist),E2)
+  v12 = np.full(len(anglelist),v12)
+  G12 = np.full(len(anglelist),G12)
+  firstplyfailureoccurence = False
+  lastplyfailureoccurence = False
+  failuretracking = np.zeros(len(anglelist))
   for j in stressinputvector: 
       m = np.cos(i)
       n = np.sin(i)
@@ -211,10 +397,81 @@ for i in angleinputvector:
                               [n**2,m**2,2*m*n],
                                 [-m*n,m*n,m**2-n**2]])
       stressused = stresstransformmatrix @ stressloading
-      for angle in plylist: 
-          plylist.append(Lamina(angle,E1,E2,G12,v12,Xt,Xc,Yt,Yc,S,t))
-      LaminaQ3 = Laminate(plylist)
-    
+      Nx= stressused[0]
+      Ny=stressused[1]
+      Ns=stressused[2]
+      for k in range(len(anglelist)): 
+          plylist.append(Lamina(anglelist[k],E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t))
+      LaminateQ3 = Laminate(plylist,Nx=Nx,Ny=Ny,Ns=Ns,Mx=0,My=0,Ms=0)
+      LaminateQ3.getStressStrain()
+      stressperlamina = LaminateQ3.localstressVector  
+      #checking for failure per lamina 
+      for k in range(len( anglelist)): 
+          laminaangle = anglelist[k]
+          Sigma1 = stressperlamina[3*k]
+          Sigma2 = stressperlamina[3*k+1]
+          tau21 = stressperlamina[3*k+2]
+          failurechecking  = Lamina(laminaangle,E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t,sigma_1=Sigma1,sigma_2=Sigma2,tau_21=tau21)
+          failurechecking.maxStressFibreFail() #fiber failure
+          failurechecking.maxStressInterFibreFail() #InterFiberfailure
+          failurechecking.maxStressShearFail() #Shearfailure
+          if failurechecking.failuremode == 'Tensile Fibre' or failurechecking.failuremode == 'Compressive' :
+              failuretracking[k] = 2
+              E1[k] = 1E-9 
+              E2[k]=1E-9
+              v12[k] =1E-9
+              G12[k]=1E-9
+          elif failurechecking.failuremode == 'Tensile Inter-Fibre' or failurechecking.failuremode=="Compressive Inter-Fibre" or failurechecking.failuremode ==  "Shear Parallel to Fibres":
+                failuretracking[k] +=1
+                E1[k] = 0.1*E1[k] 
+                E2[k]=1E-9
+                v12[k] =0.1*v12[k]
+                G12[k]=0.1*G12[k]
+
+          for firsplyfail in  failuretracking : 
+            if firsplyfail >= 2 and  not firstplyfailureoccurence: 
+                firstplyfailureoccurence = True
+                firstfailureload =np.array([[Ny,Ns]])
+                firstfailuremaxstress = np.append(firstfailuremaxstress,firstfailureload,axis=0)
+          for lastplyfail in failuretracking:
+           if all(lastplyfail >=2 for lastplyfail in failuretracking):
+               lastplyfailureoccurence = True 
+               lastplyfailureload =np.array([[Ny,Ns]])
+               lastplyfailuremaxstress = np.append(lastplyfailuremaxstress,lastplyfailureload,axis=0)
+
+           if failuretracking[k] >= 2 :
+             E1[k] = 1E-9 
+             E2[k]=1E-9
+             v12[k] =1E-9
+             G12[k]=1E-9
+
+
+      if lastplyfailureoccurence == True: 
+          break
+           
+            
+
+           
+          
+
+
+      
+              
+          
+print(failuretracking) 
+print(firstfailuremaxstress)
+print(lastplyfailuremaxstress)   
+          
+     
+
+
+
+
+      
+      
+
+
+
 
 
 

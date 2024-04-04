@@ -68,13 +68,14 @@ UD_std = np.array((E1_std, E2_std, v12_std, G12_std, Xt_std, Yt_std, Xc_std, Yc_
 # Question 3: Reliability Analysis
 
 layup =  [0, 90, +45, -45, - 45, + 45, 90, 0, 0, 90, +45, -45, - 45, + 45, 90, 0] # laminate [0/90/±45]_2s
-N_load = 850 # 1250 [N], applied load
+N_load = 850000000 # 1250 [N], applied load
 theta = 30 # [deg], inclination of the load vector w.r.t. x-axis
 Nx = N_load * np.cos(np.radians(theta)) # [N]
 Ny = N_load * np.cos(np.radians(theta)) # [N]
 
 n_vars = len(UD_mean) # number of independent, Gaussian random variables 
 iterations = 100 # 1E8 Monte Carlo: number of rounds of simulations (R)
+N_max = 10 # maximum number of simulations per round (N)
 Pf_arr = np.zeros((n_vars, iterations)) # array for probabability of failure, registered for each round of simulations and for every random variable
 
 
@@ -90,7 +91,7 @@ for i in range(0, 1): # testing (only treat E1 as random variable)
         firstplyfailureoccurence = False
         N = 0
         # determine number of simulations (N) needed for failure 
-        while not firstplyfailureoccurence:
+        while not firstplyfailureoccurence and N < (N_max):
             N += 1
             loop_counter += 1
             # sample random variable from CDF
@@ -102,21 +103,39 @@ for i in range(0, 1): # testing (only treat E1 as random variable)
                 # plylist_ijk.append(Lamina(angle,E1,E2,G12,v12,Xt,Xc,Yt,Yc,S,t))
                 plylist_ijk.append(Lamina(angle, *UD))
             Laminate_ijk = Laminate(plylist_ijk)
+            
             Laminate_ijk.getStressStrain()
-
-            # Puck failure criterion. Output: update boolean 'firstplyfailureoccurence'
-
-            for firsplyfail in  failuretracking : 
-              if firsplyfail >= 2 and  not firstplyfailureoccurence: 
-                  firstplyfailureoccurence = True
             
-            
-            if N == 10:
-                firstplyfailureoccurence = True
+            # checking for failure per lamina. Output: update boolean 'firstplyfailureoccurence'
+            for idx, ply in enumerate(plylist_ijk):
+                # assign computed stresses as lamina attributes
+                ply.sigma_1 = Laminate_ijk.sigma11[idx]
+                ply.sigma_2 = Laminate_ijk.sigma22[idx]
+                ply.tau_21 =Laminate_ijk.sigma12[idx]
+                
+                # Maximum stress failure criterion (Placeholder)
+                ply.maxStressFibreFail() #fiber failure
+                ply.maxStressInterFibreFail() #InterFiberfailure
+                ply.maxStressShearFail() #Shearfailure
+                    
+                
+                  # Puck failure criterion
+            #     ply.PuckFibreFail(sigma_2, gamma_21, epsilon1T, epsilon1C, epsilon1)
+            #     RAperpperp = ply.get_RAperpperp(S21, p_perppara_minus, Yc)
+            #     p_perpperp_minus = ply.get_p_perpperp_minus(p_perppara_minus, RAperpperp, S21)
+            #     tau_21c = ply.get_tau_21c(S21, p_perpperp_minus)
+            #     ply.PuckIFF(sigma_2, sigma_1, sigma_1D, tau_21, tau_21c, S21, RAperpperp, p_perppara_plus, p_perppara_minus, p_perpperp_minus, Y_T, Y_C)
+           
+   
+                # FPF Condition (any failure is considered FPF)
+                if ply.failuremode == 'Tensile Fibre' or ply.failuremode == 'Compressive' or ply.failuremode == 'Tensile Inter-Fibre' or ply.failuremode=="Compressive Inter-Fibre" or ply.failuremode ==  "Shear Parallel to Fibres":
+                # if ply.failuremode is not None:    
+                    firstplyfailureoccurence = True
+                    Pf_arr[i,j] = 1/N
             print(f'loop count: {loop_counter}, i = {i}, j = {j}, k = {N} ')
-        Pf_arr[i,j] = 1/N
-        
-        
+
+Pf = np.average(Pf_arr)
+print(f'\nLoad: {N_load}[N] => Probability of Failure: {Pf}')
     
 
 

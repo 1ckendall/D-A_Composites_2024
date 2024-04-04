@@ -268,7 +268,7 @@ class Laminate:
         # compute global strain (laminate level) on mid-plane
         self.load = np.array([self.Nx, self.Ny, self.Ns, self.Mx, self.My, self.Ms]) #.reshape(-1,1)
         #self.strainMidplane = self.abd @ self.load # [e^0_x, e^0_y, e^0_s, kx, ky, ks]
-        self.strainMidplane = np.linalg.solve(self.ABD.astype('float64'), self.load)
+        self.strainMidplane = self.load @ self.abd
         # print(f'Dxx,: {self.ABD}, Dyy: {self.Dyy}, Dss: {self.Dss}')
         # print(f'D: {self.D}') # TOO SMALL
         self.globalstrainVector = np.zeros((3*self.n_plys))
@@ -350,6 +350,5 @@ class Laminate:
     #     print(f'globalstrainVector: {self.globalstrainVector} \n globalstressVector: {self.globalstressVector} ')
     
     #     return(self.localstrainVector, self.localstressVector)
-    
 
-    
+        

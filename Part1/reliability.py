@@ -74,7 +74,7 @@ Nx = N_load * np.cos(np.radians(theta)) # [N]
 Ny = N_load * np.cos(np.radians(theta)) # [N]
 
 n_vars = len(UD_mean) # number of independent, Gaussian random variables 
-iterations = 1000 # 1E8 Monte Carlo: number of rounds of simulations (R)
+iterations = 100 # 1E8 Monte Carlo: number of rounds of simulations (R)
 Pf_arr = np.zeros((n_vars, iterations)) # array for probabability of failure, registered for each round of simulations and for every random variable
 
 
@@ -87,10 +87,12 @@ for i in range(0, 1): # testing (only treat E1 as random variable)
     samples, cdf = generate_cdf(mean = UD_mean[i], std_dev = UD_std[i])#, num_points = iterations)
     # loop through rounds of simulations (R)
     for j in range(iterations): 
-        failed = False
-        N = 0 
+        firstplyfailureoccurence = False
+        N = 0
         # determine number of simulations (N) needed for failure 
-        while not failed:
+        while not firstplyfailureoccurence:
+            N += 1
+            loop_counter += 1
             # sample random variable from CDF
             sample = inverse_transform_sampling(samples, cdf, num_points=1) #TODO: optimise this (it is in the third layer of the loop) eg: use scipy, or static inline
             UD[i] = sample 
@@ -100,12 +102,18 @@ for i in range(0, 1): # testing (only treat E1 as random variable)
                 # plylist_ijk.append(Lamina(angle,E1,E2,G12,v12,Xt,Xc,Yt,Yc,S,t))
                 plylist_ijk.append(Lamina(angle, *UD))
             Laminate_ijk = Laminate(plylist_ijk)
-            pass # Puck failure criterion. Output: update boolean 'Failed'
+            Laminate_ijk.getStressStrain()
+
+            # Puck failure criterion. Output: update boolean 'firstplyfailureoccurence'
+
+            for firsplyfail in  failuretracking : 
+              if firsplyfail >= 2 and  not firstplyfailureoccurence: 
+                  firstplyfailureoccurence = True
+            
+            
             if N == 10:
-                failed = True
+                firstplyfailureoccurence = True
             print(f'loop count: {loop_counter}, i = {i}, j = {j}, k = {N} ')
-            N += 1
-            loop_counter += 1
         Pf_arr[i,j] = 1/N
         
         

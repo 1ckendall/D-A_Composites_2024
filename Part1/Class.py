@@ -181,8 +181,7 @@ class Lamina:
             warn("Something is wrong in IFF calculation")
 
 class Laminate:
-    def __init__(self, plys, Nx=0, Ny=0, Ns=0, Mx=0, My=0, Ms=0, midplane = True,Loadangle=0):
-        self.Loadangle = np.radians(Loadangle)
+    def __init__(self, plys, Nx=0, Ny=0, Ns=0, Mx=0, My=0, Ms=0, midplane = True, Loadangle = 0):
         self.plys = plys
         self.Nx = Nx
         self.Ny = Ny
@@ -194,6 +193,12 @@ class Laminate:
         self.getABD()
         self.abd = np.linalg.inv(self.ABD)
         self.getEngineeringConst()
+        
+        self.Loadangle = np.radians(Loadangle)
+        # angle of loadvector (degrees,
+        # converted to radians for internal maths)
+        self.m_Loadangle = np.cos(self.Loadangle)
+        self.n_Loadangle = np.sin(self.Loadangle) 
 
     def getABD(self):
         self.n_plys = len(self.plys)
@@ -274,9 +279,7 @@ class Laminate:
     def getStressStrain(self):
         # compute global strain (laminate level) on mid-plane
         self.load = np.array([self.Nx, self.Ny, self.Ns, self.Mx, self.My, self.Ms]) #.reshape(-1,1)
-        self.sigmax = self.Nx / self.h
-        self.sigmay = self.Ny / self.h 
-        self.sigmas = self.Ns / self.h 
+
         # self.strainMidplane = self.abd @ self.load # [e^0_x, e^0_y, e^0_s, kx, ky, ks]
         self.strainMidplane = np.linalg.solve(self.ABD.astype('float64'), self.load.astype('float64'))
         self.globalstrainVector = np.zeros((3*self.n_plys))
@@ -304,7 +307,51 @@ class Laminate:
         self.sigma11 = self.localstressVector[0::3]
         self.sigma22 = self.localstressVector[1::3]
         self.sigma12 = self.localstressVector[2::3]
-    def getstressstrainQ2 (self):
-                
-
         
+    def getstressstrainEnvelope(self): 
+        # compute global strain (laminate level) on mid-plane
+        self.load = np.array([self.Nx, self.Ny, self.Ns, self.Mx, self.My, self.Ms]) #.reshape(-1,1)
+        self.sigmax = self.Nx / self.h
+        self.sigmay = self.Ny / self.h 
+        self.sigmas = self.Ns / self.h 
+        self.sigma = np.array([self.sigmax, self.sigmay, self.sigmas]).reshape(-1,1)
+        
+        self.Sbarmat = np.linalg.inv(self.A) * self.h
+        
+        # obtain transformation matrix (T) as a function of loadangle (phi)
+        self.T_loadangle = np.matrix([[self.m_Loadangle**2, self.n_Loadangle**2, 2*self.m_Loadangle*self.n_Loadangle],
+                            [self.n_Loadangle**2, self.m_Loadangle**2, -2*self.m_Loadangle*self.n_Loadangle],
+                            [-self.m_Loadangle*self.n_Loadangle, self.m_Loadangle*self.n_Loadangle, self.m_Loadangle**2-self.n_Loadangle**2]])
+        
+        self.sigmaprime = self.Tphi @ self.sigma
+        self.sigmaxprime = self.sigmaprime[0]
+        self.sigmaxprime = self.sigmaprime[1]
+        self.sigmaxprime = self.sigmaprime[2]
+        
+        self.strainMidplane = self.Sbarmat @ self.sigmaprime
+        
+        self.globalstrainVector = np.zeros((3*self.n_plys))
+        self.globalstressVector = np.zeros((3*self.n_plys))
+        self.localstrainVector = np.zeros((3*self.n_plys))
+        self.localstressVector = np.zeros((3*self.n_plys))
+        self.z_lamina_midplane = np.zeros(self.n_plys)
+      
+        # compute loacal strain (lamina level)
+        for i in range(self.n_plys):
+            self.z_lamina_midplane[i] = 0.5*(self.z[i+1]+self.z[i]) # z-values from laminate datum (ie: laminate midplane) to laminas' datums (ie: lamina midplane)
+            
+            # global coordinate system (x,y)
+            self.globalstrainVector[3*i:3*(i+1)] = self.strainMidplane[:3] + self.z_lamina_midplane[i]*self.strainMidplane[3:] # [ex, ey, es], computed on the midplane of each lamina
+            self.globalstressVector[3*i:3*(i+1)]  = self.plys[i].Qbarmat @ self.globalstrainVector[3*i:3*(i+1)]
+            
+            # local/principal coordinate system (1,2)
+            self.localstrainVector[3*i:3*(i+1)]  = self.plys[i].T @ self.globalstrainVector[3*i:3*(i+1)]
+            self.localstressVector[3*i:3*(i+1)]  = self.plys[i].T @ self.globalstressVector[3*i:3*(i+1)]
+            
+        self.e11 = self.localstrainVector[0::3]
+        self.e22 = self.localstrainVector[1::3]
+        self.e12 = self.localstrainVector[2::3]
+        
+        self.sigma11 = self.localstressVector[0::3]
+        self.sigma22 = self.localstressVector[1::3]
+        self.sigma12 = self.localstressVector[2::3]

@@ -315,6 +315,7 @@ class Laminate:
         self.sigmay = self.Ny / self.h 
         self.sigmas = self.Ns / self.h 
         self.sigma = np.array([self.sigmax, self.sigmay, self.sigmas]).reshape(-1,1)
+       
         
         self.Sbarmat = np.linalg.inv(self.A) * self.h
         
@@ -323,7 +324,7 @@ class Laminate:
                             [self.n_Loadangle**2, self.m_Loadangle**2, -2*self.m_Loadangle*self.n_Loadangle],
                             [-self.m_Loadangle*self.n_Loadangle, self.m_Loadangle*self.n_Loadangle, self.m_Loadangle**2-self.n_Loadangle**2]])
         
-        self.sigmaprime = self.Tphi @ self.sigma
+        self.sigmaprime = self.T_loadangle @ self.sigma
         self.sigmaxprime = self.sigmaprime[0]
         self.sigmaxprime = self.sigmaprime[1]
         self.sigmaxprime = self.sigmaprime[2]
@@ -335,6 +336,7 @@ class Laminate:
         self.localstrainVector = np.zeros((3*self.n_plys))
         self.localstressVector = np.zeros((3*self.n_plys))
         self.z_lamina_midplane = np.zeros(self.n_plys)
+        
       
         # compute loacal strain (lamina level)
         for i in range(self.n_plys):

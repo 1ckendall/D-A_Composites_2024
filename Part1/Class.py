@@ -301,4 +301,4 @@ class Laminate:
         self.sigma22 = self.localstressVector[1::3]
         self.sigma12 = self.localstressVector[2::3]
 
-    
+        

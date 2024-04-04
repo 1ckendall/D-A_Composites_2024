@@ -181,7 +181,8 @@ class Lamina:
             warn("Something is wrong in IFF calculation")
 
 class Laminate:
-    def __init__(self, plys, Nx=0, Ny=0, Ns=0, Mx=0, My=0, Ms=0, midplane = True):
+    def __init__(self, plys, Nx=0, Ny=0, Ns=0, Mx=0, My=0, Ms=0, midplane = True,Loadangle=0):
+        self.Loadangle = np.radians(Loadangle)
         self.plys = plys
         self.Nx = Nx
         self.Ny = Ny
@@ -273,6 +274,9 @@ class Laminate:
     def getStressStrain(self):
         # compute global strain (laminate level) on mid-plane
         self.load = np.array([self.Nx, self.Ny, self.Ns, self.Mx, self.My, self.Ms]) #.reshape(-1,1)
+        self.sigmax = self.Nx / self.h
+        self.sigmay = self.Ny / self.h 
+        self.sigmas = self.Ns / self.h 
         # self.strainMidplane = self.abd @ self.load # [e^0_x, e^0_y, e^0_s, kx, ky, ks]
         self.strainMidplane = np.linalg.solve(self.ABD.astype('float64'), self.load.astype('float64'))
         self.globalstrainVector = np.zeros((3*self.n_plys))
@@ -300,5 +304,7 @@ class Laminate:
         self.sigma11 = self.localstressVector[0::3]
         self.sigma22 = self.localstressVector[1::3]
         self.sigma12 = self.localstressVector[2::3]
+    def getstressstrainQ2 (self):
+                
 
         

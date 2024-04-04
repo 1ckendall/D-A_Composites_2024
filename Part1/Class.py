@@ -191,7 +191,7 @@ class Laminate:
         self.Ms = Ms
         self.midplane = midplane
         self.getABD()
-        self.abd = la.inv(self.ABD)
+        self.abd = np.linalg.inv(self.ABD)
         self.getEngineeringConst()
 
     def getABD(self):

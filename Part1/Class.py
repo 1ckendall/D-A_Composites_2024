@@ -276,7 +276,7 @@ class Laminate:
     #     return(self.localstrainVector, self.localstressVector)
     
     
-    def getStressStrain(self):
+    def getStressStrain(self): #TODO: this needs to be fast (as used in Monte-Carlo)
         # compute global strain (laminate level) on mid-plane
         self.load = np.array([self.Nx, self.Ny, self.Ns, self.Mx, self.My, self.Ms]) #.reshape(-1,1)
 
@@ -343,7 +343,7 @@ class Laminate:
             self.z_lamina_midplane[i] = 0.5*(self.z[i+1]+self.z[i]) # z-values from laminate datum (ie: laminate midplane) to laminas' datums (ie: lamina midplane)
             
             # global coordinate system (x,y)
-            self.globalstrainVector[3*i:3*(i+1)] = self.strainMidplane[:3] + self.z_lamina_midplane[i]*self.strainMidplane[3:] # [ex, ey, es], computed on the midplane of each lamina
+            self.globalstrainVector[3*i:3*(i+1)] = self.strainMidplane[:3] # [ex, ey, es], computed on the midplane of each lamina
             self.globalstressVector[3*i:3*(i+1)]  = self.plys[i].Qbarmat @ self.globalstrainVector[3*i:3*(i+1)]
             
             # local/principal coordinate system (1,2)

@@ -368,11 +368,9 @@ S = 132.8E9 # [Pa]
 t= 0.125E-3 # [m] # free variable, can be changed 
         
 anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
-stressinputvectors = np.linspace(0,1E15,100)
+stressinputvector = np.linspace(0,1E15,100)
 angleinputvectors = np.arange(0,360,10)
 angleinputvector = np.radians(angleinputvectors)
-thickness = 16*t
-stressinputvector = stressinputvectors /thickness
 
 failuretracking = np.zeros(len(anglelist))
 firstfailuremaxstress = np.empty((0,2),dtype=int)
@@ -396,7 +394,7 @@ for i in range(len(angleinputvector)):
       print('stress',j)
       n = np.sin(angleinputvector[i])
       stressloading = np.array([0,j,0])
-      stresstransformmatrix =np.array([[m, -n,0],
+      stresstransformmatrix =np.array([[m**2, -n,0],
                               [n,m,0],
                                 [0,0,1]])
       stressused = stresstransformmatrix @ stressloading
@@ -405,8 +403,8 @@ for i in range(len(angleinputvector)):
       ns=stressused[2]
       for k in range(len(anglelist)): 
           plylist.append(Lamina(anglelist[k],E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t))
-      LaminateQ3 = Laminate(plylist,Nx=nx,Ny=ny,Ns=ns,Mx=0,My=0,Ms=0)
-      LaminateQ3.getStressStrain()
+      LaminateQ3 = Laminate(plylist,Nx=nx,Ny=ny,Ns=ns,Mx=0,My=0,Ms=0,Loadangle=angleinputvector[i])
+      LaminateQ3.getstressstrainEnvelope()
       stressperlamina = LaminateQ3.localstressVector  
       #checking for failure per lamina 
       for k in range(len( anglelist)): 
@@ -434,7 +432,9 @@ for i in range(len(angleinputvector)):
           for firsplyfail in  failuretracking : 
             if firsplyfail >= 2 and  not firstplyfailureoccurence: 
                 firstplyfailureoccurence = True
-                firstfailureload =np.array([[ny,ns]])
+                firstfailureloadY =LaminateQ3.sigmaxprime[1]
+                firstfailureloadS = LaminateQ3.sigmaxprime[2]
+                firstfailureload = np.array([[firstfailureloadY,firstfailureloadS]])
                 firstfailuremaxstress = np.append(firstfailuremaxstress,firstfailureload,axis=0)
                 print('firstplayfailure',failurechecking.failuremode)
                 print('ply',k)
@@ -448,7 +448,9 @@ for i in range(len(angleinputvector)):
           for lastplyfail in failuretracking:
              if all(lastplyfail >=2 for lastplyfail in failuretracking):
                  lastplyfailureoccurence = True 
-                 lastplyfailureload =np.array([[ny,ns]])
+                 lastfailureloadY =LaminateQ3.sigmaxprime[1]
+                 lasstfailureloadS = LaminateQ3.sigmaxprime[2]
+                 lastplyfailureload =np.array([[lastfailureloadY,lastfailureloadY]])
                  lastplyfailuremaxstress[i,:] = lastplyfailureload
                  print('lastply mode',failurechecking.failuremode)
                  print('ply',k)

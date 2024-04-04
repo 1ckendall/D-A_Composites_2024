@@ -368,18 +368,18 @@ S = 132.8E9 # [Pa]
 t= 0.125E-3 # [m] # free variable, can be changed 
         
 anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
-stressinputvector = np.linspace(1000000,1000000000,1000) 
-angleinputvector = np.radians(np.linspace(0,0,1))
-
+stressinputvector = np.linspace(0,100000000000000,100) 
+angleinputvector = np.radians(np.linspace(0,90,2))
+thickness = 16*t
 
 
 failuretracking = np.zeros(len(anglelist))
 firstfailuremaxstress = np.empty((0,2),dtype=int)
 firstfailurePUCK =np.empty((0,2),dtype=int)
-lastplyfailuremaxstress=np.empty((0,2),dtype=int)
+lastplyfailuremaxstress=np.zeros((len(angleinputvector),2))
 lastplypuck=np.empty((0,2),dtype=int)
 
-for i in angleinputvector:
+for i in range(len(angleinputvector)):
   #initialiazing fresh lamina properties for new angle
   plylist = []
   E1 = np.full(len(anglelist),E1)
@@ -390,27 +390,27 @@ for i in angleinputvector:
   lastplyfailureoccurence = False
   failuretracking = np.zeros(len(anglelist))
   for j in stressinputvector: 
-      m = np.cos(i)
-      n = np.sin(i)
+      m = np.cos(angleinputvector[i])
+      n = np.sin(angleinputvector[i])
       stressloading = np.array([0,j,0])
       stresstransformmatrix =np.array([[m**2, n**2,-2*m*n],
                               [n**2,m**2,2*m*n],
                                 [-m*n,m*n,m**2-n**2]])
       stressused = stresstransformmatrix @ stressloading
-      Nx= stressused[0]
-      Ny=stressused[1]
-      Ns=stressused[2]
+      nx= stressused[0]
+      ny=stressused[1]
+      ns=stressused[2]
       for k in range(len(anglelist)): 
           plylist.append(Lamina(anglelist[k],E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t))
-      LaminateQ3 = Laminate(plylist,Nx=Nx,Ny=Ny,Ns=Ns,Mx=0,My=0,Ms=0)
+      LaminateQ3 = Laminate(plylist,Nx=nx,Ny=ny,Ns=ns,Mx=0,My=0,Ms=0)
       LaminateQ3.getStressStrain()
       stressperlamina = LaminateQ3.localstressVector  
       #checking for failure per lamina 
       for k in range(len( anglelist)): 
           laminaangle = anglelist[k]
-          Sigma1 = stressperlamina[3*k]
-          Sigma2 = stressperlamina[3*k+1]
-          tau21 = stressperlamina[3*k+2]
+          Sigma1 = LaminateQ3.sigma11[k]
+          Sigma2 = LaminateQ3.sigma22[k]
+          tau21 =LaminateQ3.sigma12[k]
           failurechecking  = Lamina(laminaangle,E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t,sigma_1=Sigma1,sigma_2=Sigma2,tau_21=tau21)
           failurechecking.maxStressFibreFail() #fiber failure
           failurechecking.maxStressInterFibreFail() #InterFiberfailure
@@ -431,13 +431,17 @@ for i in angleinputvector:
           for firsplyfail in  failuretracking : 
             if firsplyfail >= 2 and  not firstplyfailureoccurence: 
                 firstplyfailureoccurence = True
-                firstfailureload =np.array([[Ny,Ns]])
+                firstfailureload =np.array([[ny,ns]])
                 firstfailuremaxstress = np.append(firstfailuremaxstress,firstfailureload,axis=0)
+                print('firstplayfailure',failurechecking.failuremode)
+                print('ply',k)
           for lastplyfail in failuretracking:
            if all(lastplyfail >=2 for lastplyfail in failuretracking):
                lastplyfailureoccurence = True 
-               lastplyfailureload =np.array([[Ny,Ns]])
-               lastplyfailuremaxstress = np.append(lastplyfailuremaxstress,lastplyfailureload,axis=0)
+               lastplyfailureload =np.array([[ny,ns]])
+               lastplyfailuremaxstress[i,:] = lastplyfailureload
+               print('lastply mode',failurechecking.failuremode)
+               print('ply',k)
 
            if failuretracking[k] >= 2 :
              E1[k] = 1E-9 
@@ -459,32 +463,19 @@ for i in angleinputvector:
               
           
 print(failuretracking) 
-print(firstfailuremaxstress)
-print(lastplyfailuremaxstress)   
-          
-     
-
-
-
-
-      
-      
-
-
-
-
-
-
-
-
+print('firstply',firstfailuremaxstress)
+print('lastply',lastplyfailuremaxstress)   
+        
 #making the scatter plot maxstress and puck 
-# fig,(ax1,ax2) =plt.subplots(1,2)
-# #failure envelope for max stress criteria 
-# ax1.scatter(,marker = '^',color='red') #first ply failure 
-# ax1.scatter(,marker='o',color='blue') #last ply failure 
-# ax1.set_xlabel('N_y')
-# ax1.set_ylabel('N_s')
-# ax1.set_title('Max stress Criteria failure envelope')
+fig,(ax1,ax2) =plt.subplots(1,2)
+#failure envelope for max stress criteria 
+
+ax1.scatter(firstfailuremaxstress[:,0]/(thickness*1E6),firstfailuremaxstress[:,1]/(thickness*1E6),marker = '^',color='red') #first ply failure 
+ax1.scatter(lastplyfailuremaxstress[:,0]/(thickness*1E6),lastplyfailuremaxstress[:,1]/(thickness*1E6),marker='o',color='blue') #last ply failure 
+ax1.set_xlabel('N_y')
+ax1.set_ylabel('N_s')
+ax1.set_title('Max stress Criteria failure envelope')
+plt.show()
 
 # ax2.scatter(,marker = '^',color='red') #first ply failure puck
 # ax2.scatter(,marker='o',color='blue') #last ply failure puck

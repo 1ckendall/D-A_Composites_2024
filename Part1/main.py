@@ -356,120 +356,126 @@ if plot_1b:
 
 #Question  2 damage progression 
 E1 = 145.3E9 # [Pa]
-
 E2 = 8.5E9 # [Pa]
 v12 = 0.31 # [--]
 G12 = 4.58E9 # [Pa]
-Xt = 1932E9 # [Pa]
-Yt = 108E9 # [Pa]
-Xc = 1480E9 # [Pa]
-Yc = 220E9 # [Pa]
-S = 132.8E9 # [Pa]
+Xt = 1932E6 # [Pa]
+Yt = 108E6 # [Pa]
+Xc = 1480E6 # [Pa]
+Yc = 220E6 # [Pa]
+S = 132.8E6 # [Pa]
 t= 0.125E-3 # [m] # free variable, can be changed 
         
 anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
-stressinputvector = np.linspace(0,1E15,100)
-angleinputvectors = np.arange(0,360,10)
-angleinputvector = np.radians(angleinputvectors)
+stressinputvector = np.arange(1E4,6E6,2000)
+angleinputvector = np.arange(0,360,10)
 
-failuretracking = np.zeros(len(anglelist))
-firstfailuremaxstress = np.empty((0,2),dtype=int)
+
+
+firstfailuremaxstress = np.zeros((len(angleinputvector),2))
 firstfailurePUCK =np.empty((0,2),dtype=int)
 lastplyfailuremaxstress=np.zeros((len(angleinputvector),2))
 lastplypuck=np.empty((0,2),dtype=int)
 
 for i in range(len(angleinputvector)):
   #initialiazing fresh lamina properties for new angle
-  print('angle',angleinputvector[i])
-  plylist = []
+  
+ 
   E1 = np.full(len(anglelist),E1)
   E2 = np.full(len(anglelist),E2)
   v12 = np.full(len(anglelist),v12)
   G12 = np.full(len(anglelist),G12)
   firstplyfailureoccurence = False
   lastplyfailureoccurence = False
+  
   failuretracking = np.zeros(len(anglelist))
+  
+  
+  
   for j in stressinputvector: 
-      m = np.cos(angleinputvector[i])
-      print('stress',j)
-      n = np.sin(angleinputvector[i])
-      stressloading = np.array([0,j,0])
-      stresstransformmatrix =np.array([[m**2, -n,0],
-                              [n,m,0],
-                                [0,0,1]])
-      stressused = stresstransformmatrix @ stressloading
-      nx= stressused[0]
+      plylist = []
+      print(j)
+      stressloading = np.array([0,j,j])
+    
+
+      stressused = stressloading
+      
+      nx=stressused[0]
       ny=stressused[1]
       ns=stressused[2]
       for k in range(len(anglelist)): 
-          plylist.append(Lamina(anglelist[k],E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t))
+         plylist.append(Lamina(anglelist[k],E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t))
       LaminateQ3 = Laminate(plylist,Nx=nx,Ny=ny,Ns=ns,Mx=0,My=0,Ms=0,Loadangle=angleinputvector[i])
       LaminateQ3.getstressstrainEnvelope()
-      stressperlamina = LaminateQ3.localstressVector  
+      
+   
+      
       #checking for failure per lamina 
       for k in range(len( anglelist)): 
           laminaangle = anglelist[k]
           Sigma1 = LaminateQ3.sigma11[k]
           Sigma2 = LaminateQ3.sigma22[k]
-          tau21 =LaminateQ3.sigma12[k]
-          failurechecking  = Lamina(laminaangle,E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t,sigma_1=Sigma1,sigma_2=Sigma2,tau_21=tau21)
-          failurechecking.maxStressFibreFail() #fiber failure
-          failurechecking.maxStressInterFibreFail() #InterFiberfailure
-          failurechecking.maxStressShearFail() #Shearfailure
-          if failurechecking.failuremode == 'Tensile Fibre' or failurechecking.failuremode == 'Compressive' :
+          tau21 =  LaminateQ3.sigma12[k]
+          failurechecking1  = Lamina(laminaangle,E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t,sigma_1=Sigma1,sigma_2=Sigma2,tau_21=tau21)
+          failurechecking2  = Lamina(laminaangle,E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t,sigma_1=Sigma1,sigma_2=Sigma2,tau_21=tau21)
+          failurechecking3  = Lamina(laminaangle,E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t,sigma_1=Sigma1,sigma_2=Sigma2,tau_21=tau21)
+          failurechecking1.maxStressFibreFail() #fiber failure
+          failurechecking2.maxStressInterFibreFail() #InterFiberfailure
+          failurechecking3.maxStressShearFail() #Shearfailure
+          if failurechecking1.failuremode == 'Tensile Fibre' or failurechecking1.failuremode == 'Compressive Fibre' :
               failuretracking[k] = 2
-              E1[k] = 1E-10 
-              E2[k]=1E-10
-              v12[k] =1E-10
-              G12[k]=1E-10
-          elif failurechecking.failuremode == 'Tensile Inter-Fibre' or failurechecking.failuremode=="Compressive Inter-Fibre" or failurechecking.failuremode ==  "Shear Parallel to Fibres":
+              E1[k] = 1E-15 
+              E2[k]=1E-15
+              v12[k] =1E-15
+              G12[k]=1E-15
+          if failurechecking2.failuremode == 'Tensile Inter-Fibre' or failurechecking2.failuremode=="Compressive Inter-Fibre" or failurechecking3.failuremode ==  "Shear Parallel to Fibres":
                 failuretracking[k] +=1
-                E1[k] = 0.1*E1[k] 
-                E2[k]=1E-10
+                E2[k] = 0.1*E2[k] 
                 v12[k] =0.1*v12[k]
                 G12[k]=0.1*G12[k]
 
           for firsplyfail in  failuretracking : 
             if firsplyfail >= 2 and  not firstplyfailureoccurence: 
                 firstplyfailureoccurence = True
-                firstfailureloadY =LaminateQ3.sigmaxprime[1]
-                firstfailureloadS = LaminateQ3.sigmaxprime[2]
-                firstfailureload = np.array([[firstfailureloadY,firstfailureloadS]])
-                firstfailuremaxstress = np.append(firstfailuremaxstress,firstfailureload,axis=0)
-                print('firstplayfailure',failurechecking.failuremode)
-                print('ply',k)
-
-
-          if failuretracking[k] >= 2 :
-             E1[k] = 1E-10
-             E2[k]=1E-10
-             v12[k] =1E-10
-             G12[k]=1E-10
-          for lastplyfail in failuretracking:
-             if all(lastplyfail >=2 for lastplyfail in failuretracking):
+                firstfailureloadY =LaminateQ3.sigmayprime
+                print(failurechecking1.failuremode)
+                print('firstply',k)
+                firstfailureloadS = LaminateQ3.sigmaxyprime
+                firstfailuremaxstress[i,0] = firstfailureloadY
+                firstfailuremaxstress[i,1] = firstfailureloadS
+                print('loads',firstfailureloadY,firstfailureloadS)            
+          if 2<= failuretracking[k] :
+             E1[k] = 1E-15
+             E2[k]=1E-15
+             v12[k] =1E-15
+             G12[k]=1E-15
+          for lastplyfailhappend in failuretracking:
+             if all(lastplyfailhappend >=2 for lastplyfailhappend in failuretracking):
                  lastplyfailureoccurence = True 
-                 lastfailureloadY =LaminateQ3.sigmaxprime[1]
-                 lasstfailureloadS = LaminateQ3.sigmaxprime[2]
-                 lastplyfailureload =np.array([[lastfailureloadY,lastfailureloadY]])
-                 lastplyfailuremaxstress[i,:] = lastplyfailureload
-                 print('lastply mode',failurechecking.failuremode)
-                 print('ply',k)
-                 print('load',lastplyfailureload)
+                 print(failurechecking1.failuremode)
+                 print('lastply',k)
+                 lastfailureloadY =LaminateQ3.sigmayprime
+                 lastfailureloadS = LaminateQ3.sigmaxyprime
+               
+                 lastplyfailuremaxstress[i,0] = lastfailureloadY
+                 lastplyfailuremaxstress[i,1] = lastfailureloadS
+                 break
+      
+                 
       if lastplyfailureoccurence ==True: 
-          break
+                break
           
 print(failuretracking) 
-print('firstply',firstfailuremaxstress)
-print('lastply',lastplyfailuremaxstress)   
+
         
 #making the scatter plot maxstress and puck 
 fig,(ax1,ax2) =plt.subplots(1,2)
 #failure envelope for max stress criteria 
 
-ax1.scatter(firstfailuremaxstress[:,0],firstfailuremaxstress[:,1],marker = '^',color='red') #first ply failure 
-ax1.scatter(lastplyfailuremaxstress[:,0],lastplyfailuremaxstress[:,1],marker='o',color='blue') #last ply failure 
-ax1.set_xlabel('N_y')
-ax1.set_ylabel('N_s')
+ax1.scatter(firstfailuremaxstress[:,0]/1E6,firstfailuremaxstress[:,1]/1E6,marker = '^',color='red') #first ply failure 
+ax1.scatter(lastplyfailuremaxstress[:,0]/1E6,lastplyfailuremaxstress[:,1]/1E6,marker='o',color='blue') #last ply failure 
+ax1.set_xlabel('sigma_y')
+ax1.set_ylabel('sigma_s')
 ax1.set_title('Max stress Criteria failure envelope')
 plt.show()
 

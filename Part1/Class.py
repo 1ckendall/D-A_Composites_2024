@@ -50,7 +50,7 @@ class Lamina:
         self.failuremode = None
 
     def getQmat(self):
-        self.Q = 1-self.v12*self.v21
+        self.Q = 1-(self.v12*self.v21)
         self.Q11 = self.E1 / self.Q
         self.Q12 = self.v12 * self.E2 / self.Q 
         self.Q22 = self.E2 / self.Q
@@ -93,22 +93,22 @@ class Lamina:
         assert np.allclose(self.Qbarmat, Qbarmat)
         
     def maxStressFibreFail(self):
-        if self.sigma_1 / self.Xt >= 1:
+        if self.sigma_1 / (self.Xt) >= 1:
             self.failuremode = "Tensile Fibre"
-        elif self.sigma_1 / -self.Xc >= 1:
+        elif (self.sigma_1 /( self.Xc))*(-1) >= 1:
             self.failuremode = "Compressive Fibre"
     
     def maxStressInterFibreFail(self):
         if self.sigma_2 / self.Yt >= 1: #or self.sigma_3 / self.Rtt >= 1:
             self.failuremode = "Tensile Inter-Fibre"
-        elif self.sigma_2 / -self.Yc >= 1 :#or self.sigma_3 / self.Rtc >=1
+        elif (self.sigma_2 / (self.Yc))*(-1) >= 1 :#or self.sigma_3 / self.Rtc >=1
             self.failuremode = "Compressive Inter-Fibre"
             
     def maxStressShearFail(self):
-        if self.tau_21 / self.S >= 1 : #or self.tau_31 / self.Rls >= 1:
+        if np.abs(self.tau_21) / self.S >= 1 : #or self.tau_31 / self.Rls >= 1:
             self.failuremode = "Shear Parallel to Fibres"
-        elif self.tau_21 / -self.S >=1:  
-            self.failuremode = "Shear Parallel to Fibres" 
+        # elif self.tau_21 / (-self.S) >=1:  
+        #     self.failuremode = "Shear Parallel to Fibres" 
         #elif self.tau_23 / self.Rts >= 1: 
            # self.failuremode = "Shear Perpendicular to Fibres"
         
@@ -237,7 +237,7 @@ class Laminate:
         self.dss = self.abd[5,5]
         self.dxy = self.abd[3,4]
         
-        self.A_const = self.Axx*self.Ayy - self.Axy*self.Axy
+        self.A_const = self.Axx*self.Ayy - (self.Axy*self.Axy)
         self.h = np.max(self.z)-np.min(self.z)
         
         # in-plane engineering constants
@@ -312,22 +312,23 @@ class Laminate:
         # compute global strain (laminate level) on mid-plane
         self.load = np.array([self.Nx, self.Ny, self.Ns, self.Mx, self.My, self.Ms]) #.reshape(-1,1)
         self.sigmax = self.Nx / self.h
-        self.sigmay = self.Ny / self.h 
-        self.sigmas = self.Ns / self.h 
+        self.sigmay = self.Ny / self.h *np.cos(self.Loadangle)
+        self.sigmas = self.Ns / self.h *np.sin(self.Loadangle)
         self.sigma = np.array([self.sigmax, self.sigmay, self.sigmas]).reshape(-1,1)
        
         
         self.Sbarmat = np.linalg.inv(self.A) * self.h
         
         # obtain transformation matrix (T) as a function of loadangle (phi)
-        self.T_loadangle = np.matrix([[self.m_Loadangle**2, self.n_Loadangle**2, 2*self.m_Loadangle*self.n_Loadangle],
-                            [self.n_Loadangle**2, self.m_Loadangle**2, -2*self.m_Loadangle*self.n_Loadangle],
-                            [-self.m_Loadangle*self.n_Loadangle, self.m_Loadangle*self.n_Loadangle, self.m_Loadangle**2-self.n_Loadangle**2]])
+        # self.T_loadangle = np.matrix([[self.m_Loadangle**2, self.n_Loadangle**2, 2*self.m_Loadangle*self.n_Loadangle],
+        #                     [self.n_Loadangle**2, self.m_Loadangle**2, -2*self.m_Loadangle*self.n_Loadangle],
+        #                     [-self.m_Loadangle*self.n_Loadangle, self.m_Loadangle*self.n_Loadangle, self.m_Loadangle**2-self.n_Loadangle**2]])
         
-        self.sigmaprime = self.T_loadangle @ self.sigma
+        #self.sigmaprime = self.T_loadangle @ self.sigma
+        self.sigmaprime = self.sigma
         self.sigmaxprime = self.sigmaprime[0]
-        self.sigmaxprime = self.sigmaprime[1]
-        self.sigmaxprime = self.sigmaprime[2]
+        self.sigmayprime = self.sigmaprime[1]
+        self.sigmaxyprime = self.sigmaprime[2]
         
         self.strainMidplane = self.Sbarmat @ self.sigmaprime
         
@@ -343,7 +344,7 @@ class Laminate:
             self.z_lamina_midplane[i] = 0.5*(self.z[i+1]+self.z[i]) # z-values from laminate datum (ie: laminate midplane) to laminas' datums (ie: lamina midplane)
             
             # global coordinate system (x,y)
-            self.globalstrainVector[3*i:3*(i+1)] = self.strainMidplane[:3] # [ex, ey, es], computed on the midplane of each lamina
+            self.globalstrainVector[3*i:3*(i+1)] = np.ravel(self.strainMidplane[:3]) # [ex, ey, es], computed on the midplane of each lamina
             self.globalstressVector[3*i:3*(i+1)]  = self.plys[i].Qbarmat @ self.globalstrainVector[3*i:3*(i+1)]
             
             # local/principal coordinate system (1,2)

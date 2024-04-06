@@ -312,8 +312,8 @@ class Laminate:
         # compute global strain (laminate level) on mid-plane
         self.load = np.array([self.Nx, self.Ny, self.Ns, self.Mx, self.My, self.Ms]) #.reshape(-1,1)
         self.sigmax = self.Nx / self.h
-        self.sigmay = self.Ny / self.h *np.cos(self.Loadangle)
-        self.sigmas = self.Ns / self.h *np.sin(self.Loadangle)
+        self.sigmay = (self.Ny / self.h) *np.cos(self.Loadangle)
+        self.sigmas = (self.Ns / self.h) *np.sin(self.Loadangle)
         self.sigma = np.array([self.sigmax, self.sigmay, self.sigmas]).reshape(-1,1)
        
         
@@ -354,7 +354,9 @@ class Laminate:
         self.e11 = self.localstrainVector[0::3]
         self.e22 = self.localstrainVector[1::3]
         self.e12 = self.localstrainVector[2::3]
-        
+        self.eyglobal = self.strainMidplane[1]
+        self.esglobal =self.strainMidplane[2]
+
         self.sigma11 = self.localstressVector[0::3]
         self.sigma22 = self.localstressVector[1::3]
         self.sigma12 = self.localstressVector[2::3]

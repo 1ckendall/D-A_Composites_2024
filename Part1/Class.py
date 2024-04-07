@@ -112,39 +112,130 @@ class Lamina:
         #elif self.tau_23 / self.Rts >= 1: 
            # self.failuremode = "Shear Perpendicular to Fibres"
         
-    def PuckFibreFail(self, sigma_2, gamma_21, epsilon1T, epsilon1C, epsilon1, m_sigmaf = 1.3):
+    # def PuckFibreFail(self, sigma_2, gamma_21, epsilon1T, epsilon1C, epsilon1, m_sigmaf = 1.1): 
+    #     """Calculates the Puck failure of the fibres in the UD lamina
+
+    #     Args:
+    #         sigma_2 (_type_): Stress across fibres
+    #         gamma_21 (_type_): Shear strain of the unidirectional layer
+    #         epsilon1T (_type_): Tensile failure strain of a unidirectional layer in x1 direction
+    #         epsilon1C (_type_): Compression failure strain of a unidirectional layer in x1 direction
+    #         epsilon1 (_type_): Strain in x1 direction
+    #         m_sigmaf (float, optional): _description_. Defaults to 1.1 (CFRP). Source: slide 23, lecture 5
+    #     """
+    #     if sigma_2 < 0:
+    #         failurecriterion = 1/epsilon1T*(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)
+    #         if failurecriterion >= 1:
+    #             self.failuremode = "FFT"
+    #             #print(f"Ply failed at {sigma_2}: Tensile Fibre Failure")
+    #     elif sigma_2 > 0:
+    #         failurecriterion = 1/epsilon1C*(abs(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)) + 10*(gamma_21)**2
+    #         if failurecriterion >= 1:
+    #             self.failuremode = "FFC"
+    #             #print(f"Ply failed at {sigma_2}: Compressive Fibre Failure (Kinking)")
+    
+    def PuckFibreFail(self, sigma_1, sigma_2, sigma_3, R_para_t, R_para_c, v_perppara, E_para, v_paraperp_f = 0.2, E_para_f = 225e9,  m_sigmaf = 1.1): 
         """Calculates the Puck failure of the fibres in the UD lamina
 
         Args:
+            sigma_1 (_type_): Stress along fibres
             sigma_2 (_type_): Stress across fibres
-            gamma_21 (_type_): Shear strain of the unidirectional layer
-            epsilon1T (_type_): Tensile failure strain of a unidirectional layer in x1 direction
-            epsilon1C (_type_): Compression failure strain of a unidirectional layer in x1 direction
-            epsilon1 (_type_): Strain in x1 direction
-            m_sigmaf (float, optional): _description_. Defaults to 1.3.
+            sigma_3 (_type_): Shear Stress 
+            R_para_t (_type_): X_t
+            R_para_c (_type_): X_c
+       #TODO     v_perppara  (_type_): Minor Poisson Ratio. TODO: however, to make it consistent with v_perppara_f, input Major poisson instead
+            E_para  (_type_): Elastic modulus across fibres 
+            v_paraperp_f  (_type_): Major Poisson Ratio at Failure. Source: slide 28, lecture 5. Material properties for Carbon Fibre (AS4/3501-6): Taken: vf12 = 0.2
+            E_para_f  (_type_): Elastic modulus across fibres at Failure.  Source: slide 28, lecture 5. Material properties for Carbon Fibre (AS4/3501-6): Taken: Ef1 = 225GPa 
+            m_sigmaf (float, optional): _description_. Defaults to 1.1 (CFRP). Source: slide 23, lecture 5
         """
-        if sigma_2 < 0:
-            failurecriterion = 1/epsilon1T*(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)
+        
+        """ Calculate Minor Poission Ratio at Failure for internal mathematics. Calculate based on Major Possion Ratio at Failure
+            v_perppara_f  (_type_): Minor Poisson Ratio at Failure. Calculate based on Major Possion Ratio at Failure
+        """
+        
+        #TODO: Placeholder (it is assmed that minor Poisson is equal to major Poisson)
+        v_perppara_f = v_paraperp_f
+        
+        if sigma_1 >= 0:
+            # failurecriterion = 1/epsilon1T*(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)
+            failurecriterion = 1/R_para_t*(sigma_1-(v_perppara - v_perppara_f * m_sigmaf * E_para/E_para_f)*(sigma_2+sigma_3))
             if failurecriterion >= 1:
                 self.failuremode = "FFT"
                 #print(f"Ply failed at {sigma_2}: Tensile Fibre Failure")
-        elif sigma_2 > 0:
-            failurecriterion = 1/epsilon1C*(abs(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)) + 10*(gamma_21)**2
+        elif sigma_1 < 0:
+            # failurecriterion = 1/epsilon1C*(abs(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)) + 10*(gamma_21)**2
+            failurecriterion = 1/-R_para_c*(sigma_1-(v_perppara - v_perppara_f * m_sigmaf * E_para/E_para_f)*(sigma_2+sigma_3))
+
             if failurecriterion >= 1:
                 self.failuremode = "FFC"
                 #print(f"Ply failed at {sigma_2}: Compressive Fibre Failure (Kinking)")
     
-    def get_RAperpperp(self, S21, p_perppara_minus, Yc):
+    def get_RAperpperp(self, S21, Y_C, p_perppara_minus = 0.25):
         """RA⊥⊥: Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing"""
-        return S21/2*p_perppara_minus*(np.sqrt(1+2*p_perppara_minus*Yc/S21)-1)
+        """
+        Args:
+            S21 (_type_): Shear strength of a unidirectional layer transverse and parallel to the fibre direction
+            Y_C (_type_): Compressive strength of the unidirectional layer transverse to the fibre direction
+            p_perppara_minus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n leq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, p_perppara_minus = 0.25)
+
+        """
+        return S21/2*p_perppara_minus*(np.sqrt(1+2*p_perppara_minus*Y_C/S21)-1)
     
-    def get_p_perpperp_minus(self, p_perppara_minus, RAperpperp, S21):
+    def get_p_perpperp_minus(self,  S21, RAperpperp, p_perppara_minus = 0.225):
+        """
+        Args:
+            S21 (_type_): Shear strength of a unidirectional layer transverse and parallel to the fibre direction
+            RA⊥⊥: Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing
+            p_perpperp_minus (_type_): Slope of the sigma_n-tau_nt fracture envelope for sigma_n leq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, p_perpperp_minus = 0.225 (average value within the 0.20-0.25 range))
+        """
         return p_perppara_minus*RAperpperp/S21
     
-    def get_tau_21c(self, S21, p_perpperp_minus):
+    def get_tau_21c(self, S21, p_perpperp_minus = 0.225):
+        """
+        Args:
+            S21 (_type_): Shear strength of a unidirectional layer transverse and parallel to the fibre direction
+            p_perpperp_minus (_type_): Slope of the sigma_n-tau_nt fracture envelope for sigma_n leq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, p_perpperp_minus = 0.225 (average value within the 0.20-0.25 range))
+        """
         return S21*np.sqrt(1-2*p_perpperp_minus)
         
-    def PuckIFF(self, sigma_2, sigma_1, sigma_1D, tau_21, tau_21c, S21, RAperpperp, p_perppara_plus, p_perppara_minus, p_perpperp_minus, Y_T, Y_C):
+    # def PuckIFF(self, sigma_2, sigma_1, sigma_1D, tau_21, tau_21c, S21, Y_T, Y_C, RAperpperp, p_perppara_plus = 0.30, p_perppara_minus = 0.25, p_perpperp_minus = 0.225):
+    #     """Calculates the Puck inter-fibre failure
+
+    #     Args:
+    #         sigma_2 (_type_): Stress across fibres
+    #         sigma_1 (_type_): Stress along fibres
+    #         sigma_1D (_type_): Stress value for linear degradation(sigma1D>0 for sigma1>0; sigma1D<0 for sigma1<0)
+    #         tau_21 (_type_): Shear stresses of a unidirectional layer
+    #         tau_21c (_type_): Shear stress at the `turning point' of the (sigma2, tau21) fracture curve
+    #         S21 (_type_): Shear strength of a unidirectional layer transverse and parallel to the fibre direction
+    #         Y_T (_type_): Tensile strength of the unidirectional layer transverse to the fibre direction
+    #         Y_C (_type_): Compressive strength of the unidirectional layer transverse to the fibre direction
+    #         RAperpperp (_type_): Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing
+    #         p_perppara_plus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n geq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, take  p_perppara_plus = 0.30)
+    #         p_perppara_minus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n leq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, p_perppara_minus = 0.25)
+    #         p_perpperp_minus (_type_): Slope of the sigma_n-tau_nt fracture envelope for sigma_n leq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, p_perpperp_minus = 0.225 (average value within the 0.20-0.25 range))
+    #     """
+    #     if sigma_2 >= 0:
+    #         # IFF A
+    #         failurecriterion = np.sqrt((tau_21/S21)**2+(1+p_perppara_plus*Y_T/S21)**2*(sigma_2/Y_T)**2)+p_perppara_plus*sigma_2/S21+abs(sigma_1/sigma_1D)
+    #         if failurecriterion >= 1:
+    #             self.failuremode = "IFF A"
+    #     elif sigma_2 < 0 and 0<=abs(sigma_2/tau_21)<=RAperpperp/abs(tau_21c):
+    #         # IFF B
+    #         failurecriterion = 1/S21*(np.sqrt(tau_21**2+(p_perppara_minus*sigma_2)**2)+p_perppara_minus*sigma_2)+abs(sigma_1/sigma_1D)
+    #         if failurecriterion >= 1:
+    #             self.failuremode = "IFF B"
+    #     elif sigma_2 < 0 and 0<=abs(tau_21/sigma_2<=abs(tau_21c)/RAperpperp):
+    #         # IFF C
+    #         failurecriterion = ((tau_21/(2*(1+p_perpperp_minus)*S21))**2+(sigma_2/Y_C)**2)*Y_C/(-sigma_2)+abs(sigma_1/sigma_1D)
+    #         if failurecriterion >=1:
+    #             self.failuremode = "IFF C"
+    #     else:
+    #         # Something is funky
+    #         warn("Something is wrong in IFF calculation")
+    
+    def PuckIFF(self, sigma_22, sigma_21, sigma_22T_u, sigma_22C_u, sigma_12_u, p12_plus = 0.3, p12_minus = 0.3):
         """Calculates the Puck inter-fibre failure
 
         Args:
@@ -154,28 +245,33 @@ class Lamina:
             tau_21 (_type_): Shear stresses of a unidirectional layer
             tau_21c (_type_): Shear stress at the `turning point' of the (sigma2, tau21) fracture curve
             S21 (_type_): Shear strength of a unidirectional layer transverse and parallel to the fibre direction
-            RAperpperp (_type_): Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing
-            p_perppara_plus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n geq 0 at sigma_n=0
-            p_perppara_minus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n leq 0 at sigma_n=0
-            p_perpperp_minus (_type_): Slope of the sigma_n-tau_nt fracture envelope for sigma_n leq 0 at sigma_n=0
             Y_T (_type_): Tensile strength of the unidirectional layer transverse to the fibre direction
             Y_C (_type_): Compressive strength of the unidirectional layer transverse to the fibre direction
+            RAperpperp (_type_): Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing
+            p_perppara_plus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n geq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, take  p_perppara_plus = 0.30)
+            p_perppara_minus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n leq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, p_perppara_minus = 0.25)
+            p_perpperp_minus (_type_): Slope of the sigma_n-tau_nt fracture envelope for sigma_n leq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, p_perpperp_minus = 0.225 (average value within the 0.20-0.25 range))
         """
-        if sigma_2 >= 0:
+        sigma_23_A = sigma_12_u/(2*p12_minus)*(np.sqrt(1+2*p12_minus*sigma_22C_u/sigma_12_u)-1)
+        p23_minus = p12_minus * sigma_23_A/sigma_12_u
+        sigma_12_c = sigma_12_u*np.sqrt(1+2*p23_minus)
+        if sigma_22 >= 0:
             # IFF A
-            failurecriterion = np.sqrt((tau_21/S21)**2+(1+p_perppara_plus*Y_T/S21)**2*(sigma_2/Y_T)**2)+p_perppara_plus*sigma_2/S21+abs(sigma_1/sigma_1D)
+            # failurecriterion = np.sqrt((tau_21/S21)**2+(1+p_perppara_plus*Y_T/S21)**2*(sigma_2/Y_T)**2)+p_perppara_plus*sigma_2/S21+abs(sigma_1/sigma_1D)
+            failurecriterion = np.sqrt((sigma_21/sigma_12_u)**2+(1-p12_plus*sigma_22T_u/sigma_12_u)**2*(sigma_22/sigma_22T_u)**2)+p12_plus*sigma_22/sigma_12_u
             if failurecriterion >= 1:
                 self.failuremode = "IFF A"
-        elif sigma_2 < 0 and 0<=abs(sigma_2/tau_21)<=RAperpperp/abs(tau_21c):
+        elif sigma_22 < 0 and 0<=abs(sigma_22/sigma_21)<=sigma_23_A/abs(sigma_12_c):
             # IFF B
-            failurecriterion = 1/S21*(np.sqrt(tau_21**2+(p_perppara_minus*sigma_2)**2)+p_perppara_minus*sigma_2)+abs(sigma_1/sigma_1D)
+            #failurecriterion = 1/S21*(np.sqrt(tau_21**2+(p_perppara_minus*sigma_2)**2)+p_perppara_minus*sigma_2)+abs(sigma_1/sigma_1D)
+            failurecriterion = 1/sigma_12_u*(np.sqrt(sigma_21**2+(p12_minus*sigma_22)**2)+p12_minus*sigma_22)
             if failurecriterion >= 1:
                 self.failuremode = "IFF B"
-        elif sigma_2 < 0 and 0<=abs(tau_21/sigma_2<=abs(tau_21c)/RAperpperp):
+        elif sigma_22 < 0 and abs(sigma_22/sigma_21)>sigma_23_A/abs(sigma_12_c):
             # IFF C
-            failurecriterion = ((tau_21/(2*(1+p_perpperp_minus)*S21))**2+(sigma_2/Y_C)**2)*Y_C/(-sigma_2)+abs(sigma_1/sigma_1D)
-            if failurecriterion >=1:
-                self.failuremode = "IFF C"
+            #failurecriterion = ((tau_21/(2*(1+p_perpperp_minus)*S21))**2+(sigma_2/Y_C)**2)*Y_C/(-sigma_2)+abs(sigma_1/sigma_1D)
+            failurecriterion = ((sigma_21/(2*(1+p23_minus)*sigma_12_u))**2+(sigma_22/sigma_22C_u)**2)*sigma_22C_u/(-sigma_22)
+            self.failuremode = "IFF C"
         else:
             # Something is funky
             warn("Something is wrong in IFF calculation")

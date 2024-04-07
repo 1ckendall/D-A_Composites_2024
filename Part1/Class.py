@@ -141,9 +141,9 @@ class Lamina:
             sigma_1 (_type_): Stress along fibres
             sigma_2 (_type_): Stress across fibres
             sigma_3 (_type_): Shear Stress 
-            R_para_t (_type_): X_t
-            R_para_c (_type_): X_c
-       #TODO     v_perppara  (_type_): Minor Poisson Ratio. TODO: however, to make it consistent with v_perppara_f, input Major poisson instead
+            R_para_t (_type_): Tensile strength along fibre direction (X_t)
+            R_para_c (_type_): Compressive strength along fibre direction (X_c)
+     #TODO  v_perppara  (_type_): Minor Poisson Ratio. However, to make it consistent with v_perppara_f, input Major poisson instead
             E_para  (_type_): Elastic modulus across fibres 
             v_paraperp_f  (_type_): Major Poisson Ratio at Failure. Source: slide 28, lecture 5. Material properties for Carbon Fibre (AS4/3501-6): Taken: vf12 = 0.2
             E_para_f  (_type_): Elastic modulus across fibres at Failure.  Source: slide 28, lecture 5. Material properties for Carbon Fibre (AS4/3501-6): Taken: Ef1 = 225GPa 
@@ -151,21 +151,19 @@ class Lamina:
         """
         
         """ Calculate Minor Poission Ratio at Failure for internal mathematics. Calculate based on Major Possion Ratio at Failure
-            v_perppara_f  (_type_): Minor Poisson Ratio at Failure. Calculate based on Major Possion Ratio at Failure
+     #TODO  v_perppara_f  (_type_): Minor Poisson Ratio at Failure. Calculate based on Major Possion Ratio at Failure. Placeholder (it is assmed that minor Poisson is equal to major Poisson)
         """
-        
-        #TODO: Placeholder (it is assmed that minor Poisson is equal to major Poisson)
         v_perppara_f = v_paraperp_f
         
         if sigma_1 >= 0:
             # failurecriterion = 1/epsilon1T*(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)
-            failurecriterion = 1/R_para_t*(sigma_1-(v_perppara - v_perppara_f * m_sigmaf * E_para/E_para_f)*(sigma_2+sigma_3))
+            failurecriterion = 1/R_para_t*(sigma_1-(v_perppara - v_perppara_f * m_sigmaf * E_para/E_para_f) * (sigma_2 + sigma_3))
             if failurecriterion >= 1:
                 self.failuremode = "FFT"
                 #print(f"Ply failed at {sigma_2}: Tensile Fibre Failure")
         elif sigma_1 < 0:
             # failurecriterion = 1/epsilon1C*(abs(epsilon1+self.v12/self.E1*m_sigmaf*sigma_2)) + 10*(gamma_21)**2
-            failurecriterion = 1/-R_para_c*(sigma_1-(v_perppara - v_perppara_f * m_sigmaf * E_para/E_para_f)*(sigma_2+sigma_3))
+            failurecriterion = 1/-R_para_c*(sigma_1-(v_perppara - v_perppara_f * m_sigmaf * E_para/E_para_f) * (sigma_2+ sigma_3))
 
             if failurecriterion >= 1:
                 self.failuremode = "FFC"
@@ -235,22 +233,17 @@ class Lamina:
     #         # Something is funky
     #         warn("Something is wrong in IFF calculation")
     
-    def PuckIFF(self, sigma_22, sigma_21, sigma_22T_u, sigma_22C_u, sigma_12_u, p12_plus = 0.3, p12_minus = 0.3):
+    def PuckIFF(self, sigma_22, sigma_21, sigma_22T_u, sigma_22C_u, sigma_12_u, p12_plus = 0.3, p12_minus = 0.2):
         """Calculates the Puck inter-fibre failure
 
         Args:
-            sigma_2 (_type_): Stress across fibres
-            sigma_1 (_type_): Stress along fibres
-            sigma_1D (_type_): Stress value for linear degradation(sigma1D>0 for sigma1>0; sigma1D<0 for sigma1<0)
-            tau_21 (_type_): Shear stresses of a unidirectional layer
-            tau_21c (_type_): Shear stress at the `turning point' of the (sigma2, tau21) fracture curve
-            S21 (_type_): Shear strength of a unidirectional layer transverse and parallel to the fibre direction
-            Y_T (_type_): Tensile strength of the unidirectional layer transverse to the fibre direction
-            Y_C (_type_): Compressive strength of the unidirectional layer transverse to the fibre direction
-            RAperpperp (_type_): Fracture resistance of the action plane against its fracture due to transverse/transverse shear stressing
-            p_perppara_plus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n geq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, take  p_perppara_plus = 0.30)
-            p_perppara_minus (_type_): Slope of the sigma_n-tau_n1 fracture envelope for sigma_n leq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, p_perppara_minus = 0.25)
-            p_perpperp_minus (_type_): Slope of the sigma_n-tau_nt fracture envelope for sigma_n leq 0 at sigma_n=0. Source: slide 23, lecture 5 (for CFRP, p_perpperp_minus = 0.225 (average value within the 0.20-0.25 range))
+            sigma_22 (_type_): Stress across fibres
+            sigma_21 (_type_): Shear Stress
+            sigma_22T_u (_type_): Tensile Strength across fibres 
+            sigma_22C_u (_type_): Compressive Strength across fibres 
+            sigma_12_u (_type_): Shear Strength  
+            p12_plus (_type): Slope of the sigma_n1-tau_n2 fracture envelope for sigma_n1 leq 0 at sigma_n1=0. Source: slide 25, lecture 5. Taken p12_plus =  0.3
+            p12_minus (_type): Slope of the sigma_n1-tau_n2 fracture envelope for sigma_n1 geq 0 at sigma_n1=0. Source: slide 25, lecture 5. Taken p12_minus =  0.2
         """
         sigma_23_A = sigma_12_u/(2*p12_minus)*(np.sqrt(1+2*p12_minus*sigma_22C_u/sigma_12_u)-1)
         p23_minus = p12_minus * sigma_23_A/sigma_12_u
@@ -271,7 +264,8 @@ class Lamina:
             # IFF C
             #failurecriterion = ((tau_21/(2*(1+p_perpperp_minus)*S21))**2+(sigma_2/Y_C)**2)*Y_C/(-sigma_2)+abs(sigma_1/sigma_1D)
             failurecriterion = ((sigma_21/(2*(1+p23_minus)*sigma_12_u))**2+(sigma_22/sigma_22C_u)**2)*sigma_22C_u/(-sigma_22)
-            self.failuremode = "IFF C"
+            if failurecriterion >= 1:
+                self.failuremode = "IFF C"
         else:
             # Something is funky
             warn("Something is wrong in IFF calculation")

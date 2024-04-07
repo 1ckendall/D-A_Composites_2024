@@ -45,11 +45,11 @@ angleinputvector = np.arange(0,375,15)  ## UNCOMMENT FOR SHORT RUN
 # angleinputvector = np.arange(0,361,1) ## UNCOMMENT FOR FINAL RUN
 
 ## 2ai: Failure Theory of Maximum Stress 
-firstfailuremaxstress = np.zeros((len(angleinputvector),2))
-firstfaileglobalstrain =np.zeros((len(angleinputvector),2))
+firstfailure_MaxStress = np.zeros((len(angleinputvector),2))
+firstfailure_globalstrain_MaxStress =np.zeros((len(angleinputvector),2))
 
-lastplyfailuremaxstress=np.zeros((len(angleinputvector),2))
-lastplygolbalstrain = np.zeros((len(angleinputvector),2))
+lastfailure_MaxStress=np.zeros((len(angleinputvector),2))
+lastfailure_globalstrain_MaxStress = np.zeros((len(angleinputvector),2))
 
 if run_maxStress:
     print('Computing Failure Envelope based on Max. Stress criterion...')
@@ -115,14 +115,17 @@ if run_maxStress:
                         for firsplyfail in  failuretracking : 
                             if firsplyfail >= 2 and  not firstplyfailureoccurence: 
                                 firstplyfailureoccurence = True
-                                firstfailureloadY =LaminateQ3.sigmayprime
-                                firstfailureloadS = LaminateQ3.sigmaxyprime
                                 
-                                firstfailuremaxstress[i,0] = firstfailureloadY
-                                firstfailuremaxstress[i,1] = firstfailureloadS
-                                firstfaileglobalstrain[i,0] = LaminateQ3.eyglobal
-                                firstfaileglobalstrain[i,1] = LaminateQ3.esglobal
-                                print(f'First-Ply Failure [FPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, \nLoadY: {firstfailureloadY}, LoadS: {firstfailureloadS}\ney: {firstfaileglobalstrain[i,0]}, es: {firstfaileglobalstrain[i,1]}\n')
+                                firstfailure_loadY =LaminateQ3.sigmayprime
+                                firstfailure_loadS = LaminateQ3.sigmaxyprime
+                                firstfailure_eY = LaminateQ3.eyglobal
+                                firstfailure_eS = LaminateQ3.esglobal
+                                
+                                firstfailure_MaxStress[i,0] = firstfailure_loadY
+                                firstfailure_MaxStress[i,1] = firstfailure_loadS
+                                firstfailure_globalstrain_MaxStress[i,0] = firstfailure_eY
+                                firstfailure_globalstrain_MaxStress[i,1] = firstfailure_eS
+                                print(f'First-Ply Failure [FPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, \nLoadY: {firstfailure_loadY}, LoadS: {firstfailure_loadS}\ney: {firstfailure_eY}, es: {firstfailure_eS}\n')
                         
                         # ply removal: zero the properties of that lamina
                         if failuretracking[k] >=2:
@@ -134,13 +137,17 @@ if run_maxStress:
                                 if lastplyfailureoccurence == False: 
                                     if all(entry >=2 for entry in failuretracking):
                                         lastplyfailureoccurence = True 
-                                        lastfailureloadY =LaminateQ3.sigmayprime
-                                        lastfailureloadS = LaminateQ3.sigmaxyprime
-                                        lastplyfailuremaxstress[i,0] = lastfailureloadY
-                                        lastplyfailuremaxstress[i,1] =lastfailureloadS 
-                                        lastplygolbalstrain[i,0] = LaminateQ3.eyglobal
-                                        lastplygolbalstrain[i,1] = LaminateQ3.esglobal
-                                        print(f'Last-Ply Failure [LPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, LoadY: {lastfailureloadY}, LoadS: {lastfailureloadS}\ney: {lastplygolbalstrain[i,0]}, es: {lastplygolbalstrain[i,1]}\n\n')
+                                        
+                                        lastfailure_loadY =LaminateQ3.sigmayprime
+                                        lastfailure_loadS = LaminateQ3.sigmaxyprime
+                                        lastfailure_eY = LaminateQ3.eyglobal
+                                        lastfailure_eS = LaminateQ3.esglobal                           
+                                        
+                                        lastfailure_MaxStress[i,0] = lastfailure_loadY
+                                        lastfailure_MaxStress[i,1] =lastfailure_loadS 
+                                        lastfailure_globalstrain_MaxStress[i,0] = lastfailure_eY
+                                        lastfailure_globalstrain_MaxStress[i,1] = lastfailure_eS
+                                        print(f'Last-Ply Failure [LPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, LoadY: {lastfailure_loadY}, LoadS: {lastfailure_loadS}\ney: {lastfailure_eY}, es: {lastfailure_eS}\n\n')
                                     
                                         assert np.allclose(failuretracking, 2)
             
@@ -148,8 +155,8 @@ if run_maxStress:
         # making failure envelope plot (maxstress) sigmay-sigmas  
         plt.figure(1)
         plt.clf()
-        plt.plot(firstfailuremaxstress[:,0]/1E6,firstfailuremaxstress[:,1]/1E6, linewidth = 1,  color='red', label = 'FPF')
-        plt.plot(lastplyfailuremaxstress[:,0]/1E6,lastplyfailuremaxstress[:,1]/1E6, linewidth = 1, color='blue', label ='LPF')
+        plt.plot(firstfailure_MaxStress[:,0]/1E6,firstfailure_MaxStress[:,1]/1E6, linewidth = 1,  color='red', label = 'FPF')
+        plt.plot(lastfailure_MaxStress[:,0]/1E6,lastfailure_MaxStress[:,1]/1E6, linewidth = 1, color='blue', label ='LPF')
         plt.xticks(fontsize = 16)
         plt.yticks(fontsize = 16)
         plt.legend(fontsize = 16)
@@ -166,8 +173,8 @@ if run_maxStress:
         # making failure envelope plot (maxstress) ey-es
         plt.figure(2)
         plt.clf()
-        plt.plot(firstfaileglobalstrain[:,0],firstfaileglobalstrain[:,1], linewidth = 1,  color='red', label = 'FPF')
-        plt.plot(lastplygolbalstrain[:,0],lastplygolbalstrain[:,1], linewidth = 1, color='blue', label ='LPF')
+        plt.plot(firstfailure_globalstrain_MaxStress[:,0],firstfailure_globalstrain_MaxStress[:,1], linewidth = 1,  color='red', label = 'FPF')
+        plt.plot(lastfailure_globalstrain_MaxStress[:,0],lastfailure_globalstrain_MaxStress[:,1], linewidth = 1, color='blue', label ='LPF')
         plt.xticks(fontsize = 16)
         plt.yticks(fontsize = 16)
         plt.legend(fontsize = 16)

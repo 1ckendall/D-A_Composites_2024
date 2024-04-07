@@ -444,6 +444,7 @@ class Laminate:
         self.e11 = self.localstrainVector[0::3]
         self.e22 = self.localstrainVector[1::3]
         self.e12 = self.localstrainVector[2::3]
+        self.exglobal = self.strainMidplane[0]
         self.eyglobal = self.strainMidplane[1]
         self.esglobal =self.strainMidplane[2]
 

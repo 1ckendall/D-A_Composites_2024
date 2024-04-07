@@ -10,11 +10,11 @@ plot_2b= True # plot 2b: damage tolerance (default = True)
 
 # run controls (Booleans)
 run_maxStress = True # run failure envelope for max stress (default = True)
-run_Puck = False # run failure envelope for Puck (default = True)
+run_Puck = True # run failure envelope for Puck (default = True)
 
 
 # savefig controls (Booleans)
-savefig = False # default = False
+savefig = True # default = False
 
 
 # UD Lamina Mean Properties 
@@ -140,7 +140,7 @@ if run_maxStress:
                                         lastplyfailuremaxstress[i,1] =lastfailureloadS 
                                         lastplygolbalstrain[i,0] = LaminateQ3.eyglobal
                                         lastplygolbalstrain[i,1] = LaminateQ3.esglobal
-                                        print(f'Last-Ply Failure [LPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, LoadY: {lastfailureloadY}, LoadS: {lastfailureloadS}\n\ney: {lastplygolbalstrain[i,0]}, es: {lastplygolbalstrain[i,1]}\n')
+                                        print(f'Last-Ply Failure [LPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, LoadY: {lastfailureloadY}, LoadS: {lastfailureloadS}\ney: {lastplygolbalstrain[i,0]}, es: {lastplygolbalstrain[i,1]}\n\n')
                                     
                                         assert np.allclose(failuretracking, 2)
             
@@ -262,7 +262,7 @@ if run_Puck:
                                 firstfailure_Puck[i,1] = firstfailureloadS
                                 firstfaileglobalstrain[i,0] = LaminateQ3.eyglobal
                                 firstfaileglobalstrain[i,1] = LaminateQ3.esglobal
-                                print(f'First-Ply Failure [FPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, LoadY: {firstfailureloadY}, LoadS: {firstfailureloadS}\n')
+                                print(f'First-Ply Failure [FPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, LoadY: {firstfailureloadY}, LoadS: {firstfailureloadS}\ney: {firstfaileglobalstrain[i,0]}, es: {firstfaileglobalstrain[i,1]}\n')
                         
                         # ply removal: zero the properties of that lamina
                         if failuretracking[k] >=2:
@@ -280,7 +280,7 @@ if run_Puck:
                                         lastfailure_Puck[i,1] =lastfailureloadS 
                                         lastplygolbalstrain[i,0] = LaminateQ3.eyglobal
                                         lastplygolbalstrain[i,1] = LaminateQ3.esglobal
-                                        print(f'Last-Ply Failure [LPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, LoadY: {lastfailureloadY}, LoadS: {lastfailureloadS}\n\n')
+                                        print(f'Last-Ply Failure [LPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, LoadY: {lastfailureloadY}, LoadS: {lastfailureloadS}\ney: {lastplygolbalstrain[i,0]}, es: {lastplygolbalstrain[i,1]}\n\n')
                                         
                                         # print(f'Failure index (all plies): {failuretracking}')
                                         assert np.allclose(failuretracking, 2)

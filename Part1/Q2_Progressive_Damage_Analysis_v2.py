@@ -2,6 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pprint import pprint
 from Class import Lamina, Laminate
+import time
+
+start_time = time.time()
+
 
 # plot controls (Booleans)
 plot_2a= True # plot 2a: failure envelopes (default = True)
@@ -14,7 +18,7 @@ run_Puck = True # run failure envelope for Puck (default = True)
 
 
 # savefig controls (Booleans)
-savefig = True # default = False
+savefig = False # default = False
 
 
 # UD Lamina Mean Properties 
@@ -38,11 +42,11 @@ pass
 ## 2a: Failure Envelope
 anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
 
-# stressinputvector = np.arange(1E3,1E8,5000) ## UNCOMMENT FOR SHORT RUN
-# angleinputvector = np.arange(0,450,90)  ## UNCOMMENT FOR VERY SHORT RUN
+# stressinputvector = np.arange(1E5,1E7,10000) ## UNCOMMENT FOR SHORT RUN
+# angleinputvector = np.arange(0,450,90)  ## UNCOMMENT FOR SHORT RUN
 
 stressinputvector = np.arange(1E3,1E8,500) ## UNCOMMENT FOR FINAL RUN
-angleinputvector = np.arange(0,365,5) ## UNCOMMENT FOR FINAL RUN
+angleinputvector = np.arange(0,390,30) ## UNCOMMENT FOR FINAL RUN
 
 ## 2ai: Failure Theory of Maximum Stress 
 firstfailure_MaxStress = np.zeros((len(angleinputvector),3))
@@ -159,6 +163,7 @@ if run_maxStress:
                                         print(f'Last-Ply Failure [LPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, LoadY: {lastfailure_loadY}, LoadS: {lastfailure_loadS}\ney: {lastfailure_eY}, es: {lastfailure_eS}\n\n')
                                     
                                         assert np.allclose(failuretracking, 2)
+                                        break
             
 
 ## 2ai: Failure Theory of Puck
@@ -277,6 +282,15 @@ if run_Puck:
                                         
                                         # print(f'Failure index (all plies): {failuretracking}')
                                         assert np.allclose(failuretracking, 2)
+                                        break
+                                    
+# Record end time
+end_time = time.time()
+
+# Compute elapsed time
+elapsed_time = end_time - start_time
+
+print("Time taken:", elapsed_time, "seconds")
     
 if plot_2a:
     # making failure envelope plot (maxstress) sigmay-sigmas  

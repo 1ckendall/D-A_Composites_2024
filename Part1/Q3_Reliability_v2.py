@@ -87,6 +87,19 @@ t_mean = 0.125E-3 # [m] # free variable, can be changed
 UD_mean = np.array((E1_mean, E2_mean, v12_mean, G12_mean, Xt_mean, Yt_mean, Xc_mean, Yc_mean, S_mean, t_mean))
 
 
+# # UD Lamina Std. Dev Properties 
+# E1_std = 3.28E9 # [Pa]
+# E2_std = 1.28E9 # [Pa]
+# v12_std = 0.018 # [--]
+# G12_std = 0.83E9 # [Pa]
+# Xt_std = 128.3E6 # [Pa]
+# Yt_std = 8.2E6 # [Pa]
+# Xc_std = 98.28E6 # [Pa] # assumed, same fraction as: Xc_std = Xc_mean * Xt_std/Xt_mean
+# Yc_std = 16.70E6 # [Pa]  # assumed, same fraction as: Yc_std = Yc_mean * Yt_std/Yt_mean
+# S_std = 6.21E6 # [Pa] 
+# t_std = 0.002E-3 # [m] # TOO HIGH (OVERSENSITIVE RESULTS) assumed, from certificate of analysis of a pre-preg material (from Solvay)
+# t_std = 0.002E-6 # [m] # assumed and adjusted
+
 # UD Lamina Std. Dev Properties 
 E1_std = 3.28E9 # [Pa]
 E2_std = 1.28E9 # [Pa]
@@ -94,11 +107,10 @@ v12_std = 0.018 # [--]
 G12_std = 0.83E9 # [Pa]
 Xt_std = 128.3E6 # [Pa]
 Yt_std = 8.2E6 # [Pa]
-Xc_std = 98.28E6 # [Pa] # assumed, same fraction as: Xc_std = Xc_mean * Xt_std/Xt_mean
-Yc_std = 16.70E6 # [Pa]  # assumed, same fraction as: Yc_std = Yc_mean * Yt_std/Yt_mean
+Xc_std = 0 # [Pa] # assumed, same fraction as: Xc_std = Xc_mean * Xt_std/Xt_mean
+Yc_std = 0 # [Pa]  # assumed, same fraction as: Yc_std = Yc_mean * Yt_std/Yt_mean
 S_std = 6.21E6 # [Pa] 
-# t_std = 0.002E-3 # [m] # TOO HIGH (OVERSENSITIVE RESULTS) assumed, from certificate of analysis of a pre-preg material (from Solvay)
-t_std = 0.002E-6 # [m] # assumed and adjusted
+t_std = 0 # [m] # TOO HIGH (OVERSENSITIVE RESULTS) assumed, from certificate of analysis of a pre-preg material (from Solvay)
  
 UD_std = np.array((E1_std, E2_std, v12_std, G12_std, Xt_std, Yt_std, Xc_std, Yc_std, S_std, t_std))
 
@@ -122,13 +134,13 @@ N_load = 0.5e6 # (pf = 0.11583333333333333), oversensitive thickness
 
 
 
-theta = 0 # [deg], inclination of the load vector w.r.t. x-axis
+theta = 30 # [deg], inclination of the load vector w.r.t. x-axis
 Nx = N_load * np.cos(np.radians(theta)) # [N]
-Ny = N_load * np.cos(np.radians(theta)) # [N]
+Ny = N_load * np.sin(np.radians(theta)) # [N]
 
 n_vars = len(UD_mean) # number of independent, Gaussian random variables 
-iterations = 3 # 3 # 1E8 Monte Carlo: number of rounds of simulations (R)
-N_max = 100 # maximum number of simulations per round (N)
+iterations = 30 # 3 # 1E8 Monte Carlo: number of rounds of simulations (R)
+N_max = 200 # maximum number of simulations per round (N)
 Pf_arr = np.zeros((n_vars, iterations)) # array for probabability of failure, registered for each round of simulations and for every random variable
 
 # simulation loop
@@ -136,10 +148,9 @@ UD = UD_mean
 loop_counter = 0 
 # loop through all random variables 
 #for i in range(n_vars): # full simulation (without thickness)
-#for i in range(n_vars): # full simulation
-for i in range(8, 9): # testing (only treat S as random variable)
+for i in range(n_vars): # full simulation
+#for i in range(8, 9): # testing (only treat S as random variable)
     samples, cdf = generate_cdf(mean = UD_mean[i], std_dev = UD_std[i])#, num_points = iterations)
-    # loop through rounds of simulations (R)
     for j in range(iterations): 
         firstplyfailureoccurence = False
         damageoccurence = False
@@ -247,7 +258,7 @@ for i in range(8, 9): # testing (only treat S as random variable)
                 #     firstplyfailureoccurence = True
                 #     Pf_arr[i,j] = 1/N
                 #     print(f'Failure at: i = {i}, j = {j}, k = {N}, Failure mode: {ply.failuremode} ')
-            # print(f'loop count: {loop_counter}, i = {i}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence} ')
+            print(f'loop count: {loop_counter}, i = {i}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence} ')
 
 Pf_vars_mean = np.zeros(n_vars)
 Pf_vars_std = np.zeros(n_vars)

@@ -117,7 +117,8 @@ layup =  [0, 90, +45, -45, - 45, + 45, 90, 0, 0, 90, +45, -45, - 45, + 45, 90, 0
 #N_load = 0.6e6 (pf = 1, damage IFF-A => 1) all plies fails (FFC for zero deg, FFT for all others) OR 2) some other plies fail IFF- A,B,C 
 #N_load = 0.1e6 #(pf = 0)
 # N_load = 0.4e6 #(pf = 0)
-N_load = 0.5e6 #(pf = 0)
+N_load = 0.5e6 # (pf = 0.11583333333333333), oversensitive thickness
+
 
 
 
@@ -134,8 +135,9 @@ Pf_arr = np.zeros((n_vars, iterations)) # array for probabability of failure, re
 UD = UD_mean
 loop_counter = 0 
 # loop through all random variables 
-for i in range(n_vars): # full simulation
-#for i in range(0, 1): # testing (only treat E1 as random variable)
+#for i in range(n_vars): # full simulation (without thickness)
+#for i in range(n_vars): # full simulation
+for i in range(8, 9): # testing (only treat S as random variable)
     samples, cdf = generate_cdf(mean = UD_mean[i], std_dev = UD_std[i])#, num_points = iterations)
     # loop through rounds of simulations (R)
     for j in range(iterations): 
@@ -148,6 +150,7 @@ for i in range(n_vars): # full simulation
             loop_counter += 1
             # sample random variable from CDF
             sample = inverse_transform_sampling(samples, cdf, num_points=1) #TODO: optimise this (it is in the third layer of the loop) eg: use scipy, or static inline
+            #print(f'i = {i}, Sampled value: {sample}) #TOCHECK (bias in sampling)
             UD[i] = sample 
             # instantiate a Laminate object
             plylist_ijk = [] 
@@ -248,17 +251,25 @@ for i in range(n_vars): # full simulation
 
 Pf_vars_mean = np.zeros(n_vars)
 Pf_vars_std = np.zeros(n_vars)
+Pf_vars_mean_norm = np.zeros(n_vars)
+Pf_vars_std_norm = np.zeros(n_vars)
 
-for i in range(n_vars):
-    Pf_vars_mean[i] = np.mean(Pf_arr[i,:])
-    Pf_vars_std[i] = np.std(Pf_arr[i,:])
+for n in range(n_vars):
+    Pf_vars_mean[n] = np.mean(Pf_arr[n,:])
+    Pf_vars_std[n] = np.std(Pf_arr[n,:])
 
+Pf_vars_mean_norm = Pf_vars_mean-Pf_vars_mean
+Pf_vars_std_norm = Pf_vars_std/(iterations)
     
 Pf_mean = np.mean(Pf_arr)
 Pf_std = np.std(Pf_arr)
-print(f'\nLoad: {N_load}[N/m] => Probability of Failure: {Pf_mean}')
-print(f'Iterations (R): {iterations}, Nmax: {N_max} =>  Std. Dev: {Pf_std}')
+# print(f'\nLoad: {N_load}[N/m] => Probability of Failure: {Pf_mean}')
+# print(f'\nIterations (R): {iterations}, Nmax: {N_max} =>  Std. Dev: {Pf_std}')
 # print(f'\nLoad: {N_load}[N/m] => Probability of Failure: {Pf_mean}, Std. dev: {Pf_std}')
+
+print(f'\nTest Monte- Only varied S\nLoad: {N_load}[N/m] => Probability of Failure: {Pf_vars_mean[i]}')
+print(f'\nIterations (R): {iterations}, Nmax: {N_max} =>  Std. Dev: {Pf_vars_std[i]}, Std. Dev Norm: {Pf_vars_std_norm[i]}')
+
 
 # Record end time
 end_time = time.time()
@@ -275,7 +286,7 @@ exact_x_arr, exact_gaussian_arr = gaussian_distribution()
 # normalise (mu, sigma) -> (0,1)
 Pf_mean_norm = Pf_mean-Pf_mean  # 0 
 Pf_std_norm = Pf_std/(np.sqrt(iterations*n_vars))
-print(f'Normalised, Gaussian Monte-Carlo Variable (Probability of Failure): mean = {Pf_mean_norm}, std. = {Pf_std_norm}')
+# print(f'Normalised, Gaussian Monte-Carlo Variable (Probability of Failure): mean = {Pf_mean_norm}, std. = {Pf_std_norm}')
 
 
 

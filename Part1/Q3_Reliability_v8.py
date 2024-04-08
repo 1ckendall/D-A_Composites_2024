@@ -115,7 +115,7 @@ Ny = N_load * np.sin(np.radians(theta)) # [N/m]
 
 n_vars = len(UD_mean) # number of independent, Gaussian random variables 
 # iterations = 10 # 3 # 1E8 Monte Carlo: number of rounds of simulations (R)
-iterations_arr = np.array([10,20,50, 100, 500])
+iterations_arr = np.array([10,20,50, 100, 500, 1000, 2000])
 Pf_for_error = np.zeros(len(iterations_arr)) #np.zeros_like(iterations_arr)
 abs_error_arr = np.zeros(len(iterations_arr)-1)# np.zeros_like(iterations_arr)
 rel_error_arr = np.zeros(len(iterations_arr)-1)#np.zeros_like(iterations_arr)
@@ -178,8 +178,8 @@ for i in range(len(iterations_arr)):
                     failuretracking = 2
                     firstplyfailureoccurence = True
                     Pf_arr[j] = 1/N
-                #print(f'loop count: {loop_counter}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence}, failuremode: {ply.failuremode} ')
-            print(f'loop count: {loop_counter}, i = {i}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence} ')
+                print(f'loop count: {loop_counter}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence}, failuremode: {ply.failuremode} ')
+            # print(f'loop count: {loop_counter}, i = {i}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence} ')
             
     Pf_mean = np.mean(Pf_arr)
     Pf_std = np.std(Pf_arr)

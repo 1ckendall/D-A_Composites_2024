@@ -42,11 +42,11 @@ pass
 ## 2a: Failure Envelope
 anglelist = [0,90,45,-45,-45,45,90,0,0,90,45,-45,-45,45,90,0]
 
-# stressinputvector = np.arange(1E5,1E7,10000) ## UNCOMMENT FOR SHORT RUN
-# angleinputvector = np.arange(0,450,90)  ## UNCOMMENT FOR SHORT RUN
+stressinputvector = np.arange(1E5,1E7,10000) ## UNCOMMENT FOR SHORT RUN
+angleinputvector = np.arange(0,450,90)  ## UNCOMMENT FOR SHORT RUN
 
-stressinputvector = np.arange(1E3,1E8,500) ## UNCOMMENT FOR FINAL RUN
-angleinputvector = np.arange(0,390,30) ## UNCOMMENT FOR FINAL RUN
+# stressinputvector = np.arange(1E3,1E8,500) ## UNCOMMENT FOR FINAL RUN
+# angleinputvector = np.arange(0,390,30) ## UNCOMMENT FOR FINAL RUN
 
 ## 2ai: Failure Theory of Maximum Stress 
 firstfailure_MaxStress = np.zeros((len(angleinputvector),3))

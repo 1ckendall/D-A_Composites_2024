@@ -15,7 +15,15 @@ savefig = False # default = False
 
 # functions
 def generate_cdf(mean, std_dev, num_points=int(1e4), is_sorted = False):  
-    # num points: use 1e4 during developement, use atleast 1e5 for final simulation
+    """num points: 
+        use 1e4 during developement:  
+        use atleast 1e5 for final simulation: 
+        
+        COMPUTATIONAL TIME:
+            1e4: ~15s
+            1e5: ~30s
+            1e6: ~170s
+    """
     # Generate random samples from a normal distribution
     samples = np.random.normal(mean, std_dev, num_points)
     
@@ -36,6 +44,17 @@ def inverse_transform_sampling(samples, cdf, num_points=1):
     interpolated_samples = np.interp(u, cdf, sorted_samples)
     
     return interpolated_samples
+
+def gaussian_distribution(mu=0, sigma=1, num_points = 1000):
+    x_arr = np.linspace(mu - 3*sigma, mu + 3*sigma, num_points)  # Generate x values
+    gaussian_arr = (1/(sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x_arr - mu) / sigma)**2)
+    return x_arr, gaussian_arr
+
+
+# UD Lamina Material Properties
+UD_names = np.array(['E1', 'E2', 'v12', 'G12', 'Xt', 'Xc', 'Yt', 'Yc', 'S', 't'])
+# UD_names = np.array([r'E_{1}', r'E_{2}', r'v_{12}', r'G_{12}', r'X_{t}', r'X_{c}', r'Y_{t}', r'Y_{c}', 'S', 't'])
+
 
 '''
 Index of each property variable in UD array
@@ -90,14 +109,14 @@ layup =  [0, 90, +45, -45, - 45, + 45, 90, 0, 0, 90, +45, -45, - 45, + 45, 90, 0
 # N_load = 1.20e6 # 1.5e6 (pf = 0.0) # 2e6 (pf = 0.0) # 3e6 (pf = 0.31027094717668485) # 3.4e6 # (pf = 0.3610857) # 3.4375e6 (pf = 0.9715166666666667)  # 1.2e6 [N/m] (pf = 0.0003) # 0.85e6 [N/m] (pf = 0), applied load # INCORRECT AS ALL FAILURE MODES (INCLD. DAMAGE) WERE CONSIDERED FAILURE
 
 # benchmark N_load for Puck
-N_load = 0.6e6  # 0.6e6 (pf =  0.35666666666666663) # 0.7e6 (pf =  1.0) # 0.5e6 (pf =  0.0) # 0.1e6 (pf =  0.0) # 1e6 (pf =  1.0) # 2e6 (pf =  1.0) # 3e6 (pf =  1.0) # 1.2e6 [N/m] (pf = 0.0003) # 0.85e6 [N/m] (pf = 0), applied load
+N_load = 0.6e6  # 0.6e6 ((num_points=int(1e6), pf = 0.3444444444444444), (num_points=int(1e5), pf = 0.3305555555555556), (num_points=int(1e4), pf =  0.35666666666666663)) # 0.7e6 (pf =  1.0) # 0.5e6 (pf =  0.0) # 0.1e6 (pf =  0.0) # 1e6 (pf =  1.0) # 2e6 (pf =  1.0) # 3e6 (pf =  1.0) # 1.2e6 [N/m] (pf = 0.0003) # 0.85e6 [N/m] (pf = 0), applied load
 
-theta = 30 # [deg], inclination of the load vector w.r.t. x-axis
+theta = 0 # [deg], inclination of the load vector w.r.t. x-axis
 Nx = N_load * np.cos(np.radians(theta)) # [N]
 Ny = N_load * np.cos(np.radians(theta)) # [N]
 
 n_vars = len(UD_mean) # number of independent, Gaussian random variables 
-iterations = 3 # 1E8 Monte Carlo: number of rounds of simulations (R)
+iterations = 3 # 3 # 1E8 Monte Carlo: number of rounds of simulations (R)
 N_max = 100 # maximum number of simulations per round (N)
 Pf_arr = np.zeros((n_vars, iterations)) # array for probabability of failure, registered for each round of simulations and for every random variable
 
@@ -177,11 +196,22 @@ for i in range(n_vars): # full simulation
                 if failuretracking == 2:
                     firstplyfailureoccurence = True
                     Pf_arr[i,j] = 1/N
-            print(f'loop count: {loop_counter}, i = {i}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence} ')
+                    print(f'Failure at: i = {i}, j = {j}, k = {N}, Failure mode: {ply.failuremode} ')
+            # print(f'loop count: {loop_counter}, i = {i}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence} ')
 
-Pf = np.mean(Pf_arr)
-print(f'\nLoad: {N_load}[N/m] => Probability of Failure: {Pf}')
+Pf_vars_mean = np.zeros(n_vars)
+Pf_vars_std = np.zeros(n_vars)
 
+for i in range(n_vars):
+    Pf_vars_mean[i] = np.mean(Pf_arr[i,:])
+    Pf_vars_std[i] = np.std(Pf_arr[i,:])
+
+    
+Pf_mean = np.mean(Pf_arr)
+Pf_std = np.std(Pf_arr)
+print(f'\nLoad: {N_load}[N/m] => Probability of Failure: {Pf_mean}')
+print(f'Iterations (R): {iterations}, Nmax: {N_max} =>  Std. Dev: {Pf_std}')
+# print(f'\nLoad: {N_load}[N/m] => Probability of Failure: {Pf_mean}, Std. dev: {Pf_std}')
 
 # Record end time
 end_time = time.time()
@@ -190,3 +220,67 @@ end_time = time.time()
 elapsed_time = end_time - start_time
 
 print("Time taken:", elapsed_time, "seconds")
+
+
+# convergence: generate Gaussian distribution
+exact_x_arr, exact_gaussian_arr = gaussian_distribution()
+
+# normalise (mu, sigma) -> (0,1)
+Pf_mean_norm = Pf_mean-Pf_mean  # 0 
+Pf_std_norm = Pf_std/(np.sqrt(iterations*n_vars))
+print(f'Normalised, Gaussian Monte-Carlo Variable (Probability of Failure): mean = {Pf_mean_norm}, std. = {Pf_std_norm}')
+
+
+
+
+# plotting
+# plt.figure('1')
+# plt.clf()
+# plt.title(figname)
+# plt.bar(UD_names, Pf_vars) #, linewidth=1, color='red', marker='x', markersize=5, label='Max Stress')
+# plt.axhline(Pf, color='red', linestyle='--', label='Mean Failure Probability')
+# plt.xticks(fontsize = 16)
+# plt.yticks(fontsize = 16)
+# plt.legend(fontsize = 16)
+# plt.grid(True,alpha=0.5)
+# plt.ylabel(r"Probability of Failure", fontsize = 16)
+
+# error bar values w/ different -/+ errors that
+# also vary with the x-position
+lower_error =  np.zeros(n_vars)
+upper_error =  np.zeros(n_vars)
+for i in range(n_vars):
+    if Pf_mean>Pf_vars_mean[i]:
+        lower_error[i] = Pf_mean-Pf_vars_mean[i]
+    elif Pf_mean<=Pf_vars_mean[i]:
+        upper_error[i] = Pf_vars_mean[i]-Pf_mean
+asymmetric_error = np.array(list(zip(lower_error, upper_error))).T
+
+#filename = f'Monte_Carlo_Puck_Load={N_load/10**3}_Nslmm_R={iterations}_Nmax={N_max}'
+figname = f'Monte Carlo (Puck Criterion): Load = {N_load/10**3}N/mm, (R = {iterations}, Nmax = {N_max})'
+plt.figure('1')
+plt.clf()
+plt.title(figname)
+plt.errorbar(np.arange(n_vars), Pf_mean*np.ones(n_vars), asymmetric_error, color = 'blue', fmt='o', ecolor='red', capsize=6)
+# plt.errorbar(np.arange(n_vars), Pf_vars, asymmetric_error, color = 'blue', fmt='o', ecolor='red')
+plt.axhline(Pf_mean, color='blue', linestyle='--', label=f'Probability of Failure: {Pf_mean}')
+plt.xticks(np.arange(n_vars), UD_names, fontsize = 16)
+plt.yticks(fontsize = 16)
+plt.legend(fontsize = 16)
+plt.grid(True,alpha=0.5)
+plt.ylabel(r"Probability of Failure", fontsize = 16)
+
+
+figname = f'Monte Carlo Convergence (Central Limit Theorem): Load = {N_load/10**3}N/mm, (R = {iterations}, Nmax = {N_max})'
+plt.figure('2')
+plt.clf()
+plt.title(figname)
+# plt.plot(angleinputvector, damage_tol_Puck, linewidth=1, color='blue', linestyle='--', label='Puck')
+plt.axhline(Pf_mean, color='blue', linestyle='--', label=f'Probability of Failure: {Pf_mean}')
+plt.xticks(np.arange(n_vars), UD_names, fontsize = 16)
+plt.yticks(fontsize = 16)
+plt.legend(fontsize = 16)
+plt.grid(True,alpha=0.5)
+plt.ylabel(r"Probability of Failure", fontsize = 16)
+
+plt.show()

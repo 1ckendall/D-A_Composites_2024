@@ -106,7 +106,7 @@ UD_std = np.array((E1_std, E2_std, v12_std, G12_std, Xt_std, Yt_std, Xc_std, Yc_
 
 layup =  [0, 90, +45, -45, - 45, + 45, 90, 0, 0, 90, +45, -45, - 45, + 45, 90, 0] # laminate [0/90/±45]_2s
 
-N_load =  0.5e6 # 1e3 # (pf = 1) # 0.1e6 (pf = 1) # (pf = 0.7142857142857143)
+N_load = 0.5e6 #1.2e6 #0.5e6 # 1e3 # (pf = 1) # 0.1e6 (pf = 1) # (pf = 0.7142857142857143)
 
 
 theta = 30 # [deg], inclination of the load vector w.r.t. x-axis
@@ -115,7 +115,7 @@ Ny = N_load * np.sin(np.radians(theta)) # [N/m]
 
 n_vars = len(UD_mean) # number of independent, Gaussian random variables 
 # iterations = 10 # 3 # 1E8 Monte Carlo: number of rounds of simulations (R)
-iterations_arr = np.array([10,20,50])
+iterations_arr = np.array([10,20,50, 100, 500])
 Pf_for_error = np.zeros(len(iterations_arr)) #np.zeros_like(iterations_arr)
 abs_error_arr = np.zeros(len(iterations_arr)-1)# np.zeros_like(iterations_arr)
 rel_error_arr = np.zeros(len(iterations_arr)-1)#np.zeros_like(iterations_arr)
@@ -178,14 +178,14 @@ for i in range(len(iterations_arr)):
                     failuretracking = 2
                     firstplyfailureoccurence = True
                     Pf_arr[j] = 1/N
-                print(f'loop count: {loop_counter}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence}, failuremode: {ply.failuremode} ')
-            # print(f'loop count: {loop_counter}, i = {i}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence} ')
+                #print(f'loop count: {loop_counter}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence}, failuremode: {ply.failuremode} ')
+            print(f'loop count: {loop_counter}, i = {i}, j = {j}, k = {N}, isFPF?: {firstplyfailureoccurence} ')
             
     Pf_mean = np.mean(Pf_arr)
     Pf_std = np.std(Pf_arr)
-    print(f'\nLoad: {N_load}[N/m] => Probability of Failure: {Pf_mean}')
-    print(f'\nIterations (R): {iterations}, Nmax: {N_max} =>  Std. Dev: {Pf_std}')
-    print(f'\nLoad: {N_load}[N/m] => Probability of Failure: {Pf_mean}, Std. dev: {Pf_std}')
+    # print(f'\nLoad: {N_load}[N/m] => Probability of Failure: {Pf_mean}')
+    # print(f'\nIterations (R): {iterations}, Nmax: {N_max} =>  Std. Dev: {Pf_std}')
+    # print(f'\nLoad: {N_load}[N/m] => Probability of Failure: {Pf_mean}, Std. dev: {Pf_std}')
     
     Pf_for_error[i] = Pf_mean
 
@@ -196,7 +196,7 @@ for n in range(len(iterations_arr)-1):
 
 abs_error_tol = 0.01
     
-
+print(f'\nLoad: {N_load}[N/m] \n  Iterations: {iterations_arr}\n  Probability of Failure: {Pf_for_error}')
 
 # Record end time
 end_time = time.time()
@@ -212,10 +212,10 @@ plt.figure('1')
 plt.clf()
 plt.title(f'Convergence: Absolute Error')
 #plt.plot(np.linspace(1, len(abs_error_arr), len(abs_error_arr)), abs_error_arr, color ="black", linewidth = 1, marker = "x")
-plt.plot(iterations_arr[1:], abs_error_arr, color ="black", linewidth = 1, marker = "x")
-# plt.xlabel('Nelem [-]')
-# plt.ylabel(r'avg|${\frac{u_{num}-u_{ex}}{u_ex}}|$')
-
+plt.plot(iterations_arr[1:], abs_error_arr, color ="red", linewidth = 1, marker = "x")
+plt.axhline(abs_error_tol, color='blue', linestyle='--', label=f'Abs Error Threshold')
+plt.xlabel('Rounds of Simulations (R)')
+plt.ylabel(r'Absolute Error')
 # plt.figure('2')
 # plt.clf()
 # plt.title(f'Convergence: Relative Error')

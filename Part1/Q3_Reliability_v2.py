@@ -131,9 +131,6 @@ layup =  [0, 90, +45, -45, - 45, + 45, 90, 0, 0, 90, +45, -45, - 45, + 45, 90, 0
 # N_load = 0.4e6 #(pf = 0)
 N_load = 0.5e6 # (pf = 0.11583333333333333), oversensitive thickness
 
-
-
-
 theta = 30 # [deg], inclination of the load vector w.r.t. x-axis
 Nx = N_load * np.cos(np.radians(theta)) # [N]
 Ny = N_load * np.sin(np.radians(theta)) # [N]

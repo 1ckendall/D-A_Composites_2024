@@ -74,6 +74,7 @@ def calc_variable_thickness(V, M, n_points=4):
     Iyy = Ixx
     
     y = np.linspace(0, R_outer, n_points)
+    theta = np.zeros(len(y))
     t_arr = np.ones(len(y))*thickness_bending
     sigma_z = np.zeros(len(y))
     tau_xy = np.zeros(len(y))
@@ -82,16 +83,25 @@ def calc_variable_thickness(V, M, n_points=4):
     for i in range(len(y)):
         qs = V/(np.pi*R_outer)*np.sqrt(1-(y[i]/R_outer)**2)
         t_arr[i] =   1/sigma_a * np.sqrt((M*y[i]/(np.pi*R_outer**3))**2 + 3*qs**2)  
+        if i > 0:
+            theta[i] = np.arcsin(-(theta[0] - 1/R_outer*(y[i]-y[0])))
         print(f'y = {y[i]} m, t = {t_arr[i]}m')
+        #print(f'y = {y[i]} m, theta: {np.degrees(theta[i])}, t = {t_arr[i]}m')
         
-    return y, t_arr
+    arc_length = theta*D_outer/2 # [m]
+    mass_panel_segment = (arc_length[1:]-arc_length[:-1])*t_arr[1:]*rho # [kg/m]
+    # print(f'arc len: {arc_length}, mass_penl: {mass_panel_segment}')
+    mass_unit_length_quarter_fuselage = np.sum(mass_panel_segment)
+    mass_unit_length = 4*mass_unit_length_quarter_fuselage
+    return y, t_arr, mass_unit_length
 
-y_bending, t_bending = calc_variable_thickness(V= 0, M= M_x)
-y_shear, t_shear = calc_variable_thickness(V= V_y, M = 0)
-y_combined, t_combined = calc_variable_thickness(V= V_y, M = M_x)
+# y_bending, t_bending, m_bending = calc_variable_thickness(V= 0, M= M_x)
+# y_shear, t_shear, m_shear = calc_variable_thickness(V= V_y, M = 0)
+y_combined, t_combined, m_combined = calc_variable_thickness(V= V_y, M = M_x)
+print(f'Mass of variable thickness panel: {m_combined}')
 
-plt.step(y_bending, t_bending*10**3, where = 'pre', linestyle = '--', label = 'Bending Moment only')
-plt.step(y_shear, t_shear*10**3,  where = 'pre', linestyle = '--',label = 'Shear force only')
+# plt.step(y_bending, t_bending*10**3, where = 'pre', linestyle = '--', label = 'Bending Moment only')
+# plt.step(y_shear, t_shear*10**3,  where = 'pre', linestyle = '--',label = 'Shear force only')
 plt.step(y_combined, t_combined*10**3,  where = 'pre', label = 'Combined Loading')
 # plt.step(y_bending, t_bending*10**3, where = 'post',  label = 'Bending Moment only')
 # plt.step(y_shear, t_shear*10**3,  where = 'post',label = 'Shear force only')
@@ -105,7 +115,7 @@ plt.step(y_combined, t_combined*10**3,  where = 'pre', label = 'Combined Loading
 plt.legend()
 plt.xlabel('Fuselage Height (y) [m]')
 plt.ylabel('Skin thickness (t) [mm]')
-plt.show()
+# plt.show()
     
     
 

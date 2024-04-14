@@ -467,6 +467,8 @@ PROGRESSIVE DAMAGE CLASS IS A WORK IN PROGRESS (SOURCE: Q2_Progressive_Damage_An
     2) isLPF_MaxStress ---- first run is FPF. If FPF True, run progressive damage analysis and return true/false on LPF
     3) isFPF_Puck ---- return True/False
     4) isLPF_Puck ---- first run is FPF. If FPF True, run progressive damage analysis and return true/false on LPF
+    
+    OPTIONAL: return failuremode
 ----------------------------
      
 class ProgressiveDamageAnalysis(Laminate):

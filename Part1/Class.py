@@ -456,3 +456,155 @@ class Laminate:
         self.sigma11 = self.localstressVector[0::3]
         self.sigma22 = self.localstressVector[1::3]
         self.sigma12 = self.localstressVector[2::3]
+        
+'''
+----------------------------
+PROGRESSIVE DAMAGE CLASS IS A WORK IN PROGRESS (SOURCE: Q2_Progressive_Damage_Analysis_v2.py)   
+--Scope
+---For a given laminate and loading, implement FPF and LPF under various failure criterion (max stress, Puck). Return 'True' is any failure is detected. 
+---Implement four functions:
+    1) isFPF_MaxStress  ---- return True/False
+    2) isLPF_MaxStress ---- first run is FPF. If FPF True, run progressive damage analysis and return true/false on LPF
+    3) isFPF_Puck ---- return True/False
+    4) isLPF_Puck ---- first run is FPF. If FPF True, run progressive damage analysis and return true/false on LPF
+----------------------------
+     
+class ProgressiveDamageAnalysis(Laminate):
+    def isFPF_MaxStress(firstplyfailureoccurence = False):
+        for k in range(len( anglelist)): 
+                laminaangle = anglelist[k]
+                Sigma1 = LaminateQ3.sigma11[k]
+                Sigma2 = LaminateQ3.sigma22[k]
+                tau21 =  LaminateQ3.sigma12[k]
+                failurechecking  = Lamina(laminaangle,E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t,sigma_1=Sigma1,sigma_2=Sigma2,tau_21=tau21)
+                failurechecking.maxStressFibreFail() #fiber failure
+                failurechecking.maxStressInterFibreFail() #InterFiberfailure
+                failurechecking.maxStressShearFail() #Shearfailure
+                if failurechecking.failuremode == 'Tensile Fibre' or failurechecking.failuremode == 'Compressive Fibre' :
+                    failuretracking[k] = 2
+                    E1[k] = 1E-25
+                    E2[k]=1E-25
+                    v12[k] =1E-25
+                    G12[k]=1E-25
+                    failedplys[k] =True
+                if failurechecking.failuremode == 'Tensile Inter-Fibre' or failurechecking.failuremode=="Compressive Inter-Fibre":
+                        failuretracking[k] +=1
+                        E2[k] = 0.1*E2[k] 
+                        v12[k] =0.1*v12[k]
+                        G12[k]=0.1*G12[k]
+                if failurechecking.failuremode ==  "Shear Parallel to Fibres":
+                        failuretracking[k] +=1
+                        E2[k] = 0.1*E2[k] 
+                        v12[k] =0.1*v12[k]
+                        G12[k]=0.1*G12[k]
+        for firsplyfail in  failuretracking : 
+            if firsplyfail >= 2 and  not firstplyfailureoccurence: 
+                firstplyfailureoccurence = True
+                
+        return firstplyfailureoccurence
+    
+    
+    def isLPF_MaxStress(lastplyfailureoccurence = False):
+        
+        if lastplyfailureoccurence==False:
+               plylist = []
+               
+               stressloading = np.array([j*np.cos(np.radians(angleinputvector[i])),j*np.sin(np.radians(angleinputvector[i])), 0.])#np.array([0,j,j])         
+   
+               stressused = stressloading
+               
+               nx=stressused[0]
+               ny=stressused[1]
+               ns=stressused[2]
+               for k in range(len(anglelist)): 
+                   plylist.append(Lamina(anglelist[k],E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t))
+               LaminateQ3 = Laminate(plylist,Nx=nx,Ny=ny,Ns=ns,Mx=0,My=0,Ms=0,Loadangle=angleinputvector[i])
+               LaminateQ3.getstressstrainEnvelope()
+               # print(f'Midplane strain (global): ey:{LaminateQ3.eyglobal}, es:{LaminateQ3.esglobal}')
+               
+
+                       
+                for k in range(len( anglelist)): 
+                    laminaangle = anglelist[k]
+                    Sigma1 = LaminateQ3.sigma11[k]
+                    Sigma2 = LaminateQ3.sigma22[k]
+                    tau21 =  LaminateQ3.sigma12[k]
+                    failurechecking  = Lamina(laminaangle,E1[k],E2[k],G12[k],v12[k],Xt,Xc,Yt,Yc,S,t,sigma_1=Sigma1,sigma_2=Sigma2,tau_21=tau21)
+                    failurechecking.maxStressFibreFail() #fiber failure
+                    failurechecking.maxStressInterFibreFail() #InterFiberfailure
+                    failurechecking.maxStressShearFail() #Shearfailure
+                    if failurechecking.failuremode == 'Tensile Fibre' or failurechecking.failuremode == 'Compressive Fibre' :
+                        failuretracking[k] = 2
+                        E1[k] = 1E-25
+                        E2[k]=1E-25
+                        v12[k] =1E-25
+                        G12[k]=1E-25
+                        failedplys[k] =True
+                    if failurechecking.failuremode == 'Tensile Inter-Fibre' or failurechecking.failuremode=="Compressive Inter-Fibre":
+                            failuretracking[k] +=1
+                            E2[k] = 0.1*E2[k] 
+                            v12[k] =0.1*v12[k]
+                            G12[k]=0.1*G12[k]
+                    if failurechecking.failuremode ==  "Shear Parallel to Fibres":
+                            failuretracking[k] +=1
+                            E2[k] = 0.1*E2[k] 
+                            v12[k] =0.1*v12[k]
+                            G12[k]=0.1*G12[k]
+                            
+                    # first ply failure (FPF): store failure mode, load, stress, strain ply
+                    for firsplyfail in  failuretracking : 
+                        if firsplyfail >= 2 and  not firstplyfailureoccurence: 
+                            firstplyfailureoccurence = True
+                            
+                            firstfailure_loadX =LaminateQ3.sigmaxprime
+                            firstfailure_loadY =LaminateQ3.sigmayprime
+                            firstfailure_loadS = LaminateQ3.sigmaxyprime
+                            firstfailure_eX = LaminateQ3.exglobal
+                            firstfailure_eY = LaminateQ3.eyglobal
+                            firstfailure_eS = LaminateQ3.esglobal
+                            
+                            firstfailure_MaxStress[i,0] = firstfailure_loadX
+                            firstfailure_MaxStress[i,1] = firstfailure_loadY
+                            firstfailure_MaxStress[i,2] = firstfailure_loadS
+
+                            firstfailure_globalstrain_MaxStress[i,0] = firstfailure_eX
+                            firstfailure_globalstrain_MaxStress[i,1] = firstfailure_eY
+                            firstfailure_globalstrain_MaxStress[i,2] = firstfailure_eS
+                            print(f'First-Ply Failure [FPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, \nLoadY: {firstfailure_loadY}, LoadS: {firstfailure_loadS}\ney: {firstfailure_eY}, es: {firstfailure_eS}\n')
+                    
+                    # ply removal: zero the properties of that lamina
+                    if failuretracking[k] >=2:
+                        E1[k] = 1E-25
+                        E2[k]=1E-25
+                        v12[k] =1E-25
+                        G12[k]=1E-25                        
+                        for entry in failuretracking:
+                            if lastplyfailureoccurence == False: 
+                                if all(entry >=2 for entry in failuretracking):
+                                    lastplyfailureoccurence = True 
+                                    
+                                    lastfailure_loadX =LaminateQ3.sigmaxprime
+                                    lastfailure_loadY =LaminateQ3.sigmayprime
+                                    lastfailure_loadS = LaminateQ3.sigmaxyprime
+                                    lastfailure_eX = LaminateQ3.exglobal
+                                    lastfailure_eY = LaminateQ3.eyglobal
+                                    lastfailure_eS = LaminateQ3.esglobal                           
+                                    
+                                    lastfailure_MaxStress[i,0] = lastfailure_loadX
+                                    lastfailure_MaxStress[i,1] = lastfailure_loadY
+                                    lastfailure_MaxStress[i,2] =lastfailure_loadS 
+                                    lastfailure_globalstrain_MaxStress[i,0] = lastfailure_eX
+                                    lastfailure_globalstrain_MaxStress[i,1] = lastfailure_eY
+                                    lastfailure_globalstrain_MaxStress[i,2] = lastfailure_eS
+                                    print(f'Last-Ply Failure [LPF]: Ply index: {k}, Fibre angle: {laminaangle}, \nFailure Mode: {failurechecking.failuremode}, LoadY: {lastfailure_loadY}, LoadS: {lastfailure_loadS}\ney: {lastfailure_eY}, es: {lastfailure_eS}\n\n')
+                                
+                                    assert np.allclose(failuretracking, 2)
+                                    break
+'''
+           
+    
+    
+    
+    
+    
+    

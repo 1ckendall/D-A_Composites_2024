@@ -63,23 +63,48 @@ thickness_shear, wt = calc_thickness_for_shear(V = V_y, S = S, R = R_outer, sf =
 print(f"Shear thickness in m = {thickness_shear}")
 print(f"weight per length ={wt}")
 
-Ixx = np.pi*R_outer**3*t
-Iyy = Ixx
-y = np.linspace(0, R_outer, 4)
-t_arr = np.ones(len(y))*thickness_bending
-sigma_z = np.zeros(len(y))
-tau_xy = np.zeros(len(y))
 
-def vonMises(sigma_z, tau_xy):
+
+def calc_vonMises(sigma_z, tau_xy):
     return np.sqrt(sigma_z**2 + 3*tau_xy**2)
 
-sigma_a = Xt/sf_global # Yt taken as minimum
-for i in range(len(y)):
-    qs = V_y/(np.pi*R_outer)*np.sqrt(1-(y[i]/R_outer)**2)
-    t_arr[i] =   1/sigma_a * np.sqrt((M_x*y[i]/(np.pi*R_outer**3))**2 + 3*qs**2)  
-    print(f'y = {y[i]} m, t = {t_arr[i]}m')
+def calc_variable_thickness(V, M, n_points=4):
     
-plt.plot(y, t_arr, marker ='o')
+    Ixx = np.pi*R_outer**3*t
+    Iyy = Ixx
+    
+    y = np.linspace(0, R_outer, n_points)
+    t_arr = np.ones(len(y))*thickness_bending
+    sigma_z = np.zeros(len(y))
+    tau_xy = np.zeros(len(y))
+    sigma_a = Xt/sf_global # Yt taken as minimum
+    
+    for i in range(len(y)):
+        qs = V/(np.pi*R_outer)*np.sqrt(1-(y[i]/R_outer)**2)
+        t_arr[i] =   1/sigma_a * np.sqrt((M*y[i]/(np.pi*R_outer**3))**2 + 3*qs**2)  
+        print(f'y = {y[i]} m, t = {t_arr[i]}m')
+        
+    return y, t_arr
+
+y_bending, t_bending = calc_variable_thickness(V= 0, M= M_x)
+y_shear, t_shear = calc_variable_thickness(V= V_y, M = 0)
+y_combined, t_combined = calc_variable_thickness(V= V_y, M = M_x)
+
+plt.step(y_bending, t_bending*10**3, where = 'pre', linestyle = '--', label = 'Bending Moment only')
+plt.step(y_shear, t_shear*10**3,  where = 'pre', linestyle = '--',label = 'Shear force only')
+plt.step(y_combined, t_combined*10**3,  where = 'pre', label = 'Combined Loading')
+# plt.step(y_bending, t_bending*10**3, where = 'post',  label = 'Bending Moment only')
+# plt.step(y_shear, t_shear*10**3,  where = 'post',label = 'Shear force only')
+# plt.step(y_combined, t_combined*10**3,  where = 'post', label = 'Combined Loading')
+# plt.plot(y_bending, t_bending*10**3, marker = 'x', label = 'Bending Moment only')
+# plt.plot(y_shear, t_shear*10**3, marker = '*', label = 'Shear force only')
+# plt.plot(y_combined, t_combined*10**3, marker = 'o', label = 'Combined Loading')
+# plt.plot(y_bending, t_bending*10**3, linestyle = '--', label = 'Bending Moment only')
+# plt.plot(y_shear, t_shear*10**3, linestyle = '--',  label = 'Shear force only')
+# plt.plot(y_combined, t_combined*10**3, label = 'Combined Loading')
+plt.legend()
+plt.xlabel('Fuselage Height (y) [m]')
+plt.ylabel('Skin thickness (t) [mm]')
 plt.show()
     
     

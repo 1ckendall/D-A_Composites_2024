@@ -32,8 +32,8 @@ R_inner = D_inner/2 # [m]
 I_xx = np.pi * (D_outer**4 - D_inner**4) / 64 # [m]
 I_yy = I_xx # [m] # assume 
 
-sf_bending = 2 # TODO: placeholder value for safety factor
-sf_shear = 2 # TODO: placeholder value for safety factor
+sf_bending = 1.5 # safety factor source: Airframe Stress Analysis and Sizing
+sf_shear = 1.5 # safety factor source: Airframe Stress Analysis and Sizing
 
 
 # Uniaxial Bending 
@@ -44,7 +44,7 @@ def calc_thickness_for_bending(M,R,Yt,sf,rho): # Momnent, Outer Radius, yeild st
   weight_per_length = rho*2*np.pi*R*t
   return t,weight_per_length
 
-thickness, wt = calc_thickness_for_bending(M = M_x, R = R_outer, Yt = Yt, sf = sf_bending, rho = rho) 
+thickness, wt = calc_thickness_for_bending(M = M_x, R = R_outer, Yt = Xt, sf = sf_bending, rho = rho) 
 
 print(f"Bending thickness in m = {thickness}")
 print(f"weight per length ={wt}")
@@ -52,7 +52,7 @@ print(f"weight per length ={wt}")
 
 # Shear 
 def calc_thickness_for_shear(V, S, R, sf, rho, theta = np.pi/2):
-    qs = - V/(np.pi*R)*np.sin(theta)
+    qs = V/(np.pi)*R*np.sin(theta)
     tau_allow = S/sf
     t = qs/tau_allow
     weight_per_length = rho*2*np.pi*R*t

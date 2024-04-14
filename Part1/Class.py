@@ -93,16 +93,21 @@ class Lamina:
         assert np.allclose(self.Qbarmat, Qbarmat)
         
     def maxStressFibreFail(self):
+        # print(f'tensile fibre: {self.sigma_1 / (self.Xt)}')
+        # print(f'compressive fibre: {(self.sigma_1 /( self.Xc))*(-1)}')
         if self.sigma_1 / (self.Xt) >= 1:
             self.failuremode = "Tensile Fibre"
         elif (self.sigma_1 /( self.Xc))*(-1) >= 1:
             self.failuremode = "Compressive Fibre"
     
     def maxStressInterFibreFail(self):
+        # print(f'tensile fibre: {self.sigma_1 / (self.Xt)}')
+        # print(f'compressive Inter-fibre: {(self.sigma_2 / (self.Yc))*(-1)}')
         if self.sigma_2 / self.Yt >= 1: #or self.sigma_3 / self.Rtt >= 1:
             self.failuremode = "Tensile Inter-Fibre"
         elif (self.sigma_2 / (self.Yc))*(-1) >= 1 :#or self.sigma_3 / self.Rtc >=1
             self.failuremode = "Compressive Inter-Fibre"
+
             
     def maxStressShearFail(self):
         if np.abs(self.tau_21) / self.S >= 1 : #or self.tau_31 / self.Rls >= 1:

@@ -48,6 +48,9 @@ angleinputvector = np.arange(0,450,90)  ## UNCOMMENT FOR SHORT RUN
 # stressinputvector = np.arange(1E3,1E8,500) ## UNCOMMENT FOR FINAL RUN
 # angleinputvector = np.arange(0,390,30) ## UNCOMMENT FOR FINAL RUN
 
+stressinputvector = np.arange(0.4e6,2e6,0.1e6) ## UNCOMMENT FOR SHORT RUN
+angleinputvector = np.arange(0,50,5)  ## UNCOMMENT FOR SHORT RUN
+
 ## 2ai: Failure Theory of Maximum Stress 
 firstfailure_MaxStress = np.zeros((len(angleinputvector),3))
 firstfailure_globalstrain_MaxStress =np.zeros((len(angleinputvector),3))
@@ -75,7 +78,7 @@ if run_maxStress:
          if lastplyfailureoccurence==False:
                 plylist = []
                 
-                stressloading = np.array([0,j,j])         
+                stressloading = np.array([j*np.cos(np.radians(angleinputvector[i])),j*np.sin(np.radians(angleinputvector[i])), 0.])#np.array([0,j,j])         
     
                 stressused = stressloading
                 
@@ -192,7 +195,7 @@ if run_Puck:
          if lastplyfailureoccurence==False:
                 plylist = []
                 
-                stressloading = np.array([0,j,j])         
+                stressloading = np.array([j*np.cos(np.radians(angleinputvector[i])),j*np.sin(np.radians(angleinputvector[i])), 0.])#np.array([0,j,j])         
     
                 stressused = stressloading
                 

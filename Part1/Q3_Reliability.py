@@ -111,9 +111,9 @@ layup =  [0, 90, +45, -45, - 45, + 45, 90, 0, 0, 90, +45, -45, - 45, + 45, 90, 0
 # benchmark N_load for Puck
 N_load = 0.6e6  # 0.6e6 ((num_points=int(1e6), pf = 0.3444444444444444), (num_points=int(1e5), pf = 0.3305555555555556), (num_points=int(1e4), pf =  0.35666666666666663)) # 0.7e6 (pf =  1.0) # 0.5e6 (pf =  0.0) # 0.1e6 (pf =  0.0) # 1e6 (pf =  1.0) # 2e6 (pf =  1.0) # 3e6 (pf =  1.0) # 1.2e6 [N/m] (pf = 0.0003) # 0.85e6 [N/m] (pf = 0), applied load
 
-theta = 0 # [deg], inclination of the load vector w.r.t. x-axis
+theta = 30 # [deg], inclination of the load vector w.r.t. x-axis
 Nx = N_load * np.cos(np.radians(theta)) # [N]
-Ny = N_load * np.cos(np.radians(theta)) # [N]
+Ny = N_load * np.sin(np.radians(theta)) # [N]
 
 n_vars = len(UD_mean) # number of independent, Gaussian random variables 
 iterations = 3 # 3 # 1E8 Monte Carlo: number of rounds of simulations (R)
@@ -193,7 +193,7 @@ for i in range(n_vars): # full simulation
                 # Max Stress: (any failure is considered FPF) # INCORRECT
                 # if ply.failuremode == "Tensile Fibre" or ply.failuremode == "Compressive" or ply.failuremode == "Tensile Inter-Fibre" or ply.failuremode=="Compressive Inter-Fibre" or ply.failuremode ==  "Shear Parallel to Fibres":
                     
-                if failuretracking == 2:
+                if failuretracking == 2: #INCORRECT
                     firstplyfailureoccurence = True
                     Pf_arr[i,j] = 1/N
                     print(f'Failure at: i = {i}, j = {j}, k = {N}, Failure mode: {ply.failuremode} ')
@@ -271,16 +271,16 @@ plt.grid(True,alpha=0.5)
 plt.ylabel(r"Probability of Failure", fontsize = 16)
 
 
-figname = f'Monte Carlo Convergence (Central Limit Theorem): Load = {N_load/10**3}N/mm, (R = {iterations}, Nmax = {N_max})'
-plt.figure('2')
-plt.clf()
-plt.title(figname)
-# plt.plot(angleinputvector, damage_tol_Puck, linewidth=1, color='blue', linestyle='--', label='Puck')
-plt.axhline(Pf_mean, color='blue', linestyle='--', label=f'Probability of Failure: {Pf_mean}')
-plt.xticks(np.arange(n_vars), UD_names, fontsize = 16)
-plt.yticks(fontsize = 16)
-plt.legend(fontsize = 16)
-plt.grid(True,alpha=0.5)
-plt.ylabel(r"Probability of Failure", fontsize = 16)
+# figname = f'Monte Carlo Convergence (Central Limit Theorem): Load = {N_load/10**3}N/mm, (R = {iterations}, Nmax = {N_max})'
+# plt.figure('2')
+# plt.clf()
+# plt.title(figname)
+# # plt.plot(angleinputvector, damage_tol_Puck, linewidth=1, color='blue', linestyle='--', label='Puck')
+# plt.axhline(Pf_mean, color='blue', linestyle='--', label=f'Probability of Failure: {Pf_mean}')
+# plt.xticks(np.arange(n_vars), UD_names, fontsize = 16)
+# plt.yticks(fontsize = 16)
+# plt.legend(fontsize = 16)
+# plt.grid(True,alpha=0.5)
+# plt.ylabel(r"Probability of Failure", fontsize = 16)
 
 plt.show()

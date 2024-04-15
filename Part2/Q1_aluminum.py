@@ -70,8 +70,8 @@ def calc_vonMises(sigma_z, tau_xy):
 
 def calc_variable_thickness(V, M, n_points=4):
     
-    Ixx = np.pi*R_outer**3*t
-    Iyy = Ixx
+    # Ixx = np.pi*R_outer**3*t
+    # Iyy = Ixx
     
     y = np.linspace(0, R_outer, n_points)
     theta = np.zeros(len(y))
@@ -85,12 +85,12 @@ def calc_variable_thickness(V, M, n_points=4):
         t_arr[i] =   1/sigma_a * np.sqrt((M*y[i]/(np.pi*R_outer**3))**2 + 3*qs**2)  
         if i > 0:
             theta[i] = np.arcsin(-(theta[0] - 1/R_outer*(y[i]-y[0])))
-        print(f'y = {y[i]} m, t = {t_arr[i]}m')
+        # print(f'y = {y[i]} m, t = {t_arr[i]}m')
         #print(f'y = {y[i]} m, theta: {np.degrees(theta[i])}, t = {t_arr[i]}m')
         
     arc_length = theta*D_outer/2 # [m]
     mass_panel_segment = (arc_length[1:]-arc_length[:-1])*t_arr[1:]*rho # [kg/m]
-    # print(f'arc len: {arc_length}, mass_penl: {mass_panel_segment}')
+    print(f'arc len: {arc_length}, mass_penl: {mass_panel_segment}')
     mass_unit_length_quarter_fuselage = np.sum(mass_panel_segment)
     mass_unit_length = 4*mass_unit_length_quarter_fuselage
     return y, t_arr, mass_unit_length

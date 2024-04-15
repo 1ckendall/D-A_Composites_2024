@@ -93,16 +93,12 @@ class Lamina:
         assert np.allclose(self.Qbarmat, Qbarmat)
         
     def maxStressFibreFail(self):
-        # print(f'tensile fibre: {self.sigma_1 / (self.Xt)}')
-        # print(f'compressive fibre: {(self.sigma_1 /( self.Xc))*(-1)}')
         if self.sigma_1 / (self.Xt) >= 1:
             self.failuremode = "Tensile Fibre"
         elif (self.sigma_1 /( self.Xc))*(-1) >= 1:
             self.failuremode = "Compressive Fibre"
     
     def maxStressInterFibreFail(self):
-        # print(f'tensile fibre: {self.sigma_1 / (self.Xt)}')
-        # print(f'compressive Inter-fibre: {(self.sigma_2 / (self.Yc))*(-1)}')
         if self.sigma_2 / self.Yt >= 1: #or self.sigma_3 / self.Rtt >= 1:
             self.failuremode = "Tensile Inter-Fibre"
         elif (self.sigma_2 / (self.Yc))*(-1) >= 1 :#or self.sigma_3 / self.Rtc >=1
@@ -114,8 +110,8 @@ class Lamina:
             self.failuremode = "Shear Parallel to Fibres"
         # elif self.tau_21 / (-self.S) >=1:  
         #     self.failuremode = "Shear Parallel to Fibres" 
-        #elif self.tau_23 / self.Rts >= 1: 
-           # self.failuremode = "Shear Perpendicular to Fibres"
+        # elif self.tau_23 / self.Rts >= 1: 
+        #     self.failuremode = "Shear Perpendicular to Fibres"
         
     # def PuckFibreFail(self, sigma_2, gamma_21, epsilon1T, epsilon1C, epsilon1, m_sigmaf = 1.1): 
     #     """Calculates the Puck failure of the fibres in the UD lamina

@@ -266,12 +266,31 @@ print(f'var_cfrp_mass: {var_cfrp_mass} [kg/m]')
 
 
 Dmatrix = baseline_laminate.D
-print(Dmatrix)
-# def Buckling_check(Nx,Ny,Ns,Mx,My,Ms,self.ABD,a,b,m):
-#     D_matrix = self.D 
-#     N_0 = ((np.pi**2) *self.D[1,1] )
+
+def Buckling_check(Nx,Ny,Ns,Dmatrix,a,b,m):
+     AR = a/b
+     #for compressive loading 
+     N_0 = ((np.pi**2) *(Dmatrix[0,0]*m**4 + 2*(Dmatrix[0,1]+2*Dmatrix[2,2])*(m**2)*(AR**2)+Dmatrix[1,1]*(AR**4) ))/((a**2)*(m**2))
+     #shear buckling: 
+     beta = (Dmatrix[0,0]/Dmatrix[1,1])**(1/4)
+     A = -0.27 + 0.185 *((Dmatrix[0,1]+2*Dmatrix[2,2])/(np.sqrt(Dmatrix[0,0]*Dmatrix[1,1])))
+     
+     
+     B =0.82 + 0.46*((Dmatrix[0,1]+2*Dmatrix[2,2])/(np.sqrt(Dmatrix[0,0]*Dmatrix[1,1]))) -0.2*((Dmatrix[0,1]+2*Dmatrix[2,2])/(np.sqrt(Dmatrix[0,0]*Dmatrix[1,1])))**2
+     K = 8.2 + 5 * ((Dmatrix[0,1]+2*Dmatrix[2,2])/(Dmatrix[0,0]*Dmatrix[1,1]))*(1/(10**(A/beta + B*beta)))
+     Nxy = 4/(b**2) *( (Dmatrix[0,0]*Dmatrix[1,1]**3)**(1/4)) * K 
+     #check for compressive loading: 
+     if  Nx < 0: 
+         Rc = Nx / N_0 
+     elif Ny < 0 : 
+         Rc = Ny / N_0
+     #for shear loading: 
+     Rs = np.abs(Ns) / Nxy 
+     R = Rc + Rs**2 
+     if R >=1 : 
+         print('buckling has occured')
+     elif R <1: 
+         print('no buckling')
 
 
-
-
-
+#

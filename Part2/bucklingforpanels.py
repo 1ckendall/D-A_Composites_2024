@@ -5,12 +5,6 @@ from Q1_aluminum import *
 
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-from Class import Lamina, Laminate
-from Q1_aluminum import *
-
-
 # Composite (UD tape) material properties 
 Ex = 142*10**9 # [Pa]
 Ey = 11.2*10**9 # [Pa]
@@ -152,13 +146,13 @@ t_top = t_baseline
 
 diagonal_layup = [+45, -45, 0, 0, -45, +45,
                          90,
-                 +45, -45, 0, 0, -45, +45]
+                 +45, -45, 0, 0, -45, +45,]
 t_diagonal =  t_ply*len(diagonal_layup) # close enough to # t_composite_arr[-2] (dropped 2 plies- for symmetry instead of 3- optimal)
 
 
 middle_layup = [+45, -45, 0, -45, +45,
                          90,
-                 +45, -45, 0, -45, +45]
+                 +45, -45, 0, -45, +45,]
 t_middle =  t_ply*len(middle_layup) # close enough to # t_composite_arr[-2] (dropped 4 plies- for symmetry instead of 5- optimal)
 
 
@@ -189,6 +183,10 @@ top_laminate.getStressStrain()
 diagonal_laminate.getStressStrain()
 middle_laminate.getStressStrain()
 baseline_laminate.getABD()
+top_laminate.getABD()
+diagonal_laminate.getABD()
+middle_laminate.getABD()
+
 
 # Retrieve stress vectors in principal coordinate system
 baseline_stress_vector = baseline_laminate.localstressVector
@@ -264,11 +262,11 @@ print(f'var_cfrp_mass: {var_cfrp_mass} [kg/m]')
 
 
 
-
-Dmatrix = baseline_laminate.D
+#checkling of buckling
 
 def Buckling_check(Nx,Ny,Ns,Dmatrix,a,b,m):
      AR = a/b
+     R_buckling = 0
      #for compressive loading 
      N_0 = ((np.pi**2) *(Dmatrix[0,0]*m**4 + 2*(Dmatrix[0,1]+2*Dmatrix[2,2])*(m**2)*(AR**2)+Dmatrix[1,1]*(AR**4) ))/((a**2)*(m**2))
      #shear buckling: 
@@ -279,18 +277,28 @@ def Buckling_check(Nx,Ny,Ns,Dmatrix,a,b,m):
      B =0.82 + 0.46*((Dmatrix[0,1]+2*Dmatrix[2,2])/(np.sqrt(Dmatrix[0,0]*Dmatrix[1,1]))) -0.2*((Dmatrix[0,1]+2*Dmatrix[2,2])/(np.sqrt(Dmatrix[0,0]*Dmatrix[1,1])))**2
      K = 8.2 + 5 * ((Dmatrix[0,1]+2*Dmatrix[2,2])/(Dmatrix[0,0]*Dmatrix[1,1]))*(1/(10**(A/beta + B*beta)))
      Nxy = 4/(b**2) *( (Dmatrix[0,0]*Dmatrix[1,1]**3)**(1/4)) * K 
+     print('buckling',N_0,Nxy)
      #check for compressive loading: 
+     R_c = 0
      if  Nx < 0: 
-         Rc = Nx / N_0 
+         R_c = Nx / N_0 
      elif Ny < 0 : 
-         Rc = Ny / N_0
+         R_c = Ny / N_0
      #for shear loading: 
-     Rs = np.abs(Ns) / Nxy 
-     R = Rc + Rs**2 
-     if R >=1 : 
+     R_s = np.abs(Ns) / Nxy 
+     R_buckling = R_c + R_s**2 
+     if R_buckling >=1 : 
          print('buckling has occured')
-     elif R <1: 
+         print('shear ratio',R_s**2)
+         print('Compressive ration',R_c)
+     elif R_buckling <1: 
          print('no buckling')
 
 
-#
+# baseline laminate 
+baselinelaminate_buckling = Buckling_check(Nx=n_x_arr[3],Ny=0,Ns=n_s_arr[0],Dmatrix=baseline_laminate.D,a=1,b=1,m=1)
+toplam = Buckling_check(Nx=n_x_arr[3],Ny=0,Ns=n_s_arr[2],Dmatrix=top_laminate.D,a=1,b=1,m=1)
+diagonal = Buckling_check(Nx=n_x_arr[2],Ny=0,Ns=n_s_arr[1],Dmatrix=diagonal_laminate.D,a=1,b=1,m=1)
+middle = Buckling_check(Nx=n_x_arr[1],Ny=0,Ns=n_s_arr[0],Dmatrix=middle_laminate.D,a=1,b=1,m=1)
+
+

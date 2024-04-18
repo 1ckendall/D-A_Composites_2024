@@ -71,7 +71,7 @@ shear_force_2_CR=np.sum(shear_val[117:135])
 
 print(shear_force_1_R)
 print(shear_force_3_T)
-print(force_panel_3_T)
+print('á',force_panel_3_T)
 
 
 # total force on panel due to bending

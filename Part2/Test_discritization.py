@@ -264,7 +264,7 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
     #print(sig_skin[node])
     #print(sig_stiffner[node])
 
-    '''
+    
     plt.scatter(x[0:9],y[0:9],color='blue',marker='s',s=33)
     plt.scatter(x[9:27],y[9:27],color='red',marker='s',s=66)
     plt.scatter(x[27:45],y[27:45],color='black',marker='s',s=100)
@@ -274,7 +274,7 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
     plt.scatter(x[99:117],y[99:117],color='black',marker='s',s=100)
     plt.scatter(x[117:135],y[117:135],color='red',marker='s',s=66)
     plt.scatter(x[135:144],y[135:144],color='blue',marker='s',s=33)
-    '''
+    
     plt.scatter(x[node],y[node],color='black',marker='o',s=150)
     #plt.scatter(x[node-num_points+1],y[node-num_points+1],color='blue',marker='o',s=150)
     plt.scatter(x[node-1],y[node-1],color='red',marker='o',s=150)

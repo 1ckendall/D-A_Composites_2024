@@ -43,13 +43,14 @@ print('stiffnest value for panel in MPa=', Ex/1e6)
     # skin parameters
 t_ply=0.135e-3
 Eskin_val=[(45.23*10**9),(60.22*10**9),(71.21*10**9)]
-T_skin=[T_p3-8,T_p3-4,T_p3]
+T_skin=[T_p3,T_p3,T_p3]
 
 #stiffner parameters
-A_stiffner=[0,6.823e-5,0.000179,0.000179]
+A_stiffner=[0,0.000179,0.000179,0.000179]
 
-force_val,shear_val=compute_forces(T_skin,Eskin_val,A_stiffner)
-
+force_val,shear_val,weight=compute_forces(T_skin,Eskin_val,A_stiffner)
+#print(np.max(shear_val))
+print('weight=',weight)
 force_panel_1_R=np.sum(force_val[0:9])+np.sum(force_val[135:144])
 force_panel_2_TR=np.sum(force_val[9:27])
 force_panel_3_T=np.sum(force_val[27:45])
@@ -59,14 +60,14 @@ force_panel_2_CL=np.sum(force_val[81:99])
 force_panel_3_C=np.sum(force_val[99:117])
 force_panel_2_CR=np.sum(force_val[117:135])
 
-shear_force_1_R=np.sum(shear_val[0:9])+np.sum(shear_val[135:144])
-shear_force_2_TR=np.sum(shear_val[9:27])
-shear_force_3_T=np.sum(shear_val[27:45])
-shear_force_2_TL=np.sum(shear_val[45:63])
-shear_force_1_L=np.sum(shear_val[63:81])
-shear_force_2_CL=np.sum(shear_val[81:99])
-shear_force_3_C=np.sum(shear_val[99:117])
-shear_force_2_CR=np.sum(shear_val[117:135])
+shear_force_1_R=np.max(shear_val[0:9]) and np.max(shear_val[135:144])
+shear_force_2_TR=np.max(shear_val[9:27])
+shear_force_3_T=np.max(shear_val[27:45])
+shear_force_2_TL=np.max(shear_val[45:63])
+shear_force_1_L=np.max(shear_val[63:81])
+shear_force_2_CL=np.max(shear_val[81:99])
+shear_force_3_C=np.max(shear_val[99:117])
+shear_force_2_CR=np.max(shear_val[117:135])
 
 print('shear force value on plate 1= ',shear_force_1_R)
 print('Normal Force on plate 1=', force_panel_1_R)
@@ -75,8 +76,8 @@ print("Normal Force", force_panel_3_C)
 
 
 # total force on panel due to bending
-Ftot= 53287.9338935 # N
-shear_panel = 292524.656885 # N/m
+Ftot= 3514.26 # N
+shear_panel =166159.9408869155 # N/m
 ds=0.13089 #m
 a=1 #m
 b=2.35619 #m

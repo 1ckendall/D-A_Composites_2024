@@ -45,9 +45,8 @@ t_ply=0.135e-3
 Eskin_val=[(45.23*10**9),(60.22*10**9),(71.21*10**9)]
 T_skin=[T_p3-8,T_p3-4,T_p3]
 
-    #stiffner parameters
-A_stiffner=[0,6.823e-5,0.000230,0.000160]
-Estiffner_val=[0, 48.216e9, 71.265e9, 74.07e9]
+#stiffner parameters
+A_stiffner=[0,6.823e-5,0.000179,0.000179]
 
 force_val,shear_val=compute_forces(T_skin,Eskin_val,A_stiffner)
 
@@ -69,19 +68,20 @@ shear_force_2_CL=np.sum(shear_val[81:99])
 shear_force_3_C=np.sum(shear_val[99:117])
 shear_force_2_CR=np.sum(shear_val[117:135])
 
-print(shear_force_1_R)
-print(shear_force_3_T)
-print('á',force_panel_3_T)
+print('shear force value on plate 1= ',shear_force_1_R)
+print('Normal Force on plate 1=', force_panel_1_R)
+print("shear force value on plate 3=", shear_force_3_C)
+print("Normal Force", force_panel_3_C)
 
 
 # total force on panel due to bending
-Ftot= 1233511.983153651 # N
-shear_panel = 6186.8399 # N/m
+Ftot= 53287.9338935 # N
+shear_panel = 292524.656885 # N/m
 ds=0.13089 #m
 a=1 #m
 b=2.35619 #m
-EA_stiffner= 0.008645
-EI_stiffner= 326.4536
+EA_stiffner= 0.008645395725365318e9
+EI_stiffner= 326.4536406876552
 T_skin=t_ply*len(Panel_3)
 
 #

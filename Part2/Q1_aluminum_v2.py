@@ -102,6 +102,9 @@ y_shear, t_shear, m_shear = calc_variable_thickness(V= V_y, M = 0)
 
 # thickness values are known a-prioro at midplane (t_min) and at top (t_max). Suppose that thickness has sinusuidal variation
     
+
+
+# warning: there is a manual over-write for thickness (to make it consistent with idealised coordinate system)
 def calc_quadratic_thicknes_var(t_min = thickness_shear, t_max = thickness_bending, isDiscrete = False, n_points = 5, interpolation_points = 4000, alpha2=0):
     alpha1 = 1
     theta = np.linspace(0, np.pi/2, interpolation_points)

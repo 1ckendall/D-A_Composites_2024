@@ -55,6 +55,7 @@ def calc_mass_per_unit_length(t_arr):
     return mass_unit_length
 
 
+# compute Ixx. Assume double symmetric section
 def calc_second_moment_of_area(t_arr):
     
     theta = np.linspace(0, np.pi/2, len(t_arr)+1)    
@@ -69,19 +70,26 @@ def calc_second_moment_of_area(t_arr):
     
 
 # Loading
-def calc_loadvector(V, M, t_arr, n_points=5):
-    
+#def calc_loadvector(V, M, t_arr, n_points=5):
+def calc_loadvector(V, M, t_arr):
+
     theta = np.linspace(0, np.pi/2, len(t_arr)+1)
     y = R_outer*np.sin(theta)
     
-    sigma_z_times_t_arr = np.zeros(len(y))
-    qs_arr = np.zeros(len(y))
+    # sigma_z_times_t_arr = np.zeros(len(t_arr)+1)
+    # qs_arr = np.zeros(len(t_arr)+1)
+    sigma_z_times_t_arr = np.zeros(len(t_arr))
+    qs_arr = np.zeros(len(t_arr))
     
     Ixx = calc_second_moment_of_area(t_arr)
     
-    for i in range(len(y)):
-        sigma_z_times_t_arr[i] = M*y[i]/Ixx*t_arr[i]
-        qs_arr[i] = V/(np.pi*R_outer)*np.sqrt(1-(y[i]/R_outer)**2)
+    # computed at extemetities, conservative
+    for i in range(len(t_arr)):
+        # bending stress taken at the top of panel: y_i = max[y_{i+1}, y_{i}]
+        sigma_z_times_t_arr[i] = M/Ixx*y[i+1]*t_arr[i]
+        # shear flow taken at the bottom of panel: y_i = min[y_{i+1}, y_{i}]
+        qs_arr[i] = V/Ixx*R_outer**2*np.cos(theta[i])*t_arr[i]
+#        qs_arr[i] = V/(np.pi*R_outer)*np.sqrt(1-(y[i]/R_outer)**2)
     return sigma_z_times_t_arr, qs_arr
 
 
@@ -163,18 +171,11 @@ print(f'--- END: Black Aluminum Design --- \n')
 
 
 # strength based sizing
-# initialise loadvector for ABD
-n_x_arr, n_s_arr = calc_loadvector(V = V_y, M = M_x, n_points=4)
-n_y = 0
-m_x = 0
-m_y = 0
-m_s = 0
-
 # baseline laminate
 baseline_layup = [+45, -45, 0, 0, 0, -45, +45,
                          90,
                  +45, -45, 0, 0, 0, -45, +45] # conservative, 15 ply design 
-t_baseline = t_composite_arr[-1] # exact
+t_baseline = t_ply*len(baseline_layup) #t_composite_arr[-1] # exact
 
 
 
@@ -193,6 +194,21 @@ middle_layup = [+45, -45, 0, -45, +45,
                          90,
                  +45, -45, 0, -45, +45]
 t_middle =  t_ply*len(middle_layup) # close enough to # t_composite_arr[-2] (dropped 4 plies- for symmetry instead of 5- optimal)
+
+
+# update t_composite_arr based on above laminates
+t_composites_arr = np.array([t_middle, t_diagonal, t_diagonal, t_top])
+
+
+# initialise loadvector for ABD
+n_x_arr, n_s_arr = calc_loadvector(V = V_y, M = M_x, t_arr = t_composite_arr)
+# n_x_arr = np.zeros(4)
+# n_s_arr = np.zeros(4)
+n_y = 0
+m_x = 0
+m_y = 0
+m_s = 0
+
 
 
 # create required laminates
@@ -221,6 +237,11 @@ baseline_laminate.getStressStrain()
 top_laminate.getStressStrain()
 diagonal_laminate.getStressStrain()
 middle_laminate.getStressStrain()
+
+# get stiffness
+Ex_planar_top = top_laminate.Ex
+Ex_planar_diagonal = diagonal_laminate.Ex
+Ex_planar_middle = middle_laminate.Ex
 
 
 # Retrieve stress vectors in principal coordinate system
@@ -251,18 +272,24 @@ middle_stress_sigma12 = middle_laminate.sigma12
 
 # Print stress components in MPa
 print("Top Laminate Stress Components (MPa):")
+print(f'Ply angles: {baseline_layup} [deg]')
+print(f'Ex Planar: {Ex_planar_top * 10**-9} GPa')
 print(f"sigma11: {top_stress_sigma11 * 10**-6} MPa")
 print(f"sigma22: {top_stress_sigma22 * 10**-6} MPa")
 print(f"sigma12: {top_stress_sigma12 * 10**-6} MPa")
 print()
 
 print("Diagonal Laminate Stress Components (MPa):")
+print(f'Ply angles: {diagonal_layup} [deg]')
+print(f'Ex Planar: {Ex_planar_diagonal * 10**-9} GPa')
 print(f"sigma11: {diagonal_stress_sigma11 * 10**-6} MPa")
 print(f"sigma22: {diagonal_stress_sigma22 * 10**-6} MPa")
 print(f"sigma12: {diagonal_stress_sigma12 * 10**-6} MPa")
 print()
 
 print("Middle Laminate Stress Components (MPa):")
+print(f'Ply angles: {middle_layup} [deg]')
+print(f'Ex Planar: {Ex_planar_middle * 10**-9} GPa')
 print(f"sigma11: {middle_stress_sigma11 * 10**-6} MPa")
 print(f"sigma22: {middle_stress_sigma22 * 10**-6} MPa")
 print(f"sigma12: {middle_stress_sigma12 * 10**-6} MPa")
@@ -271,5 +298,5 @@ print(f"sigma12: {middle_stress_sigma12 * 10**-6} MPa")
 
 t_var_composite_arr = t_ply*np.array([len(middle_layup), len(diagonal_layup), len(top_layup)])
 var_cfrp_mass = calc_mass_per_unit_length(t_var_composite_arr)
-print(f'var_cfrp_mass: {var_cfrp_mass} [kg/m]')
+print(f'\nvar_cfrp_mass: {var_cfrp_mass} [kg/m]')
 

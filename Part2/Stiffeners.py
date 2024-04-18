@@ -233,12 +233,13 @@ if __name__ == "__main__":
     total_E = total_EA / total_area
 
     print(f"Total EA: {total_EA/1E9} GPa")
-    print(f"Total E: {total_E/1E9} GPa")
-    print(f"Total Area: {total_area} m^2")
-    print(f"Moments of inertia: {I} m^4")
-    print(f"Contribution web: {contribution_web}")
-    print(f"Contribution flange: {contribution_flange}")
-    print(f"Contribution filler: {contribution_filler}")
+    print(f"Total EI: {total_E * I[0]}")
+    # print(f"Total E: {total_E/1E9} GPa")
+    # print(f"Total Area: {total_area} m^2")
+    # print(f"Moments of inertia: {I} m^4")
+    # print(f"Contribution web: {contribution_web}")
+    # print(f"Contribution flange: {contribution_flange}")
+    # print(f"Contribution filler: {contribution_filler}")
     print()
 
     sigma = 0

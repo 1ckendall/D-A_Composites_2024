@@ -261,6 +261,8 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
     #print(sig_skin[node])
     #print(sig_stiffner[node])
 
+    weight=(np.sum(Panel_Areas)*1610)+(np.sum(stiff_loc)*1610)
+
     
     plt.scatter(x[0:9],y[0:9],color='blue',marker='s',s=33)
     plt.scatter(x[9:27],y[9:27],color='red',marker='s',s=66)
@@ -278,7 +280,7 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
     plt.scatter(X[node],Y[node],color='green',marker='x')
     plt.show()
 
-    return force_val, shear_val
+    return force_val, shear_val,weight
 
 '''
 force_val,shear_val=compute_forces(T_skin,Eskin_val,A_stiffner)

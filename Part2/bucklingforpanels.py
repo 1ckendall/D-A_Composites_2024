@@ -342,7 +342,7 @@ def stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,Amatrix_skin,Dmatrix_
 
     Nx_skin = (((np.pi)**2)/(a**2)) * (Dmatrix_skin[0,0] * (k**2) + 2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])*(AR_bar**2)+ Dmatrix_skin[1,1]*((AR_bar**4))/(k**2))
     R_x_skin = N_skin / Nx_skin 
-    R_x_panel = N_panel / Nx_panel
+    
     #checking for shear on the skins
     beta = (Dmatrix_skin[0,0]/Dmatrix_skin[1,1])**(1/4)
     A = -0.27 + 0.185 *((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(np.sqrt(Dmatrix_skin[0,0]*Dmatrix_skin[1,1])))
@@ -351,6 +351,7 @@ def stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,Amatrix_skin,Dmatrix_
     B =0.82 + 0.46*((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(np.sqrt(Dmatrix_skin[0,0]*Dmatrix_skin[1,1]))) -0.2*((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(np.sqrt(Dmatrix_skin[0,0]*Dmatrix_skin[1,1])))**2
     K = 8.2 + 5 * ((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(Dmatrix_skin[0,0]*Dmatrix_skin[1,1]))*(1/(10**(A/beta + B*beta)))
     Nxy = 4/(b**2) *( (Dmatrix_skin[0,0]*Dmatrix_skin[1,1]**3)**(1/4)) * K 
+    R_xy = np.abs(shear_panel) / Nxy
     
 
 
@@ -359,13 +360,18 @@ def stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,Amatrix_skin,Dmatrix_
     EIadvised = Dmatrix_skin[0,0] * ds *((np.sqrt(Dmatrix_skin[1,1]/Dmatrix_skin[0,0]))*(2*lambda_buckling*(AR_bar**2)- (np.sqrt(Dmatrix_skin[1,1]/Dmatrix_skin[0,0]))*(AR**4))+((2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2]))/Dmatrix_skin[0,0])*(lambda_buckling*(AR_bar**2)-(AR**2))-1)
     EIneeded = 1.5 * EIadvised # this calculated what EI for stringer we would need such that we make sure the skin buckles first 
     #checking for shear buckling of the skin ?
+    R_buckling = R_x_skin + R_xy**2 
+    
     print('EIneeded',EIneeded)
-    if R_x_skin >=1 : 
-        print('skin buckling') 
-        buckling = True
-    elif R_x_skin <1 : 
-        buckling =False
-        print('no skin buckling')
+    
+    R_buckling = R_x_skin + R_xy**2 
+    if R_buckling >=1 : 
+         print('buckling has occured combined','Rx_skin',R_x_skin,'Rshear',R_xy**2)
+        
+         buckling = True
+         
+    elif R_buckling <1: 
+         print('no buckling')
    
     return Nx_skin,buckling,EIneeded
 

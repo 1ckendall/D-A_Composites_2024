@@ -135,8 +135,7 @@ E_skin.extend([Eskin_val[1]]*18)
 E_skin.extend([Eskin_val[0]]*9)
 
 # Stiffner Area Addition
-stiff_loc=np.zeros(num_points)#[]
-'''
+stiff_loc=[]#np.zeros(num_points)#
 stiff_loc.extend([A_stiffner[1]]*8)
 stiff_loc.extend([A_stiffner[0]])
 stiff_loc.extend([A_stiffner[3]]*17)
@@ -154,7 +153,7 @@ stiff_loc.extend([A_stiffner[0]])
 stiff_loc.extend([A_stiffner[2]]*17)
 stiff_loc.extend([A_stiffner[0]])
 stiff_loc.extend([A_stiffner[1]]*9)
-'''
+
 # Elasticity matrices
 E_stiffner=np.zeros(num_points)#[]
 '''
@@ -245,16 +244,18 @@ for i in range(num_points):
 
 force_val=np.zeros(num_points)
 for i in range(num_points):
-    force_val[i]= sig_skin[i]*Panel_Areas[i]
+    force_val[i]= sig_z[i]*B_areas[i]
 
 force_panel_3=np.sum(force_val[99:117])
+
 print(force_panel_3)
-print(arc_length)
+#print(arc_length)
 node=-int(num_points/4)
-print(sig_z[node])
-#print(shear_val[node])
-print(sig_skin[node])
-print(sig_stiffner[node])
+#print(sig_z[node])
+print(shear_val[node])
+#print(sig_skin[node])
+#print(sig_stiffner[node])
+
 '''
 plt.scatter(x[0:9],y[0:9],color='blue',marker='s',s=33)
 plt.scatter(x[9:27],y[9:27],color='red',marker='s',s=66)

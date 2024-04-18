@@ -52,3 +52,36 @@ middle_layup = [+45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
              +45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
                           90,
              +45, -45, +45, -45, 0, 0, -45, +45, -45, +45]
+
+
+
+
+-----------
+FPF Check
+Top Laminate FPF?: False
+Diagonal Laminate FPF?: False
+Middle Laminate FPF?: False
+
+Top panel buckling check
+No buckling
+R_buckling: 0.8185840847974653
+Shear ratio: R_s: 0.1551776250470487
+Compressive ration: R_c: 0.7945039894822228
+#plys: 107
+
+Diagonal panel buckling check
+No buckling
+R_buckling: 0.9548721252647441
+Shear ratio: R_s: 0.40433847394466216
+Compressive ration: R_c: 0.7913825237528459
+#plys: 103
+
+Middle panel buckling check
+No buckling
+R_buckling: 0.962714002991278
+Shear ratio: R_s: 0.6778874834162779
+Compressive ration: R_c: 0.5031825628188235
+#plys: 83
+
+var_cfrp_mass: 405.5981469750985 [kg/m]
+Thickness [mm]: [11.205 13.905 13.905 14.445] [mm]

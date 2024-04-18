@@ -83,7 +83,7 @@ Ixx_t=np.pi*(R_outer**3) # Ixx / thickness(unknown)
 # skin parameters
 t_ply=0.135e-3
 Eskin_val=[(45.23*10**9),(60.22*10**9),(71.21*10**9)]
-T_skin=[15*t_ply,15*t_ply,15*t_ply]
+T_skin=[11*t_ply,13*t_ply,15*t_ply]
 
 #stiffner parameters
 A_stiffner=[0,6.823e-5,0.000230,0.000160]
@@ -110,7 +110,6 @@ Panel_Areas.extend([Area_panel[1]]*18)
 Panel_Areas.extend([Area_panel[2]]*18)
 Panel_Areas.extend([Area_panel[1]]*18)
 Panel_Areas.extend([Area_panel[0]]*9)
-
 # thickness array
 T_skinarr=[]
 T_skinarr.extend([T_skin[0]]*9)
@@ -136,8 +135,7 @@ E_skin.extend([Eskin_val[1]]*18)
 E_skin.extend([Eskin_val[0]]*9)
 
 # Stiffner Area Addition
-stiff_loc=np.zeros(num_points)#[]
-'''
+stiff_loc=[]#np.zeros(num_points)#
 stiff_loc.extend([A_stiffner[1]]*8)
 stiff_loc.extend([A_stiffner[0]])
 stiff_loc.extend([A_stiffner[3]]*17)
@@ -155,7 +153,7 @@ stiff_loc.extend([A_stiffner[0]])
 stiff_loc.extend([A_stiffner[2]]*17)
 stiff_loc.extend([A_stiffner[0]])
 stiff_loc.extend([A_stiffner[1]]*9)
-'''
+
 # Elasticity matrices
 E_stiffner=np.zeros(num_points)#[]
 '''
@@ -181,7 +179,6 @@ E_stiffner.extend([Estiffner_val[1]]*9)
 print(len(E_stiffner))
 
 #--------------------------------------------------------- setting discritization basis----------------------------------
-
 # Discretized boom parameters Stiffness and Area
 #creating boom at X,Y coordinate for discretized panel
 # calculating Boom Area
@@ -196,24 +193,25 @@ for i in range(num_points):
 
     # Boom Area = Stringer Area + skin 1 contribution + skin 2 contribution
     Sai = stiff_loc[i]
-    B1i = (T_skinarr[i-1]*arc_length/6)*(2+(sig_s1/sig_boom))
-    B2i = (T_skinarr[i]*arc_length/6)*(2+(sig_s2/sig_boom))
+    B1i = (Panel_Areas[i-1]/6)*(2+(sig_s1/sig_boom))
+    B2i = (Panel_Areas[i]/6)*(2+(sig_s2/sig_boom))
     B_area = Sai+B1i+B2i
     Ixx_boom = (y[i]**2)*B_area
     B_bending.append(Ixx_boom)
     B_areas.append(B_area)
     E_boom=((E_skin[i]*Panel_Areas[i])+(E_skin[i-1]*Panel_Areas[i-1])+(E_stiffner[i]*stiff_loc[i]))/(stiff_loc[i]+Panel_Areas[i]+Panel_Areas[i-1])
     E_booms.append(E_boom)
+    #print(E_boom)
     
 # calculate stress due to moment and shear on the discritised length
 sig_z=[]
 delQ=[]
 Ixx_full=np.sum(B_bending)
-print(Ixx_full)
+
 for i in range(num_points):
     sig_boom=M_x*y[i]/Ixx_full
     delQi=-(V_y/Ixx_full)*B_areas[i]*y[i]
-    sig_z.append(sig_boom/1e6)
+    sig_z.append(sig_boom)
     delQ.append(delQi)
 #print(sig_z)
 #print(delQ)
@@ -222,7 +220,8 @@ shear_val=np.zeros(num_points)
 sum=0
 for i in range(1,num_points):
     sum += delQ[i-int((3/4)*num_points)]
-    shear_val[i-int((3/4)*num_points)]=sum
+    #print(sum)
+    shear_val[i-int((3/4)*num_points)+1]=sum
 #print(shear_val)
 
 sig_skin=[]
@@ -242,11 +241,21 @@ for i in range(num_points):
     sigmaval=skin1contri[i]+((skin1contri[i]-skin2contri[i-1])/2)
     sig_skin.append(sigmaval)
 
+
+force_val=np.zeros(num_points)
+for i in range(num_points):
+    force_val[i]= sig_z[i]*B_areas[i]
+
+force_panel_3=np.sum(force_val[99:117])
+
+print(force_panel_3)
+#print(arc_length)
 node=-int(num_points/4)
-print(sig_z[node])#(arc_length[i]*1e6))
+#print(sig_z[node])
 print(shear_val[node])
-print(sig_skin[node])
-print(sig_stiffner[node])
+#print(sig_skin[node])
+#print(sig_stiffner[node])
+
 '''
 plt.scatter(x[0:9],y[0:9],color='blue',marker='s',s=33)
 plt.scatter(x[9:27],y[9:27],color='red',marker='s',s=66)

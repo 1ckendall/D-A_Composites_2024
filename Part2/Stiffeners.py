@@ -111,12 +111,12 @@ def OEF_crippling(b, t, sigma_ult_c = 1):
         return sigma_ult_c * 1.63 / ((b / t)**0.717)
 
 
-def column_buckling(E, I, L):
-    P_cr = np.pi**2 * E * I / L**2
+def column_buckling(K, E, I, L):
+    P_cr = -(np.pi**2 * E * I) / ((K * L)**2)
     return P_cr
 
 def column_buckling_elastic_foundation(E, I, L, k):
-    column_buckling_ss_P_cr = column_buckling(E, I , L)
+    column_buckling_ss_P_cr = column_buckling(1, E, I , L)
     m = 1
     elastic_foundation_P_cr = np.inf
     while 1:
@@ -155,9 +155,42 @@ if __name__ == "__main__":
     b2 = 40E-3
     # Joint radius
     r = 4E-3
+    # Length
+    length = 500E-3
+    # Effective length factor
+    K = 0.5  # 0.5 for fixed ends, 1 for free ends
+
+    # #### Stringer B
+    #
+    # web_layup = [45, -45, 0, 0, -45, 45]
+    # flange_layup = [45, -45, 0, 0, 90, 90, 0, 0, -45, 45]
+    #
+    # # Web
+    # b1 = 60E-3
+    # # Flange
+    # b2 = 40E-3
+    # # Joint radius
+    # r = 4E-3
+    #
+    # ##### Stringer C
+    #
+    # web_layup = [45, -45, -45, 45]
+    # flange_layup = [45, -45, 0, -45, 45]
+    #
+    # # Web
+    # b1 = 45E-3
+    # # Flange
+    # b2 = 30E-3
+    # # Joint radius
+    # r = 4E-3
 
     t1 = len(web_layup) * t_ply
     t2 = len(flange_layup) * t_ply
+
+    print(f"Web thickness {t1}")
+    print(f"Flange thickness {t2}")
+
+    I = get_stiffener_inertia(b1, t1, b2, t2)
 
     web_plylist = [Lamina(i, Ex, Ey, Gxy, vxy, Xt, Xc, Yc, Yt, S, t_ply) for i in web_layup]
     flange_plylist = [Lamina(i, Ex, Ey, Gxy, vxy, Xt, Xc, Yc, Yt, S, t_ply) for i in flange_layup]
@@ -181,18 +214,16 @@ if __name__ == "__main__":
     contribution_flange = flange_EA / total_EA
     contribution_filler = filler_EA / total_EA
 
-    total_area = web_area + flange_area + (1 - np.pi / 4) * r**2
-    if total_area != get_total_stiffener_area(b1, t1, b2, t2) + (1 - np.pi / 4) * r**2:
-        raise Exception("Shit's fucked")
+    total_area = web_area + flange_area + 2 * (1 - np.pi / 4) * r**2
     total_E = total_EA / total_area
 
     print(f"Total EA: {total_EA/1E9}")
     print(f"Total E: {total_E/1E9}")
     print(f"Total Area: {total_area}")
+    print(f"Moments of inertia: {I}")
     print(f"Contribution web: {contribution_web}")
     print(f"Contribution flange: {contribution_flange}")
     print(f"Contribution filler: {contribution_filler}")
-    print(f"Please be 1: {sum([contribution_flange, contribution_filler, contribution_web])}")
     print()
 
     sigma = 0
@@ -235,97 +266,17 @@ if __name__ == "__main__":
 
         sigma -= 0.1E6
 
-    print(f"Web fail at {web_fail_sigma}, failure mode {web_fail}")
-    print(f"Flange fail at {flange_fail_sigma}, failure mode {flange_fail}")
+    print(f"Web compression fail at {web_fail_sigma/1E6} MPa, failure mode {web_fail}")
+    print(f"Flange compression fail at {flange_fail_sigma/1E6} MPa, failure mode {flange_fail}")
+    print()
 
-    # #### Stringer B
-    #
-    # web_layup = [45, -45, 0, 0, -45, 45]
-    # flange_layup = [45, -45, 0, 0, 90, 90, 0, 0, -45, 45]
-    #
-    # # Web
-    # b1 = 60E-3
-    # # Flange
-    # b2 = 40E-3
-    # # Joint radius
-    # r = 4E-3
-    #
-    # t1 = len(web_layup) * t_ply
-    # t2 = len(flange_layup) * t_ply
-    #
-    # web_plylist = [Lamina(i, Ex, Ey, Gxy, vxy, Xt, Xc, Yc, Yt, S, t_ply) for i in web_layup]
-    # flange_plylist = [Lamina(i, Ex, Ey, Gxy, vxy, Xt, Xc, Yc, Yt, S, t_ply) for i in flange_layup]
-    #
-    # web = Laminate(web_plylist)
-    # flange = Laminate(flange_plylist)
-    #
-    # web_area = get_rectangle_area(b1, t1)
-    # flange_area = get_rectangle_area(2 * b2, t2)
-    # filler_area = get_filler_area(r, 2 * t_ply)
-    #
-    # get_total_stiffener_area(b1, t1, b2, t2)
-    #
-    # web_E = web.Ex
-    # flange_E = flange.Ex
-    #
-    # web_EA = web_E * web_area
-    # flange_EA = flange_E * flange_area
-    # filler_EA = Ex * filler_area
-    #
-    # total_EA = web_EA + flange_EA + filler_EA
-    # total_area = web_area + flange_area + (1 - np.pi / 4) * r ** 2
-    # total_E = total_EA / total_area
-    #
-    # print(f"Total EA: {total_EA / 1E9}")
-    # print(f"Total E: {total_E/1E9}")
-    # print(f"Total Area: {total_area}")
-    # print()
-    #
-    #
-    # ##### Stringer C
-    #
-    # web_layup = [45, -45, -45, 45]
-    # flange_layup = [45, -45, 0, -45, 45]
-    #
-    # # Web
-    # b1 = 45E-3
-    # # Flange
-    # b2 = 30E-3
-    # # Joint radius
-    # r = 4E-3
-    #
-    # t1 = len(web_layup) * t_ply
-    # t2 = len(flange_layup) * t_ply
-    #
-    # web_plylist = [Lamina(i, Ex, Ey, Gxy, vxy, Xt, Xc, Yc, Yt, S, t_ply) for i in web_layup]
-    # flange_plylist = [Lamina(i, Ex, Ey, Gxy, vxy, Xt, Xc, Yc, Yt, S, t_ply) for i in flange_layup]
-    #
-    # web = Laminate(web_plylist)
-    # flange = Laminate(flange_plylist)
-    #
-    # web_area = get_rectangle_area(b1, t1)
-    # flange_area = get_rectangle_area(2 * b2, t2)
-    # filler_area = get_filler_area(r, 2 * t_ply)
-    #
-    # get_total_stiffener_area(b1, t1, b2, t2)
-    #
-    # web_E = web.Ex
-    # flange_E = flange.Ex
-    #
-    # web_EA = web_E * web_area
-    # flange_EA = flange_E * flange_area
-    # filler_EA = Ex * filler_area
-    #
-    # total_EA = web_EA + flange_EA + filler_EA
-    # total_area = web_area + flange_area + (1 - np.pi / 4) * r ** 2
-    # total_E = total_EA / total_area
-    #
-    # print(f"Total EA: {total_EA / 1E9}")
-    # print(f"Total E: {total_E/1E9}")
-    # print(f"Total Area: {total_area}")
-    # print()
-    #
-    # force = 0
+    P_crip_web = OEF_crippling(b1, t1, web_fail_sigma)
+    P_crip_flange = OEF_crippling(b2, t2, flange_fail_sigma)
+    P_col_buckle = column_buckling(K, total_E, I[0], length)
+
+    print(f"Web crippling fail at {P_crip_web / 1E6} MPa")
+    print(f"Flange crippling fail at {P_crip_flange / 1E6} MPa")
+    print(f"Column buckling fail at {P_col_buckle / 1E6} MPa")
 
 
 

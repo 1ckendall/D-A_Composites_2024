@@ -67,7 +67,7 @@ def calc_second_moment_of_area(t_arr):
     Ixx = 4*np.sum(Ixx_arr)
     return Ixx
 
-    
+
 
 # Loading
 #def calc_loadvector(V, M, t_arr, n_points=5):

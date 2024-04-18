@@ -128,6 +128,17 @@ def column_buckling_elastic_foundation(E, I, L, k):
             break
     return elastic_foundation_P_cr, m
 
+
+def plate_buckling(b, t, D66):
+    Nx_crit = -12 * D66 / b**2
+    sigma_crit = Nx_crit / t
+    return sigma_crit
+
+
+def symmetric(l):
+    l.extend(l.reverse())
+
+
 if __name__ == "__main__":
     from Class import Lamina, Laminate
 
@@ -146,13 +157,13 @@ if __name__ == "__main__":
 
     #### Stringer A
 
-    web_layup = [45, -45, 0, 0, 90, 0, 0, -45, 45]
-    flange_layup = [45, -45, 0, 0, -45, 45, 45, -45, 0, 0, -45, 45]
+    web_layup =     [45, -45, 45, -45, 0, 0, 45, -45, 0, 90, 90, 0, -45, 45, 0, 0, -45, 45, -45, 45]
+    flange_layup =  [45, -45, 45, -45, 45, -45, 45, -45, 90, 0,  90, 90, 0, 90, -45, 45, -45, 45, -45, 45, -45, 45]
 
     # Web
-    b1 = 80E-3
+    b1 = 20E-3
     # Flange
-    b2 = 40E-3
+    b2 = 20E-3
     # Joint radius
     r = 4E-3
     # Length
@@ -162,25 +173,29 @@ if __name__ == "__main__":
 
     # #### Stringer B
     #
-    # web_layup = [45, -45, 0, 0, -45, 45]
-    # flange_layup = [45, -45, 0, 0, 90, 90, 0, 0, -45, 45]
+    # web_layup = [45,-45,0,90,90,-60,60,-30,30,0,-45,45,45,-45,0,-90,-90,60,-60,30,-30,0,45,-45]
+    # flange_layup = [45, -45, 45, -45, -45, 45, 0, 0, 90, 90, 0, 0, 45, -45, 45, -45, 45, -45]
     #
     # # Web
-    # b1 = 60E-3
+    # b1 = 40E-3
     # # Flange
     # b2 = 40E-3
     # # Joint radius
     # r = 4E-3
-    #
+    # # # Length
+    # length = 500E-3
+    # # # Effective length factor
+    # K = 0.5  # 0.5 for fixed ends, 1 for free ends
+
     # ##### Stringer C
     #
     # web_layup = [45, -45, -45, 45]
     # flange_layup = [45, -45, 0, -45, 45]
     #
     # # Web
-    # b1 = 45E-3
+    # b1 = 30E-3
     # # Flange
-    # b2 = 30E-3
+    # b2 = 40E-3
     # # Joint radius
     # r = 4E-3
 
@@ -217,10 +232,10 @@ if __name__ == "__main__":
     total_area = web_area + flange_area + 2 * (1 - np.pi / 4) * r**2
     total_E = total_EA / total_area
 
-    print(f"Total EA: {total_EA/1E9}")
-    print(f"Total E: {total_E/1E9}")
-    print(f"Total Area: {total_area}")
-    print(f"Moments of inertia: {I}")
+    print(f"Total EA: {total_EA/1E9} GPa")
+    print(f"Total E: {total_E/1E9} GPa")
+    print(f"Total Area: {total_area} m^2")
+    print(f"Moments of inertia: {I} m^4")
     print(f"Contribution web: {contribution_web}")
     print(f"Contribution flange: {contribution_flange}")
     print(f"Contribution filler: {contribution_filler}")
@@ -263,8 +278,7 @@ if __name__ == "__main__":
                 if L.failuremode:
                     flange_fail_sigma = sigma
                     flange_fail = L.failuremode
-
-        sigma -= 0.1E6
+        sigma -= 1E6
 
     print(f"Web compression fail at {web_fail_sigma/1E6} MPa, failure mode {web_fail}")
     print(f"Flange compression fail at {flange_fail_sigma/1E6} MPa, failure mode {flange_fail}")
@@ -276,7 +290,14 @@ if __name__ == "__main__":
 
     print(f"Web crippling fail at {P_crip_web / 1E6} MPa")
     print(f"Flange crippling fail at {P_crip_flange / 1E6} MPa")
-    print(f"Column buckling fail at {P_col_buckle / 1E6} MPa")
+    # print(f"Column buckling fail at {P_col_buckle / 1E6} MPa")
+    print()
+
+    P_plate_buckle_web = plate_buckling(b1, t1, web.ABD[5][5])
+    P_plate_buckle_flange = plate_buckling(b2, t2, flange.ABD[5][5])
+
+    print(f"Web plate buckling fail at {P_plate_buckle_web / 1E6} MPa")
+    print(f"Flange plate buckling fail at {P_plate_buckle_flange / 1E6} MPa")
 
 
 

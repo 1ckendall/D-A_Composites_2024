@@ -61,12 +61,12 @@ class Lamina:
 
     def getQbarmat(self):
         ## version 1: Transformation Matrix (used as verification check)
-        self.T = np.matrix([[self.m**2, self.n**2, 2*self.m*self.n],
+        self.T = np.array([[self.m**2, self.n**2, 2*self.m*self.n],
                             [self.n**2, self.m**2, -2*self.m*self.n],
                             [-self.m*self.n, self.m*self.n, self.m**2-self.n**2]])
         self.Tinv = np.linalg.inv(self.T)
         
-        assert np.allclose(self.Tinv, np.matrix([[self.m**2, self.n**2, -2*self.m*self.n],
+        assert np.allclose(self.Tinv, np.array([[self.m**2, self.n**2, -2*self.m*self.n],
                             [self.n**2, self.m**2, 2*self.m*self.n],
                             [self.m*self.n, -self.m*self.n, self.m**2-self.n**2]]))
         
@@ -86,9 +86,9 @@ class Lamina:
         self.Qys = self.n **3 * self.m * self.Q11 - self.n * self.m **3 * self.Q22 + self.m *self.n *(self.m**2 - self.n**2) * self.Q12 + 2*self.m*self.n * (self.m**2 - self.n**2) * self.Q66
         self.Qss = self.m**2 * self.n**2 * self.Q11 + self.m**2 * self.n**2 * self.Q22 - 2*self.m**2 *self.n**2 * self.Q12 + (self.m**2-self.n**2)**2 * self.Q66
         
-        self.Qbarmat  = np.matrix([[self.Qxx, self.Qxy,  self.Qxs], 
-                       [self.Qxy,  self.Qyy,  self.Qys],
-                       [self.Qxs,  self.Qys,  self.Qss]])
+        self.Qbarmat  = np.array([[self.Qxx, self.Qxy,  self.Qxs],
+                                   [self.Qxy,  self.Qyy,  self.Qys],
+                                   [self.Qxs,  self.Qys,  self.Qss]])
         
         assert np.allclose(self.Qbarmat, Qbarmat)
         
@@ -296,8 +296,6 @@ class Laminate:
         self.A = np.zeros([3, 3])
         self.B = np.zeros([3, 3])
         self.D = np.zeros([3, 3])
-       
-        
 
         self.z = np.zeros(self.n_plys+1)
         
@@ -410,8 +408,8 @@ class Laminate:
         
         self.Sbarmat = np.linalg.inv(self.A) * self.h
         
-        # obtain transformation matrix (T) as a function of loadangle (phi)
-        # self.T_loadangle = np.matrix([[self.m_Loadangle**2, self.n_Loadangle**2, 2*self.m_Loadangle*self.n_Loadangle],
+        # obtain transformation array (T) as a function of loadangle (phi)
+        # self.T_loadangle = np.arra([[self.m_Loadangle**2, self.n_Loadangle**2, 2*self.m_Loadangle*self.n_Loadangle],
         #                     [self.n_Loadangle**2, self.m_Loadangle**2, -2*self.m_Loadangle*self.n_Loadangle],
         #                     [-self.m_Loadangle*self.n_Loadangle, self.m_Loadangle*self.n_Loadangle, self.m_Loadangle**2-self.n_Loadangle**2]])
         

@@ -7,7 +7,7 @@ from warnings import warn
 class Lamina:
     def __init__(self, th, E1, E2, G12, v12, Xt, Xc, Yt, Yc, S, t,
                  Rfpt=None, Rfpc=None, Rtt=None, Rtc=None, Rls=None, Rts=None,
-                 sigma_1 = None, sigma_2 = None, sigma_3 = None, tau_23 = None, tau_31 = None, tau_21 = None,
+                 sigma_1 = 0, sigma_2 = 0, sigma_3 = 0, tau_23 = 0, tau_31 = 0, tau_21 = 0,
                  m_sigmaf = 1.3):
         
         # MATERIAL PROPERTIES
@@ -97,7 +97,7 @@ class Lamina:
         # print(f'compressive fibre: {(self.sigma_1 /( self.Xc))*(-1)}')
         if self.sigma_1 / (self.Xt) >= 1:
             self.failuremode = "Tensile Fibre"
-        elif (self.sigma_1 /( self.Xc))*(-1) >= 1:
+        elif (self.sigma_1 /(self.Xc))*(-1) >= 1:
             self.failuremode = "Compressive Fibre"
     
     def maxStressInterFibreFail(self):
@@ -300,8 +300,6 @@ class Laminate:
         self.A = np.zeros([3, 3])
         self.B = np.zeros([3, 3])
         self.D = np.zeros([3, 3])
-       
-        
 
         self.z = np.zeros(self.n_plys+1)
         
@@ -383,7 +381,7 @@ class Laminate:
         self.localstressVector = np.zeros((3*self.n_plys))
         self.z_lamina_midplane = np.zeros(self.n_plys)
       
-        # compute loacal strain (lamina level)
+        # compute local strain (lamina level)
         for i in range(self.n_plys):
             self.z_lamina_midplane[i] = 0.5*(self.z[i+1]+self.z[i]) # z-values from laminate datum (ie: laminate midplane) to laminas' datums (ie: lamina midplane)
             

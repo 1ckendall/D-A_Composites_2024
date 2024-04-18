@@ -267,6 +267,7 @@ print(f'var_cfrp_mass: {var_cfrp_mass} [kg/m]')
 def Buckling_check(Nx,Ny,Ns,Dmatrix,a,b,m):
      AR = a/b
      R_buckling = 0
+     
      #for compressive loading 
      N_0 = ((np.pi**2) *(Dmatrix[0,0]*m**4 + 2*(Dmatrix[0,1]+2*Dmatrix[2,2])*(m**2)*(AR**2)+Dmatrix[1,1]*(AR**4) ))/((a**2)*(m**2))
      #shear buckling: 
@@ -300,5 +301,62 @@ baselinelaminate_buckling = Buckling_check(Nx=n_x_arr[3],Ny=0,Ns=n_s_arr[0],Dmat
 toplam = Buckling_check(Nx=n_x_arr[3],Ny=0,Ns=n_s_arr[2],Dmatrix=top_laminate.D,a=1,b=1,m=1)
 diagonal = Buckling_check(Nx=n_x_arr[2],Ny=0,Ns=n_s_arr[1],Dmatrix=diagonal_laminate.D,a=1,b=1,m=1)
 middle = Buckling_check(Nx=n_x_arr[1],Ny=0,Ns=n_s_arr[0],Dmatrix=middle_laminate.D,a=1,b=1,m=1)
+
+
+#panel checking function of buckling: 
+#the skin is designed against buckling and the stiffeners stiffness is higher then the ultimate load of 1.5*skin buckling load 
+def stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,Amatrix_skin,Dmatrix_skin,t):
+    #inputs 
+    #Ftot the total force on the panel 
+    #spacing between stiffeners
+    #a  panel length 
+    #b panel width 
+    #EA stiffness of stiffener E*A KEEP IN MIND
+    #EI of stiffener E*I KEEP IN MINd
+    #A_matrix  of the panel 
+    #D_matrix of the panel
+    #t skin thickness
+    #only check that skin or stiffener buckle seperately
+    buckling = False
+
+    #load distribution to the skin in between stiffeners 
+    F_skin = ((Amatrix_skin[0,0])/(Amatrix_skin[0,0]+(EA)/ds) )* Ftot
+    # Nskin load on the panel
+    N_skin = F_skin / b
+    N_panel = Ftot /b
+    #shear load per skin 
+    tau = shear_panel/ (a*t)
+    #k* used to calculate the number of halfwaces 
+    k_star = (Dmatrix_skin[1,1]/Dmatrix_skin[0,0])**(0.25) * (a/ds)
+    k = int(k_star) +1  
+    if k<1: 
+        k = 1
+    AR_bar = a/ds
+    AR = a/b
+    # m* used for panel- to check the skin buckles first and the panel doesnt 
+    m_star = (Dmatrix_skin[1,1]/(Dmatrix_skin[0,0]+EI/ds))**(0.25) * (a/b)
+    m = int(m_star)
+    if m < 1 : 
+        m =1
+    Nx_panel = (((np.pi)**2)/(a**2)) * (Dmatrix_skin[0,0] * (m**2) + 2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])*(AR_bar**2)+ Dmatrix_skin[1,1]*((AR_bar**4))/(m**2))
+
+    Nx_skin = (((np.pi)**2)/(a**2)) * (Dmatrix_skin[0,0] * (k**2) + 2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])*(AR_bar**2)+ Dmatrix_skin[1,1]*((AR_bar**4))/(k**2))
+    R_x_skin = N_skin / Nx_skin 
+    R_x_panel = N_panel / Nx_panel
+    lambda_buckling = (Amatrix_skin[0,0]+(EA)/ds) / Amatrix_skin[0,0] 
+    EIadvised = Dmatrix_skin[0,0] * ds *((np.sqrt(Dmatrix_skin[1,1]/Dmatrix_skin[0,0]))*(2*lambda_buckling*(AR_bar**2)- (np.sqrt(Dmatrix_skin[1,1]/Dmatrix_skin[0,0]))*(AR**4))+((2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2]))/Dmatrix_skin[0,0])*(lambda_buckling*(AR_bar**2)-(AR**2))-1)
+    EIneeded = 1.5 * EIadvised # this calculated what EI for stringer we would need such that we make sure the skin buckles first 
+    #checking for shear buckling of the skin ?
+    if R_x_skin >=1 : 
+        print('skin buckling') 
+        buckling = True
+    elif R_x_skin <1 : 
+        buckling =False
+        print('no skin buckling')
+   
+    return Nx_skin,buckling,EIneeded
+
+
+
 
 

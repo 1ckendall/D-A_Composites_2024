@@ -74,9 +74,6 @@ EA_stiffner= 0
 EI_stiffner= 0
 T_skin=t_ply*len(Panel_3)
 
-
-
-
 #
 bucklepanel_3=stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA_stiffner,EI_stiffner,A_mat,D_mat,T_skin)
     #inputs 

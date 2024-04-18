@@ -79,9 +79,6 @@ def create_circle(num_points,R):
     
     return x, y, arc_length, X,Y
 
-
-
-
 #-------------------------------------------------------------skin parameters-------------------------------------------
 
 # skin parameters
@@ -96,6 +93,14 @@ Estiffner_val=[0, 48.216e9, 71.265e9, 74.07e9]
 #------------------------------------------------------------ Initializing----------------------------------------------
 def compute_forces(T_skin,Eskin_val,A_stiffner):
 
+   # Geometry
+    D_outer = 6 # [m]
+    t = 0.002 # [m] TODO: placeholde
+    D_inner = D_outer - 2*t # [m]
+    R_outer = D_outer/2 # [m]
+    R_inner = D_inner/2 # [m]
+    Ixx_t=np.pi*(R_outer**3) # Ixx / thickness(unknown)
+    
     num_points=144
     x,y,arc_length,X,Y=create_circle(num_points+1,3)
     x=x[:-1]
@@ -104,13 +109,7 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
     Y=Y[:-1]
     #print(arc_length)
     #--------------------------------------------------------------Begin here-----------------------------------------------
-    # Geometry
-    D_outer = 6 # [m]
-    t = 0.002 # [m] TODO: placeholde
-    D_inner = D_outer - 2*t # [m]
-    R_outer = D_outer/2 # [m]
-    R_inner = D_inner/2 # [m]
-    Ixx_t=np.pi*(R_outer**3) # Ixx / thickness(unknown)
+ 
 
     # Panel node breakdown
     Area_panel= [arc_length*t for t in T_skin]
@@ -224,7 +223,6 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
         sig_z.append(sig_boom)
         delQ.append(delQi)
     #print(sig_z)
-    #print(delQ)
 
     shear_val=np.zeros(num_points)
     sum=0
@@ -233,7 +231,7 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
         #print(sum)
         shear_val[i-int((3/4)*num_points)+1]=sum
     #print(shear_val)
-
+    
     sig_skin=[]
     skin1contri=[]
     skin2contri=[]
@@ -250,7 +248,6 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
     for i in range(num_points):
         sigmaval=skin1contri[i]+((skin1contri[i]-skin2contri[i-1])/2)
         sig_skin.append(sigmaval)
-
 
     force_val=np.zeros(num_points)
     for i in range(num_points):

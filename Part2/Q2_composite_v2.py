@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from Class import Lamina, Laminate
-from Q1_aluminum import *
+# from Q1_aluminum_v2 import *
 
 
 # Composite (UD tape) material properties 
@@ -24,7 +24,7 @@ t_ply = 0.135*10**-3 # [m]
 
 # Geometry
 D_outer = 6 # [m]
-t = 0.002 # [m] TODO: placeholde
+t = 0.002 # [m] # TODO: placeholde
 D_inner = D_outer - 2*t # [m]
 R_outer = D_outer/2 # [m]
 R_inner = D_inner/2 # [m]
@@ -37,14 +37,50 @@ pass
 M_x = 15000000 # [Nm]
 V_y = 1500000 # [N]
 
+# define mass
+def calc_mass_per_unit_length(t_arr):
+    
+    theta = np.linspace(0, np.pi/2, len(t_arr)+1)
+    y = R_outer*np.sin(theta)
+
+    
+    for i in range(len(y)):
+        if i > 0:
+            theta[i] = np.arcsin(-(theta[0] - 1/R_outer*(y[i]-y[0])))
+
+    arc_length = theta*D_outer/2 # [m]
+    mass_panel_segment = (arc_length[1:]-arc_length[:-1])*t_arr*rho # [kg/m]
+    mass_unit_length_quarter_fuselage = np.sum(mass_panel_segment)
+    mass_unit_length = 4*mass_unit_length_quarter_fuselage
+    return mass_unit_length
+
+
+def calc_second_moment_of_area(t_arr):
+    
+    theta = np.linspace(0, np.pi/2, len(t_arr)+1)    
+    Ixx_arr = np.zeros(len(t_arr))
+    
+    for i in range(len(t_arr)):
+        Ixx_arr[i] = t_arr[i]*R_outer**3*(0.5*(theta[i+1]-theta[i])-0.25*(np.sin(2*theta[i+1]) - np.sin(2*theta[i])))
+
+    Ixx = 4*np.sum(Ixx_arr)
+    return Ixx
+
+    
 
 # Loading
-def calc_loadvector(V, M, n_points=3):  
-    y = np.linspace(0, R_outer, n_points)    
+def calc_loadvector(V, M, t_arr, n_points=5):
+    
+    theta = np.linspace(0, np.pi/2, len(t_arr)+1)
+    y = R_outer*np.sin(theta)
+    
     sigma_z_times_t_arr = np.zeros(len(y))
     qs_arr = np.zeros(len(y))
+    
+    Ixx = calc_second_moment_of_area(t_arr)
+    
     for i in range(len(y)):
-        sigma_z_times_t_arr[i] = M*y[i]/(np.pi*R_outer**3)
+        sigma_z_times_t_arr[i] = M*y[i]/Ixx*t_arr[i]
         qs_arr[i] = V/(np.pi*R_outer)*np.sqrt(1-(y[i]/R_outer)**2)
     return sigma_z_times_t_arr, qs_arr
 
@@ -94,7 +130,7 @@ Gxyb_flexural = black_aluminum_laminate.Gxyb
 vxyb_flexural = black_aluminum_laminate.vxyb
 vyxb_flexural = black_aluminum_laminate.vyxb
 
-print(f'Black Aluminum Design --- Quasi-Isotropic Layup: {quasi_isotropic_layup}')
+print(f'--- START: Black Aluminum Design --- \nQuasi-Isotropic Layup: {quasi_isotropic_layup}')
 print("Planar Properties:")
 print(f"Ex_planar: {Ex_planar * 10**-9} GPa")
 print(f"Ey_planar: {Ey_planar * 10**-9} GPa")
@@ -112,7 +148,10 @@ print(f"vyxb_flexural: {vyxb_flexural} MPa")
 
 # stiffness matching, first thickness estimate
 # (EA)_composite = (EA)_alu and (EI)_composite = (EI)_alu => (Et)_composite = (Et)_alu 
-t_alu_arr = calc_variable_thickness(V = V_y, M = M_x, n_points=4)[1]
+t_alu_arr = np.array([0.0012407, 0.00189225, 0.00189225, 0.00207727])
+mass_unit_length_alu =  calc_mass_per_unit_length(t_alu_arr)
+
+
 E_alu = 69.*10**9 #[Pa]
 t_composite_arr = E_alu/ Ex_planar * t_alu_arr
 n_plies = np.ceil(t_composite_arr/t_ply)
@@ -120,6 +159,7 @@ print('Stiffness matching of Alu/quasi isotropic composite')
 print(f'Alu: {t_alu_arr*10**3}[mm]')
 print(f'CFRP: {t_composite_arr*10**3}[mm]')
 print(f'#plys: {n_plies}[mm]')
+print(f'--- END: Black Aluminum Design --- \n')
 
 
 # strength based sizing
@@ -228,28 +268,6 @@ print(f"sigma22: {middle_stress_sigma22 * 10**-6} MPa")
 print(f"sigma12: {middle_stress_sigma12 * 10**-6} MPa")
 
 
-
-
-
-def calc_mass_per_unit_length(t_arr):
-    print('\nComputing mass...\n')
-    # Ixx = np.pi*R_outer**3*t
-    # Iyy = Ixx
-    
-    y = np.linspace(0, R_outer, len(t_arr)+1)
-    theta = np.zeros(len(y))
-
-    
-    for i in range(len(y)):
-        if i > 0:
-            theta[i] = np.arcsin(-(theta[0] - 1/R_outer*(y[i]-y[0])))
-
-    arc_length = theta*D_outer/2 # [m]
-    mass_panel_segment = (arc_length[1:]-arc_length[:-1])*t_arr*rho # [kg/m]
-    print(f'theta: {np.degrees(theta)} arc len: {arc_length}, mass_penl: {mass_panel_segment}')
-    mass_unit_length_quarter_fuselage = np.sum(mass_panel_segment)
-    mass_unit_length = 4*mass_unit_length_quarter_fuselage
-    return y, t_arr, mass_unit_length
 
 t_var_composite_arr = t_ply*np.array([len(middle_layup), len(diagonal_layup), len(top_layup)])
 var_cfrp_mass = calc_mass_per_unit_length(t_var_composite_arr)

@@ -212,7 +212,7 @@ Ixx_full=np.sum(B_bending)
 for i in range(num_points):
     sig_boom=M_x*y[i]/Ixx_full
     delQi=-(V_y/Ixx_full)*B_areas[i]*y[i]
-    sig_z.append(sig_boom/1e6)
+    sig_z.append(sig_boom)
     delQ.append(delQi)
 #print(sig_z)
 #print(delQ)
@@ -243,10 +243,16 @@ for i in range(num_points):
     sig_skin.append(sigmaval)
 
 
+force_val=np.zeros(num_points)
+for i in range(num_points):
+    force_val[i]= sig_skin[i]*Panel_Areas[i]
+
+force_panel_3=np.sum(force_val[99:117])
+print(force_panel_3)
 print(arc_length)
 node=-int(num_points/4)
 print(sig_z[node])
-print(shear_val[node])
+#print(shear_val[node])
 print(sig_skin[node])
 print(sig_stiffner[node])
 '''

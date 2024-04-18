@@ -28,7 +28,7 @@ A_mat=laminate_3.A
 D_mat=laminate_3.D
 
 # total force on panel due to bending
-Ftot= -1303685.336 # N/
+Ftot= -1233511.983153651 # N
 shear_panel = 6186.8399 # N/m
 ds=0.13089 #m
 a=1 #m
@@ -40,7 +40,7 @@ EI_stiffner=0
 
 
 #
-bucklepanel_3=stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,A_mat,D_mat,T_skin)
+bucklepanel_3=stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA_stiffner,EI_stiffner,A_mat,D_mat,T_skin)
     #inputs 
     #Ftot the total force on the panel 
     #ds: spacing between stiffeners

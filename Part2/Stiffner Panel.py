@@ -80,8 +80,8 @@ shear_panel = 6186.8399 # N/m
 ds=0.13089 #m
 a=1 #m
 b=2.35619 #m
-EA_stiffner= 0
-EI_stiffner= 0
+EA_stiffner= 0.008645
+EI_stiffner= 326.4536
 T_skin=t_ply*len(Panel_3)
 
 #

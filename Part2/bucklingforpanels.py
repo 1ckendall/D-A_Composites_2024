@@ -350,7 +350,7 @@ def stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,Amatrix_skin,Dmatrix_
      
     B =0.82 + 0.46*((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(np.sqrt(Dmatrix_skin[0,0]*Dmatrix_skin[1,1]))) -0.2*((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(np.sqrt(Dmatrix_skin[0,0]*Dmatrix_skin[1,1])))**2
     K = 8.2 + 5 * ((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(Dmatrix_skin[0,0]*Dmatrix_skin[1,1]))*(1/(10**(A/beta + B*beta)))
-    Nxy = 4/(b**2) *( (Dmatrix_skin[0,0]*Dmatrix_skin[1,1]**3)**(1/4)) * K 
+    Nxy = 4/(ds**2) *( (Dmatrix_skin[0,0]*Dmatrix_skin[1,1]**3)**(1/4)) * K 
     R_xy = np.abs(shear_panel) / Nxy
     
 

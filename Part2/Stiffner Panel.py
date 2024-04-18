@@ -28,7 +28,7 @@ Panel_3=[+45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
                     90,
         +45, -45, +45, -45, 0, 0, -45, +45, -45, +45]
 Panel_3_lamina = [Lamina(i, Ex, Ey, Gxy, vxy, Xt, Xc, Yc, Yt, S, t_ply) for i in Panel_3]
-T_skin=t_ply*len(Panel_3)
+T_p3=t_ply*len(Panel_3)
 # Creating Laminate
 laminate_3=Laminate(Panel_3_lamina)
 
@@ -38,12 +38,12 @@ D_mat=laminate_3.D
 Ex = laminate_3.Ex
 
 print('stiffnest value for panel in MPa=', Ex/1e6)
-'''
+
 # testing
     # skin parameters
 t_ply=0.135e-3
 Eskin_val=[(45.23*10**9),(60.22*10**9),(71.21*10**9)]
-T_skin=[11*t_ply,13*t_ply,15*t_ply]
+T_skin=[T_p3-8,T_p3-4,T_p3]
 
     #stiffner parameters
 A_stiffner=[0,6.823e-5,0.000230,0.000160]
@@ -97,5 +97,3 @@ bucklepanel_3=stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA_stiffner,EI_st
     #D_matrix of the panel
     #t skin thickness
     #only check that skin or stiffener buckle seperately
-
-'''

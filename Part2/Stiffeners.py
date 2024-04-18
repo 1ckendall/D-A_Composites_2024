@@ -160,6 +160,30 @@ if __name__ == "__main__":
     # Effective length factor
     K = 0.5  # 0.5 for fixed ends, 1 for free ends
 
+    # #### Stringer B
+    #
+    # web_layup = [45, -45, 0, 0, -45, 45]
+    # flange_layup = [45, -45, 0, 0, 90, 90, 0, 0, -45, 45]
+    #
+    # # Web
+    # b1 = 60E-3
+    # # Flange
+    # b2 = 40E-3
+    # # Joint radius
+    # r = 4E-3
+    #
+    # ##### Stringer C
+    #
+    # web_layup = [45, -45, -45, 45]
+    # flange_layup = [45, -45, 0, -45, 45]
+    #
+    # # Web
+    # b1 = 45E-3
+    # # Flange
+    # b2 = 30E-3
+    # # Joint radius
+    # r = 4E-3
+
     t1 = len(web_layup) * t_ply
     t2 = len(flange_layup) * t_ply
 
@@ -253,30 +277,6 @@ if __name__ == "__main__":
     print(f"Web crippling fail at {P_crip_web / 1E6} MPa")
     print(f"Flange crippling fail at {P_crip_flange / 1E6} MPa")
     print(f"Column buckling fail at {P_col_buckle / 1E6} MPa")
-
-    # #### Stringer B
-    #
-    # web_layup = [45, -45, 0, 0, -45, 45]
-    # flange_layup = [45, -45, 0, 0, 90, 90, 0, 0, -45, 45]
-    #
-    # # Web
-    # b1 = 60E-3
-    # # Flange
-    # b2 = 40E-3
-    # # Joint radius
-    # r = 4E-3
-    #
-    # ##### Stringer C
-    #
-    # web_layup = [45, -45, -45, 45]
-    # flange_layup = [45, -45, 0, -45, 45]
-    #
-    # # Web
-    # b1 = 45E-3
-    # # Flange
-    # b2 = 30E-3
-    # # Joint radius
-    # r = 4E-3
 
 
 

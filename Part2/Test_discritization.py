@@ -83,7 +83,7 @@ Ixx_t=np.pi*(R_outer**3) # Ixx / thickness(unknown)
 # skin parameters
 t_ply=0.135e-3
 Eskin_val=[(45.23*10**9),(60.22*10**9),(71.21*10**9)]
-T_skin=[15*t_ply,15*t_ply,15*t_ply]
+T_skin=[11*t_ply,13*t_ply,15*t_ply]
 
 #stiffner parameters
 A_stiffner=[0,6.823e-5,0.000230,0.000160]
@@ -110,7 +110,6 @@ Panel_Areas.extend([Area_panel[1]]*18)
 Panel_Areas.extend([Area_panel[2]]*18)
 Panel_Areas.extend([Area_panel[1]]*18)
 Panel_Areas.extend([Area_panel[0]]*9)
-
 # thickness array
 T_skinarr=[]
 T_skinarr.extend([T_skin[0]]*9)
@@ -196,8 +195,8 @@ for i in range(num_points):
 
     # Boom Area = Stringer Area + skin 1 contribution + skin 2 contribution
     Sai = stiff_loc[i]
-    B1i = (T_skinarr[i-1]*arc_length/6)*(2+(sig_s1/sig_boom))
-    B2i = (T_skinarr[i]*arc_length/6)*(2+(sig_s2/sig_boom))
+    B1i = (Panel_Areas[i-1]/6)*(2+(sig_s1/sig_boom))
+    B2i = (Panel_Areas[i]/6)*(2+(sig_s2/sig_boom))
     B_area = Sai+B1i+B2i
     Ixx_boom = (y[i]**2)*B_area
     B_bending.append(Ixx_boom)
@@ -209,7 +208,7 @@ for i in range(num_points):
 sig_z=[]
 delQ=[]
 Ixx_full=np.sum(B_bending)
-print(Ixx_full)
+
 for i in range(num_points):
     sig_boom=M_x*y[i]/Ixx_full
     delQi=-(V_y/Ixx_full)*B_areas[i]*y[i]
@@ -222,8 +221,9 @@ shear_val=np.zeros(num_points)
 sum=0
 for i in range(1,num_points):
     sum += delQ[i-int((3/4)*num_points)]
-    shear_val[i-int((3/4)*num_points)]=sum
-#print(shear_val)
+    print(sum)
+    shear_val[i-int((3/4)*num_points)+1]=sum
+print(shear_val)
 
 sig_skin=[]
 skin1contri=[]
@@ -242,7 +242,7 @@ for i in range(num_points):
     sigmaval=skin1contri[i]+((skin1contri[i]-skin2contri[i-1])/2)
     sig_skin.append(sigmaval)
 
-node=-int(num_points/4)
+node=int(num_points/4)
 print(sig_z[node])#(arc_length[i]*1e6))
 print(shear_val[node])
 print(sig_skin[node])
@@ -263,3 +263,4 @@ plt.scatter(x[node],y[node],color='black',marker='o',s=150)
 plt.scatter(x[node-1],y[node-1],color='red',marker='o',s=150)
 plt.scatter(X[node],Y[node],color='green',marker='x')
 plt.show()
+print(arc_length*18)

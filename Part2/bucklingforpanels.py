@@ -366,13 +366,13 @@ def stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,Amatrix_skin,Dmatrix_
     
     R_buckling = R_x_skin + R_xy**2 
     if R_buckling >=1 : 
-         print('buckling has occured combined','Rx_skin',R_x_skin,'Rshear',R_xy**2)
+         print('buckling has occured combined','Rx_skin',R_x_skin,'Rshear',R_xy**2,'combined',R_buckling)
         
          buckling = True
          
     elif R_buckling <1: 
-         print('no buckling')
-   
+         
+         print(' NO buckling ','Rx_skin',R_x_skin,'Rshear',R_xy**2,'Combined',R_buckling)
     return Nx_skin,buckling,EIneeded
 
 

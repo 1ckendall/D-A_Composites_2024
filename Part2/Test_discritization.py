@@ -180,7 +180,6 @@ E_stiffner.extend([Estiffner_val[1]]*9)
 print(len(E_stiffner))
 
 #--------------------------------------------------------- setting discritization basis----------------------------------
-
 # Discretized boom parameters Stiffness and Area
 #creating boom at X,Y coordinate for discretized panel
 # calculating Boom Area
@@ -203,6 +202,7 @@ for i in range(num_points):
     B_areas.append(B_area)
     E_boom=((E_skin[i]*Panel_Areas[i])+(E_skin[i-1]*Panel_Areas[i-1])+(E_stiffner[i]*stiff_loc[i]))/(stiff_loc[i]+Panel_Areas[i]+Panel_Areas[i-1])
     E_booms.append(E_boom)
+    #print(E_boom)
     
 # calculate stress due to moment and shear on the discritised length
 sig_z=[]
@@ -221,9 +221,9 @@ shear_val=np.zeros(num_points)
 sum=0
 for i in range(1,num_points):
     sum += delQ[i-int((3/4)*num_points)]
-    print(sum)
+    #print(sum)
     shear_val[i-int((3/4)*num_points)+1]=sum
-print(shear_val)
+#print(shear_val)
 
 sig_skin=[]
 skin1contri=[]
@@ -242,8 +242,10 @@ for i in range(num_points):
     sigmaval=skin1contri[i]+((skin1contri[i]-skin2contri[i-1])/2)
     sig_skin.append(sigmaval)
 
-node=int(num_points/4)
-print(sig_z[node])#(arc_length[i]*1e6))
+
+print(arc_length)
+node=-int(num_points/4)
+print(sig_z[node])
 print(shear_val[node])
 print(sig_skin[node])
 print(sig_stiffner[node])
@@ -263,4 +265,3 @@ plt.scatter(x[node],y[node],color='black',marker='o',s=150)
 plt.scatter(x[node-1],y[node-1],color='red',marker='o',s=150)
 plt.scatter(X[node],Y[node],color='green',marker='x')
 plt.show()
-print(arc_length*18)

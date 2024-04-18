@@ -341,11 +341,7 @@ def stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,Amatrix_skin,Dmatrix_
     Nx_panel = (((np.pi)**2)/(a**2)) * (Dmatrix_skin[0,0] * (m**2) + 2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])*(AR_bar**2)+ Dmatrix_skin[1,1]*((AR_bar**4))/(m**2))
 
     Nx_skin = (((np.pi)**2)/(a**2)) * (Dmatrix_skin[0,0] * (m**2) + 2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])*(AR_bar**2)+ Dmatrix_skin[1,1]*((AR_bar**4))/(m**2))
-    Nx_bay = N_skin / lambda_buckling
-    Nx_baycritical = Nx_skin / lambda_buckling
     
-    #R_x_skin = N_skin / Nx_skin 
-    R_x_skin = Nx_bay / Nx_baycritical
     #checking for shear on the skins
     beta = (Dmatrix_skin[0,0]/Dmatrix_skin[1,1])**(1/4)
     A = -0.27 + 0.185 *((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(np.sqrt(Dmatrix_skin[0,0]*Dmatrix_skin[1,1])))
@@ -360,6 +356,13 @@ def stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,Amatrix_skin,Dmatrix_
 
 
     lambda_buckling = (Amatrix_skin[0,0]+(EA)/ds) / Amatrix_skin[0,0] 
+    Nx_bay = N_skin / lambda_buckling
+    Nx_baycritical = Nx_skin / lambda_buckling
+    
+    #R_x_skin = N_skin / Nx_skin 
+    R_x_skin = Nx_bay / Nx_baycritical
+
+
     EIadvised = Dmatrix_skin[0,0] * ds *((np.sqrt(Dmatrix_skin[1,1]/Dmatrix_skin[0,0]))*(2*lambda_buckling*(AR_bar**2)- (np.sqrt(Dmatrix_skin[1,1]/Dmatrix_skin[0,0]))*(AR**4))+((2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2]))/Dmatrix_skin[0,0])*(lambda_buckling*(AR_bar**2)-(AR**2))-1)
     EIneeded = 1.5 * EIadvised # this calculated what EI for stringer we would need such that we make sure the skin buckles first 
     #checking for shear buckling of the skin ?

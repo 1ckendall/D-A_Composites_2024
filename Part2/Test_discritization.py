@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Class import Lamina, Laminate
 from scipy.interpolate import CubicSpline
-
+'''
 # Composite (UD tape) material properties 
 Ex = 142*10**9 # [Pa]
 Ey = 11.2*10**9 # [Pa]
@@ -14,6 +14,7 @@ Yt = 70*10**6 # [Pa]
 Yc = 300*10**6 # [Pa]
 S =	100*10**6 # [Pa]
 rho  = 1610 # [kg/m^3]
+'''
 t_ply = 0.135*10**-3 # [m]
 
 # Coordinate system 
@@ -46,7 +47,6 @@ def create_circle(num_points,R):
     x = R*np.cos(Side_boom)
     y = R*np.sin(Side_boom)
 
-
     arc_length = 2*np.pi*R/(num_points-1) #np.sqrt((x[i] - x[i-1])**2 + (y[i] - y[i-1])**2)
 
     interp_points = 1000  # Number of points after interpolation
@@ -60,7 +60,7 @@ def create_circle(num_points,R):
 
 
     plt.figure(figsize=(8,8))
-    plt.plot(x,y)#,'bo-'
+    plt.plot(x,y,'bo-')#,
     plt.axis('equal')
     plt.grid()
     plt.plot(interp_x, interp_y)  # Plot the circle with blue dots connected by lines
@@ -81,12 +81,13 @@ Ixx_t=np.pi*(R_outer**3) # Ixx / thickness(unknown)
 #-------------------------------------------------------------skin parameters-------------------------------------------
 
 # skin parameters
-Eskin_val=[(142*10**9),(142*10**9),(142*10**9)]
-T_skin=[0.002,0.002,0.002]
+t_ply=0.135e-3
+Eskin_val=[(45.23*10**9),(60.22*10**9),(71.21*10**9)]
+T_skin=[15*t_ply,15*t_ply,15*t_ply]
 
 #stiffner parameters
-A_stiffner=[0,0,0,0]
-Estiffner_val=[0,0,0,0]
+A_stiffner=[0,6.823e-5,0.000230,0.000160]
+Estiffner_val=[0, 48.216e9, 71.265e9, 74.07e9]
 
 #------------------------------------------------------------ Initializing----------------------------------------------
 num_points=144
@@ -135,45 +136,47 @@ E_skin.extend([Eskin_val[1]]*18)
 E_skin.extend([Eskin_val[0]]*9)
 
 # Stiffner Area Addition
-stiff_loc=[]
-stiff_loc.extend([A_stiffner[0]]*8)
+stiff_loc=np.zeros(num_points)#[]
+'''
+stiff_loc.extend([A_stiffner[1]]*8)
 stiff_loc.extend([A_stiffner[0]])
-stiff_loc.extend([A_stiffner[0]]*17)
+stiff_loc.extend([A_stiffner[3]]*17)
 stiff_loc.extend([A_stiffner[0]])
-stiff_loc.extend([A_stiffner[0]]*17)
+stiff_loc.extend([A_stiffner[2]]*17)
 stiff_loc.extend([A_stiffner[0]])
-stiff_loc.extend([A_stiffner[0]]*17)
+stiff_loc.extend([A_stiffner[3]]*17)
 stiff_loc.extend([A_stiffner[0]])
-stiff_loc.extend([A_stiffner[0]]*17)
+stiff_loc.extend([A_stiffner[2]]*17)
 stiff_loc.extend([A_stiffner[0]])
-stiff_loc.extend([A_stiffner[0]]*17)
+stiff_loc.extend([A_stiffner[1]]*17)
 stiff_loc.extend([A_stiffner[0]])
-stiff_loc.extend([A_stiffner[0]]*17)
+stiff_loc.extend([A_stiffner[3]]*17)
 stiff_loc.extend([A_stiffner[0]])
-stiff_loc.extend([A_stiffner[0]]*17)
+stiff_loc.extend([A_stiffner[2]]*17)
 stiff_loc.extend([A_stiffner[0]])
-stiff_loc.extend([A_stiffner[0]]*9)
-
+stiff_loc.extend([A_stiffner[1]]*9)
+'''
 # Elasticity matrices
-E_stiffner=[]
-E_stiffner.extend([Estiffner_val[0]]*8)
+E_stiffner=np.zeros(num_points)#[]
+'''
+E_stiffner.extend([Estiffner_val[1]]*8)
 E_stiffner.extend([Estiffner_val[0]])
-E_stiffner.extend([Estiffner_val[0]]*17)
+E_stiffner.extend([Estiffner_val[3]]*17)
 E_stiffner.extend([Estiffner_val[0]])
-E_stiffner.extend([Estiffner_val[0]]*17)
+E_stiffner.extend([Estiffner_val[2]]*17)
 E_stiffner.extend([Estiffner_val[0]])
-E_stiffner.extend([Estiffner_val[0]]*17)
+E_stiffner.extend([Estiffner_val[3]]*17)
 E_stiffner.extend([Estiffner_val[0]])
-E_stiffner.extend([Estiffner_val[0]]*17)
+E_stiffner.extend([Estiffner_val[1]]*17)
 E_stiffner.extend([Estiffner_val[0]])
-E_stiffner.extend([Estiffner_val[0]]*17)
+E_stiffner.extend([Estiffner_val[3]]*17)
 E_stiffner.extend([Estiffner_val[0]])
-E_stiffner.extend([Estiffner_val[0]]*17)
+E_stiffner.extend([Estiffner_val[2]]*17)
 E_stiffner.extend([Estiffner_val[0]])
-E_stiffner.extend([Estiffner_val[0]]*17)
+E_stiffner.extend([Estiffner_val[3]]*17)
 E_stiffner.extend([Estiffner_val[0]])
-E_stiffner.extend([Estiffner_val[0]]*9)
-
+E_stiffner.extend([Estiffner_val[1]]*9)
+'''
 
 print(len(E_stiffner))
 
@@ -183,7 +186,6 @@ print(len(E_stiffner))
 #creating boom at X,Y coordinate for discretized panel
 # calculating Boom Area
 
-T=[0.002,0.002] # placeholder, iterate later
 B_bending=[]
 B_areas=[]
 E_booms=[]
@@ -202,22 +204,26 @@ for i in range(num_points):
     B_areas.append(B_area)
     E_boom=((E_skin[i]*Panel_Areas[i])+(E_skin[i-1]*Panel_Areas[i-1])+(E_stiffner[i]*stiff_loc[i]))/(stiff_loc[i]+Panel_Areas[i]+Panel_Areas[i-1])
     E_booms.append(E_boom)
-
+    
 # calculate stress due to moment and shear on the discritised length
 sig_z=[]
 delQ=[]
 Ixx_full=np.sum(B_bending)
+print(Ixx_full)
 for i in range(num_points):
     sig_boom=M_x*y[i]/Ixx_full
     delQi=-(V_y/Ixx_full)*B_areas[i]*y[i]
     sig_z.append(sig_boom/1e6)
     delQ.append(delQi)
+#print(sig_z)
+#print(delQ)
 
 shear_val=np.zeros(num_points)
 sum=0
-for i in range(num_points):
+for i in range(1,num_points):
     sum += delQ[i-int((3/4)*num_points)]
-    shear_val[i-int((3/4)*num_points)+1]=sum
+    shear_val[i-int((3/4)*num_points)]=sum
+#print(shear_val)
 
 sig_skin=[]
 skin1contri=[]
@@ -236,22 +242,24 @@ for i in range(num_points):
     sigmaval=skin1contri[i]+((skin1contri[i]-skin2contri[i-1])/2)
     sig_skin.append(sigmaval)
 
-i=0#int(num_points/4)
-print(sig_z[i])#(arc_length[i]*1e6))
-print(shear_val[i])
-print(sig_skin[i])
-
-plt.scatter(x[0:9],y[0:9],color='blue',marker='o',s=33)
-plt.scatter(x[9:27],y[9:27],color='red',marker='x',s=66)
-plt.scatter(x[27:45],y[27:45],color='black',marker='o',s=100)
-plt.scatter(x[45:63],y[45:63],color='red',marker='x',s=66)
-plt.scatter(x[63:81],y[63:81],color='blue',marker='o',s=33)
-plt.scatter(x[81:99],y[81:99],color='red',marker='x',s=66)
-plt.scatter(x[99:117],y[99:117],color='black',marker='o',s=100)
-plt.scatter(x[117:135],y[117:135],color='red',marker='x',s=66)
-plt.scatter(x[135:144],y[135:144],color='blue',marker='o',s=33)
-plt.scatter(x[i],y[i],color='black',marker='o',s=150)
-plt.scatter(x[i-num_points+1],y[i-num_points+1],color='blue',marker='o',s=150)
-plt.scatter(x[i-1],y[i-1],color='red',marker='o',s=150)
-plt.scatter(X[i],Y[i],color='green',marker='x')
+node=-int(num_points/4)
+print(sig_z[node])#(arc_length[i]*1e6))
+print(shear_val[node])
+print(sig_skin[node])
+print(sig_stiffner[node])
+'''
+plt.scatter(x[0:9],y[0:9],color='blue',marker='s',s=33)
+plt.scatter(x[9:27],y[9:27],color='red',marker='s',s=66)
+plt.scatter(x[27:45],y[27:45],color='black',marker='s',s=100)
+plt.scatter(x[45:63],y[45:63],color='red',marker='s',s=66)
+plt.scatter(x[63:81],y[63:81],color='blue',marker='s',s=33)
+plt.scatter(x[81:99],y[81:99],color='red',marker='s',s=66)
+plt.scatter(x[99:117],y[99:117],color='black',marker='s',s=100)
+plt.scatter(x[117:135],y[117:135],color='red',marker='s',s=66)
+plt.scatter(x[135:144],y[135:144],color='blue',marker='s',s=33)
+'''
+plt.scatter(x[node],y[node],color='black',marker='o',s=150)
+#plt.scatter(x[node-num_points+1],y[node-num_points+1],color='blue',marker='o',s=150)
+plt.scatter(x[node-1],y[node-1],color='red',marker='o',s=150)
+plt.scatter(X[node],Y[node],color='green',marker='x')
 plt.show()

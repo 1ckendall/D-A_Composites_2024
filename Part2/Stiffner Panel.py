@@ -28,13 +28,13 @@ A_mat=laminate_3.A
 D_mat=laminate_3.D
 
 # total force on panel due to bending
-Ftot=256
-shear_panel = 0
-ds=0.13089
-a=1
-b=2.35619
-EA_stiffner=
-EI_stiffner=
+Ftot= -1303685.336 # N/
+shear_panel = 6186.8399 # N/m
+ds=0.13089 #m
+a=1 #m
+b=2.35619 #m
+EA_stiffner= 0
+EI_stiffner=0
 
 
 

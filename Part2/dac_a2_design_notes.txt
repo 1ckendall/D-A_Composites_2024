@@ -111,8 +111,6 @@ pg 414: elastic springs
 
 
 
-
-
 ------- designing for buckling
 
 iteration 1: make the laminate twice symmetric (BUCKLES) - 2s

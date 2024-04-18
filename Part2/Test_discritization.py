@@ -257,7 +257,7 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
     #print(arc_length)
     node=-int(num_points/4)
     #print(sig_z[node])
-    print(shear_val[node])
+    #print(shear_val[node])
     #print(sig_skin[node])
     #print(sig_stiffner[node])
 

@@ -166,10 +166,6 @@ if __name__ == "__main__":
     b2 = 20E-3
     # Joint radius
     r = 4E-3
-    # Length
-    length = 500E-3
-    # Effective length factor
-    K = 0.5  # 0.5 for fixed ends, 1 for free ends
 
     # #### Stringer B
     #
@@ -182,10 +178,6 @@ if __name__ == "__main__":
     # b2 = 40E-3
     # # Joint radius
     # r = 4E-3
-    # # # Length
-    # length = 500E-3
-    # # # Effective length factor
-    # K = 0.5  # 0.5 for fixed ends, 1 for free ends
 
     # ##### Stringer C
     #
@@ -287,7 +279,7 @@ if __name__ == "__main__":
 
     P_crip_web = OEF_crippling(b1, t1, web_fail_sigma)
     P_crip_flange = OEF_crippling(b2, t2, flange_fail_sigma)
-    P_col_buckle = column_buckling(K, total_E, I[0], length)
+    # P_col_buckle = column_buckling(K, total_E, I[0], length)
 
     print(f"Web crippling fail at {P_crip_web / 1E6} MPa")
     print(f"Flange crippling fail at {P_crip_flange / 1E6} MPa")

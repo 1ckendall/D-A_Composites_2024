@@ -104,3 +104,21 @@ preferred PB:
 +- 45 outside (in case of impact) => symmetric 
 
 
+
+
+pg 414: elastic springs
+
+
+
+
+
+
+------- designing for buckling
+
+iteration 1: make the laminate twice symmetric (BUCKLES) - 2s
+iteration 2: make the laminate thrice symmetric (BUCKLES) - 3s
+iteration 3: make the laminate four-times symmetric (BUCKLES) - 4s
+
+
+
+

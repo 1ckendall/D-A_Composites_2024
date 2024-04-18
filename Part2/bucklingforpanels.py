@@ -287,6 +287,7 @@ def Buckling_check(Nx,Ny,Ns,Dmatrix,a,b,m):
          R_c = Ny / N_0
      #for shear loading: 
      R_s = np.abs(Ns) / Nxy 
+     R_c = np.abs(R_c)
      R_buckling = R_c + R_s**2 
      if R_buckling >=1 : 
          print('buckling has occured')

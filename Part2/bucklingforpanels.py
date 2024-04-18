@@ -320,7 +320,7 @@ def stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,Amatrix_skin,Dmatrix_
     buckling = False
 
     #load distribution to the skin in between stiffeners 
-    F_skin = ((Amatrix_skin[0,0])/(Amatrix_skin[0,0]+(EA)/ds) )* Ftot
+    F_skin = ((b*(Amatrix_skin[0,0]-(Amatrix_skin[0,1]**2)/Amatrix_skin[1,1]))/((Amatrix_skin[0,0]-(Amatrix_skin[0,1]**2)/Amatrix_skin[1,1])+b*(EA)/ds) )* Ftot
     # Nskin load on the panel
     N_skin = F_skin / b
     N_panel = Ftot /b

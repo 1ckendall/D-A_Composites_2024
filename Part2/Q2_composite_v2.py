@@ -76,6 +76,8 @@ def calc_loadvector(V, M, t_arr):
     theta = np.linspace(0, np.pi/2, len(t_arr)+1)
     y = R_outer*np.sin(theta)
     
+    
+    
     # sigma_z_times_t_arr = np.zeros(len(t_arr)+1)
     # qs_arr = np.zeros(len(t_arr)+1)
     sigma_z_times_t_arr = np.zeros(len(t_arr))
@@ -90,7 +92,63 @@ def calc_loadvector(V, M, t_arr):
         # shear flow taken at the bottom of panel: y_i = min[y_{i+1}, y_{i}]
         qs_arr[i] = V/Ixx*R_outer**2*np.cos(theta[i])*t_arr[i]
 #        qs_arr[i] = V/(np.pi*R_outer)*np.sqrt(1-(y[i]/R_outer)**2)
+        # to verify aranshu's code:
+        test_sigma_z = M/Ixx*y[i+1]
+        print(f'test_sigma_z:  {test_sigma_z*10**-6} MPa\nTest shear flow {qs_arr[i]} [N/m]')
+
     return sigma_z_times_t_arr, qs_arr
+
+# check for buckling #TODO:which type of buckling (local? skin? conservative or not?)
+def Buckling_check(Nx,Ny,Ns,Dmatrix,a = 1,b = 1,m = 1):
+     AR = a/b
+     R_buckling = 0
+     #for compressive loading 
+     N_0 = ((np.pi**2) *(Dmatrix[0,0]*m**4 + 2*(Dmatrix[0,1]+2*Dmatrix[2,2])*(m**2)*(AR**2)+Dmatrix[1,1]*(AR**4) ))/((a**2)*(m**2))
+     #shear buckling: 
+     beta = (Dmatrix[0,0]/Dmatrix[1,1])**(1/4)
+     A = -0.27 + 0.185 *((Dmatrix[0,1]+2*Dmatrix[2,2])/(np.sqrt(Dmatrix[0,0]*Dmatrix[1,1])))
+     
+     
+     B =0.82 + 0.46*((Dmatrix[0,1]+2*Dmatrix[2,2])/(np.sqrt(Dmatrix[0,0]*Dmatrix[1,1]))) -0.2*((Dmatrix[0,1]+2*Dmatrix[2,2])/(np.sqrt(Dmatrix[0,0]*Dmatrix[1,1])))**2
+     K = 8.2 + 5 * ((Dmatrix[0,1]+2*Dmatrix[2,2])/(Dmatrix[0,0]*Dmatrix[1,1]))*(1/(10**(A/beta + B*beta)))
+     Nxy = 4/(b**2) *( (Dmatrix[0,0]*Dmatrix[1,1]**3)**(1/4)) * K 
+     print('buckling',N_0,Nxy)
+     #check for compressive loading: 
+     R_c = 0
+     if  Nx < 0: 
+         R_c = Nx / N_0 
+     elif Ny < 0 : 
+         R_c = Ny / N_0
+     #for shear loading: 
+     R_s = np.abs(Ns) / Nxy 
+     R_buckling = R_c + R_s**2 
+     if R_buckling >=1 : 
+         print('buckling has occured')
+         print('shear ratio',R_s**2)
+         print('Compressive ration',R_c)
+     elif R_buckling <1: 
+         print('no buckling')
+         
+
+def is_MaxStress_FPF(Laminate):
+    isFPF = False
+    ply_fail_mode = None
+    if not isFPF:
+        for idx, ply in enumerate(Laminate.plys):
+            
+            ply.sigma_1 = Laminate.sigma11[idx]
+            ply.sigma_2 = Laminate.sigma22[idx]
+            ply.tau_21 = Laminate.sigma12[idx]
+            
+            ply.maxStressFibreFail() #fiber failure
+            ply.maxStressInterFibreFail() #InterFiberfailure
+            ply.maxStressShearFail() #Shearfailure
+            if ply.failuremode:
+                # ply_fail_sigma = sigma
+                ply_fail_mode = ply.failuremode
+                plyidx_fail = idx                
+                isFPF = True
+    return isFPF, ply_fail_mode 
 
 
 # Black Aluminum design
@@ -220,17 +278,20 @@ baseline_laminate = Laminate(plylist,  Nx=n_x_arr[3], Ny=0, Ns=n_s_arr[0], Mx=0,
 plylist= [] 
 for angle in top_layup:
     plylist.append(Lamina(angle,E1 = Ex,E2 = Ey,G12 =Gxy,v12=vxy,Xt=Xt,Xc=Xc,Yt=Yt,Yc=Yt,S=S,t=t_ply))
-top_laminate = Laminate(plylist,  Nx=n_x_arr[3], Ny=0, Ns=n_s_arr[2], Mx=0, My=0, Ms=0)
+# top_laminate = Laminate(plylist,  Nx=n_x_arr[3], Ny=0, Ns=n_s_arr[2], Mx=0, My=0, Ms=0)
+top_laminate = Laminate(plylist,  Nx=n_x_arr[3], Ny=0, Ns=n_s_arr[3], Mx=0, My=0, Ms=0)
 
 plylist= [] 
 for angle in diagonal_layup:
     plylist.append(Lamina(angle,E1 = Ex,E2 = Ey,G12 =Gxy,v12=vxy,Xt=Xt,Xc=Xc,Yt=Yt,Yc=Yt,S=S,t=t_ply))
-diagonal_laminate = Laminate(plylist,  Nx=n_x_arr[2], Ny=0, Ns=n_s_arr[1], Mx=0, My=0, Ms=0)
+#diagonal_laminate = Laminate(plylist,  Nx=n_x_arr[2], Ny=0, Ns=n_s_arr[1], Mx=0, My=0, Ms=0)
+diagonal_laminate = Laminate(plylist,  Nx=n_x_arr[2], Ny=0, Ns=n_s_arr[1], Mx=0, My=0, Ms=0) # conservative
 
 plylist= [] 
 for angle in middle_layup:
     plylist.append(Lamina(angle,E1 = Ex,E2 = Ey,G12 =Gxy,v12=vxy,Xt=Xt,Xc=Xc,Yt=Yt,Yc=Yt,S=S,t=t_ply))
-middle_laminate = Laminate(plylist,  Nx=n_x_arr[1], Ny=0, Ns=n_s_arr[0], Mx=0, My=0, Ms=0)
+# middle_laminate = Laminate(plylist,  Nx=n_x_arr[1], Ny=0, Ns=n_s_arr[0], Mx=0, My=0, Ms=0)
+middle_laminate = Laminate(plylist,  Nx=n_x_arr[0], Ny=0, Ns=n_s_arr[0], Mx=0, My=0, Ms=0)
 
 # CLPT stress-strain
 baseline_laminate.getStressStrain()
@@ -251,6 +312,7 @@ top_stress_vector = top_laminate.localstressVector
 top_stress_sigma11 = top_laminate.sigma11
 top_stress_sigma22 = top_laminate.sigma22
 top_stress_sigma12 = top_laminate.sigma12
+
 
 
 diagonal_stress_vector = diagonal_laminate.localstressVector
@@ -295,8 +357,30 @@ print(f"sigma22: {middle_stress_sigma22 * 10**-6} MPa")
 print(f"sigma12: {middle_stress_sigma12 * 10**-6} MPa")
 
 
+# part A: check max stress condition on given laminates. Plot reserve factors.
+isFPF_top = is_MaxStress_FPF(top_laminate)[0]
+isFPF_diagonal = is_MaxStress_FPF(diagonal_laminate)[0]
+isFPF_middle = is_MaxStress_FPF(middle_laminate)[0]
 
-t_var_composite_arr = t_ply*np.array([len(middle_layup), len(diagonal_layup), len(top_layup)])
-var_cfrp_mass = calc_mass_per_unit_length(t_var_composite_arr)
+print('FPF Check')
+print(f'Top Laminate FPF?: {isFPF_top}')
+print(f'Diagonal Laminate FPF?: {isFPF_diagonal}')
+print(f'Middle Laminate FPF?: {isFPF_middle}')
+
+# part B: check for buckling
+
+print('\nTop panel buckling check')
+Buckling_check(Nx = top_laminate.Nx, Ny = top_laminate.Ny, Ns = top_laminate.Ns, Dmatrix = top_laminate.D)
+
+print('\nDiagonal panel buckling check')
+Buckling_check(Nx = diagonal_laminate.Nx, Ny = diagonal_laminate.Ny, Ns = diagonal_laminate.Ns, Dmatrix = diagonal_laminate.D)
+
+print('\nMiddle panel buckling check')
+Buckling_check(Nx = middle_laminate.Nx, Ny = middle_laminate.Ny, Ns = middle_laminate.Ns, Dmatrix = middle_laminate.D)
+
+
+
+
+# t_var_composite_arr = t_ply*np.array([len(middle_layup), len(diagonal_layup), len(top_layup)])
+var_cfrp_mass = calc_mass_per_unit_length(t_composite_arr)
 print(f'\nvar_cfrp_mass: {var_cfrp_mass} [kg/m]')
-

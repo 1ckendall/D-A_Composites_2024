@@ -1,0 +1,106 @@
+1) Monocoque- Aluminum (same thickness --> variable thickness (iterative))
+--Yielding (use von Mises criterion)
+--Thin sheet (shell) buckling. If not, flat sheet.
+--Do not consider: Inter-rivet buckling, cutouts, stiffeners, joints, etc
+
+
+2) Composite Monocoque 
+--Three different thicknesses. Expect +-45 dominant at midplane. Expect +0 dominant at top/bottom. 
+--Black Aluminum design (start with quasi isotropic [90, +-45, 0, 0, -+45, 90] .. match stiffness of aluminum)	
+--Failure criterion (Puck) under LPF. Provide M.O.S for a selected design
+--Ply drop rules 
+---d >= 15*h_drop (lightweight design - lecture 3 pdf slide 14)
+---drop middle layers
+---drop symmetric (if possible)
+---maintain atleast +-45
+
+
+3) Stiffened Composite
+--T-stiffener (lower flange: 0 dominanted and match layup of skin; web +-45)
+--stiffener positioning
+	option 1) increase stiffener area at top/bottom regions of fuselage, AND/OR
+	option 2) reduce stiffener spacing at top/bottom regions of fuselage
+--consider: global column (euler?) buckling (stiffener), local crippling (stiffener- flange/web) -One Edge Free/No Edge Free boundary conditions, local sheet buckling (skin- assume flat panel)
+---slide 3, lecture 3 => increase D66 to increase critical buckling load ((1) increase +-45 away from midplane, (2)increase the laminate height))
+--do not consider: global stiffened panel buckling, interrivet, panel breaker condition, skin-stiffener separation
+
+
+
+
+
+----- CODE
+
+-Aluminum variable thickness
+
+
+LINEAR:
+conservative
+84.26864899335902
+t_min: 0.0010379670201645349; t_max: 0.0019409139401450652
+
+
+optimised
+weight per unit length: 87.1481499054284
+alpha1 = 1*(t_max-t_min)
+t_min: 0.0008379670201645349; t_max: 0.002140913940145065
+
+QUADRATIC:
+optimised
+weight per unit length: 67.40985533638124
+alpha1 = 1*(t_max-t_min)
+alpha2 = -0.5*(t_max-t_min)
+0.00043796702016453485; t_max: 0.002640913940145065
+
+
+DISCRETE:
+Discrete case: thickness [0.00111981 0.00144504 0.00153308]
+iteration 4: weight per unit length: 71.322112927743
+SF = 1 (everywhere)
+
+
+
+----
+Notes from CK's slides:
+
+L1 (intro):
+Material failure, column buckling, crippling
+Expect 30% weight reduction when you go from quasi isotropic to symmetric (B =0 ), balanced (A16=A26=0), directional, no twisting/bending coupling (D16=D26=0)
+
+L2 (stress PDEs):
+--Plate is sufficiently long and wide so solution is not affected by boundary proximity
+--he re-states fundamental stress-strain mechanics
+--he solves PDEs using potential functions
+--conclusion of mathematicale exercise: 
+	---Axial stresses in (0/90)4 panels decay more slowly (require longer doublers) than (±45)4 or [(±45)/(0/90)]s panels
+	---On the other hand, transverse and shear stresses in (±45)4 or [(±45)/(0/90)]s panels are more critical than in (0/90)4 	panels
+	---Preliminary doubler (reinforcement dimensions): ℓ=0.5a for (0/90)4 and 0.3a for (±45)4 or [(±45)/(0/90)]s panels and w=	0.3b for all panels
+--skip plate under point load
+--biaxial loading
+--For the same thickness, aluminum has 10-20% higher buckling load (depending on AR)
+To increase the buckling load of the composite by 20% need to increase the thickness by a factor (1.2)1/3= 1.063 or 6.3%
+--Buckling under shear => generalised eigenvalue problems
+--slide 61 > N0
+--slide 62 > pure compression, N0 simplifies 
+--slide 70 > curve for buckling interaction
+
+
+L3 (buckling):
+--slide 6,7 > NASA solutions for various buckling loads and BCs
+--slide 10 > in general buckling does not imply failure especially for plates. Allowing PB will mean you need to show correct calculations that say you have enough margin.	
+--Post buckling
+---Skin buckling as a whole (stiffeners only increase the bending stiffness of the skin)
+---Skin buckling between the bays (stiffeners act as panel breakers)
+---Stiffeners buckle as columns or locally (crippling)
+preferred PB:
+---Skin between stiffeners and frames buckles first
+---Stiffeners do not buckle and do not move out of plane (depending on cross-section they may rotate => BC implications)
+---When required PB value is reached, skin fails in compression and/or stiffeners fail by crippling
+
+--effective width determination
+
+--R. Kroese: MSc thesis
+
+
++- 45 outside (in case of impact) => symmetric 
+
+

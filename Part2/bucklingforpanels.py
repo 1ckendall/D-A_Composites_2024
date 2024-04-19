@@ -327,29 +327,31 @@ def stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA,EI,Amatrix_skin,Dmatrix_
     #shear load per skin 
     tau = shear_panel/ (a*t)
     #k* used to calculate the number of halfwaces 
-    k_star = (Dmatrix_skin[1,1]/Dmatrix_skin[0,0])**(0.25) * (a/ds)
+    k_star = ((Dmatrix_skin[1,1]/Dmatrix_skin[0,0])**(0.25)) * (a/ds)
     k = int(k_star) +1  
     if k<1: 
         k = 1
     AR_bar = a/ds
     AR = a/b
     # m* used for panel- to check the skin buckles first and the panel doesnt 
-    m_star = (Dmatrix_skin[1,1]/(Dmatrix_skin[0,0]+EI/ds))**(0.25) * (a/b)
+    m_star =( (Dmatrix_skin[1,1]/(Dmatrix_skin[0,0]+EI/ds))**(0.25)) * (a/b)
     m = int(m_star)
     if m < 1 : 
         m =1
     Nx_panel = (((np.pi)**2)/(a**2)) * (Dmatrix_skin[0,0] * (m**2) + 2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])*(AR_bar**2)+ Dmatrix_skin[1,1]*((AR_bar**4))/(m**2))
 
-    Nx_skin = (((np.pi)**2)/(a**2)) * (Dmatrix_skin[0,0] * (m**2) + 2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])*(AR_bar**2)+ Dmatrix_skin[1,1]*((AR_bar**4))/(m**2))
+    Nx_skin = (((np.pi)**2)/(a**2)) * (Dmatrix_skin[0,0] * (m**2) + 2*(Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])*(AR_bar**2)+ Dmatrix_skin[1,1]*(((AR_bar**4))/(m**2)))
     
+    print(k,m)
     #checking for shear on the skins
     beta = (Dmatrix_skin[0,0]/Dmatrix_skin[1,1])**(1/4)
+    print('beta',beta)
     A = -0.27 + 0.185 *((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(np.sqrt(Dmatrix_skin[0,0]*Dmatrix_skin[1,1])))
      
      
     B =0.82 + 0.46*((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(np.sqrt(Dmatrix_skin[0,0]*Dmatrix_skin[1,1]))) -0.2*((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(np.sqrt(Dmatrix_skin[0,0]*Dmatrix_skin[1,1])))**2
     K = 8.2 + 5 * ((Dmatrix_skin[0,1]+2*Dmatrix_skin[2,2])/(Dmatrix_skin[0,0]*Dmatrix_skin[1,1]))*(1/(10**(A/beta + B*beta)))
-    Nxy = 4/(ds**2) *( (Dmatrix_skin[0,0]*Dmatrix_skin[1,1]**3)**(1/4)) * K 
+    Nxy = (4/(ds**2)) *( (Dmatrix_skin[0,0]*(Dmatrix_skin[1,1]**3))**(1/4)) * K 
     R_xy = np.abs(shear_panel) / Nxy
     
 

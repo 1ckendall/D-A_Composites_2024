@@ -8,7 +8,7 @@ run0 = False
 Ex = 69*10**9 # [Pa]
 Ey = 69*10**9 # [Pa]
 Gxy = 26*10**9 # [Pa]
-νxy = 0.29
+vxy = 0.29
 Xt = 410*10**6 # [Pa]
 Xc = 430*10**6 # [Pa]
 Yt = 400*10**6 # [Pa]
@@ -184,6 +184,8 @@ def calc_mass_per_unit_length(t_arr):
     mass_unit_length_quarter_fuselage = np.sum(mass_panel_segment)
     mass_unit_length = 4*mass_unit_length_quarter_fuselage
     return mass_unit_length
+
+
     
 # iteration 1
 y_var_1, t_var_1, SF_var_1 = calc_quadratic_thicknes_var(t_min = thickness_shear, t_max = thickness_bending)
@@ -205,28 +207,120 @@ print(f'iteration 2: weight per unit length: {mass_unit_length_discrete_var_test
 print(f'thickness: {t_discrete_var_test}')
 
 
-
-plt.figure('1')
-plt.clf()
-plt.plot(y_bending, t_bending*10**3, linestyle = '--', label = 'Bending Moment only')
-plt.plot(y_shear, t_shear*10**3, linestyle = '--', label = 'Shear force only')
-plt.plot(y_var_2, t_var_2*10**3, label = 'Combined Loading: Linear')
-plt.step(np.insert(y_discrete_var_test, 0, 0), np.insert(t_discrete_var_test, 0, t_discrete_var_test[0])*10**3,  color = 'black', marker = 'x',  label = 'Discrete')
-plt.legend()
-plt.xlabel('Fuselage Height (y) [m]')
-plt.ylabel('Skin thickness (t) [mm]')
-
-
-plt.figure('2')
-plt.clf()
-plt.plot(y_var_2, SF_var_2, label = 'Actual: Linear')
-plt.plot(y_var_2, sf_global*np.ones(len(y_var_2)), linestyle = '--', dashes =(6,4), label = 'Constraint: Minimum')
-plt.legend()
-plt.xlabel('Fuselage Height (y) [m]')
-plt.ylabel('Skin thickness (t) [mm]')
-plt.yticks(np.linspace(0, 3, 7))
-plt.show()
-plt.show()
+# plt.figure('1')
+# plt.clf()
+# plt.plot(y_bending, t_bending*10**3, linestyle = '--', label = 'Bending Moment only')
+# plt.plot(y_shear, t_shear*10**3, linestyle = '--', label = 'Shear force only')
+# plt.plot(y_var_2, t_var_2*10**3, label = 'Combined Loading: Linear')
+# plt.step(np.insert(y_discrete_var_test, 0, 0), np.insert(t_discrete_var_test, 0, t_discrete_var_test[0])*10**3,  color = 'black', marker = 'x',  label = 'Discrete')
+# plt.legend()
+# plt.xlabel('Fuselage Height (y) [m]')
+# plt.ylabel('Skin thickness (t) [mm]')
 
 
+# plt.figure('2')
+# plt.clf()
+# plt.plot(y_var_2, SF_var_2, label = 'Actual: Linear')
+# plt.plot(y_var_2, sf_global*np.ones(len(y_var_2)), linestyle = '--', dashes =(6,4), label = 'Constraint: Minimum')
+# plt.legend()
+# plt.xlabel('Fuselage Height (y) [m]')
+# plt.ylabel('Skin thickness (t) [mm]')
+# plt.yticks(np.linspace(0, 3, 7))
+# # plt.show()
+# # plt.show()
+
+
+
+
+# NASA Shell Buckling guide, pg 22
+n = 1
+m = 1
+L = 0.5 # 0.5 # length between frames (book of CK)
+r = 3 
+gamma = 0 # knockdown factor
+
+
+
+n = 1
+m = 1
+L = 0.5 # length between frames (book of CK)
+r = 3 
+gamma = 0 # knockdown factor
+
+beta = n*L/(m*np.pi*r)
+Z = L**2/(r*t)*np.sqrt(1-vxy**2)
+kx = m**2*(1+beta**2)**2 + 12/np.pi**4*(gamma*Z)**2/(m**2*(1+beta**2)**2)
+
+t = 0.0128 # [m]
+Ixx = np.pi*r**3*t
+sigma_z_max = M_x*r/Ixx
+
+t = np.sqrt((sigma_z_max*L**2*12*(1-vxy**2))/(kx*np.pi**2*Ex))
+m = 2*np.pi*r*t*rho
+print(f't_buckling_max: {t*10**3} [mm], m: {m} kg/m')
+
+
+
+def calc_quadratic_thicknes_var_buckling(t_min = thickness_shear, t_max = t, isDiscrete = False, n_points = 5, interpolation_points = 4000, alpha2=0):
+    alpha1 = 1
+    theta = np.linspace(0, np.pi/2, interpolation_points)
+    y = R_outer*np.sin(theta)
+    x = R_outer*np.cos(theta)
+        
+    t = t_min + alpha1*(t_max-t_min)*np.sin(theta) + alpha2*(t_max-t_min)*(np.sin(theta))**2
+
+    # for a sinosuidal thickness variation, the second moment of area is computed as a definite integral
+    Ixx = 4*R_outer**3*(t_min * (np.pi/4) + alpha1*(t_max-t_min)*(2/3) +  alpha2*(t_max-t_min)*(3/16))
+    
+    sigma_z = M_x*y/Ixx
+    
+    # shell buckling
+    
+        
+    arc_length = theta*D_outer/2 # [m]
+    mass_panel_segment = (arc_length[1:]-arc_length[:-1])*t[1:]*rho # [kg/m]
+    # print(f'theta: {np.degrees(theta)} arc len: {arc_length}, mass_penl: {mass_panel_segment}')
+    mass_unit_length_quarter_fuselage = np.sum(mass_panel_segment)
+    mass_unit_length = 4*mass_unit_length_quarter_fuselage
+    
+    #### compute for a discrete case
+    # theta_discrete = np.linspace(0, np.pi/2, n_points)
+    theta_discrete = np.zeros(n_points-1)
+    y_discrete = np.zeros(n_points-1)
+    t_discrete = np.zeros(n_points-1)
+    Ixx_discrete = np.zeros(n_points-1)
+    theta_init = 0
+    # interpolate (continuous to discrete)
+    for i in range(n_points-1):
+        theta_discrete[i] = theta[int(interpolation_points/n_points*(i+1))]
+        y_discrete[i] = R_outer*np.sin(theta_discrete[i])
+        # t_discrete[i] = t[int(interpolation_points/n_points*(i+1))]
+        t_discrete[i] = t[np.argmin(np.abs(theta-theta_discrete[i]))]
+        Ixx_discrete[i] = t_discrete[i]*R_outer**3*(0.5*(theta_discrete[i]-theta_init)-0.25*(np.sin(2*theta_discrete[i]) - np.sin(2*theta_init)))
+        # manual over-write 
+        if i == 2:
+            t_discrete[i-1] = t_discrete[i]
+            Ixx_discrete[i-1] =  Ixx_discrete[i]    
+        theta_init = theta_discrete[i]
+    I_xx_discrete_tot = 4*np.sum(Ixx_discrete)
+    
+    
+    # interpolate (discrete to continuous)
+    sigma_z_discrete = M_x*y_discrete/I_xx_discrete_tot
+    qs_discrete = V_y/I_xx_discrete_tot*t_discrete*(np.pi*R_outer)*np.cos(theta_discrete)
+    
+    sigma_vm_discrete = calc_vonMises(sigma_z= sigma_z_discrete, tau_xy= qs_discrete/t_discrete)
+        
+    arc_length_discrete = theta_discrete*D_outer/2 # [m]
+    arc_length_discrete = np.insert(arc_length_discrete, 0, 0)
+    mass_panel_segment_discrete = (arc_length_discrete[1:]-arc_length_discrete[:-1])*t_discrete*rho # [kg/m]
+    # print(f'arc_length_discrete: {arc_length_discrete}\nmass_panel_segment_discrete: {mass_panel_segment_discrete} ')
+    mass_unit_length_quarter_fuselage_discrete = np.sum(mass_panel_segment_discrete)
+    mass_unit_length_discrete = 4*mass_unit_length_quarter_fuselage_discrete
+    SF_discrete = Xt/sigma_vm_discrete
+    
+    if not isDiscrete:
+        return y, t
+    elif isDiscrete:
+        return y_discrete, t_discrete
 

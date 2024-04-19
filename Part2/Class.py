@@ -101,9 +101,9 @@ class Lamina:
             self.failuremode = "Compressive Fibre"
             
         if self.sigma_1 >= 0:
-            self.failure_reserve_margin = self.sigma_1 / (self.Xt)
+            self.loading_ratio = (self.sigma_1 / (self.Xt))
         elif self.sigma_1 < 0:
-            self.failure_reserve_margin = (self.sigma_1 / (self.Xc))*(-1)
+            self.loading_ratio = (self.sigma_1 / (self.Xc))*(-1)
 
     
     def maxStressInterFibreFail(self):
@@ -115,9 +115,9 @@ class Lamina:
             self.failuremode = "Compressive Inter-Fibre"
             
         if self.sigma_2 >= 0:
-            self.failure_reserve_margin = self.sigma_2 / (self.Yt)
+            self.loading_ratio = (self.sigma_2 / (self.Yt))
         elif self.sigma_2 < 0:
-            self.failure_reserve_margin = (self.sigma_2 / (self.Yc))*(-1)
+            self.loading_ratio = (self.sigma_2 / (self.Yc))*(-1)
 
             
 
@@ -126,7 +126,7 @@ class Lamina:
     def maxStressShearFail(self):
         if np.abs(self.tau_21) / self.S >= 1 : #or self.tau_31 / self.Rls >= 1:
             self.failuremode = "Shear Parallel to Fibres"
-            self.failure_reserve_margin = np.abs(self.tau_21) / self.S 
+            self.loading_ratio = np.abs(self.tau_21) / self.S 
         # elif self.tau_21 / (-self.S) >=1:  
         #     self.failuremode = "Shear Parallel to Fibres" 
         #elif self.tau_23 / self.Rts >= 1: 

@@ -136,6 +136,8 @@ def Buckling_check(Nx,Ny,Ns,Dmatrix,a = 1,b = 1,m = 1):
 def is_MaxStress_FPF(Laminate):
     isFPF = False
     ply_fail_mode = None
+    
+    loading_ratio = 0
     if not isFPF:
         for idx, ply in enumerate(Laminate.plys):
             
@@ -146,12 +148,18 @@ def is_MaxStress_FPF(Laminate):
             ply.maxStressFibreFail() #fiber failure
             ply.maxStressInterFibreFail() #InterFiberfailure
             ply.maxStressShearFail() #Shearfailure
+            
+            if ply.loading_ratio > loading_ratio:
+                loading_ratio = ply.loading_ratio
+                
             if ply.failuremode:
                 # ply_fail_sigma = sigma
                 ply_fail_mode = ply.failuremode
                 plyidx_fail = idx                
                 isFPF = True
-    return isFPF, ply_fail_mode 
+            
+            
+    return isFPF, loading_ratio 
 
 
 # Black Aluminum design
@@ -258,194 +266,6 @@ n_plies = np.ceil(t_composite_arr/t_ply)
 # t_middle =  t_ply*len(middle_layup) # close enough to # t_composite_arr[-2] (dropped 4 plies- for symmetry instead of 5- optimal)
 
 
-# buckling based sizing: iteration 1
-# baseline_layup = [+45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45] # conservative, 15 ply design 
-# t_baseline = t_ply*len(baseline_layup) #t_composite_arr[-1] # exact
-
-# top_layup = baseline_layup
-# t_top = t_baseline
-
-
-# diagonal_layup = [+45, -45, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, -45, +45,
-#                   +45, -45, 0, 0, -45, +45,
-#                         90,
-#                 +45, -45, 0, 0, -45, +45]
-# t_diagonal =  t_ply*len(diagonal_layup) # close enough to # t_composite_arr[-2] (dropped 2 plies- for symmetry instead of 3- optimal)
-
-
-# middle_layup = [+45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45,
-#                   +45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45]
-# t_middle =  t_ply*len(middle_layup) # close enough to # t_composite_arr[-2] (dropped 4 plies- for symmetry instead of 5- optimal)
-
-
-
-# iteration 2: buckling based sizing
-# baseline_layup = [+45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45, 
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45] # conservative, 15 ply design 
-# t_baseline = t_ply*len(baseline_layup) #t_composite_arr[-1] # exact
-
-# top_layup = baseline_layup
-# t_top = t_baseline
-
-# diagonal_layup = [+45, -45, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, -45, +45,
-#                   +45, -45, 0, 0, -45, +45,
-#                         90,
-#                 +45, -45, 0, 0, -45, +45,
-#                 +45, -45, 0, 0, -45, +45,
-#                       90,
-#               +45, -45, 0, 0, -45, +45]
-# t_diagonal =  t_ply*len(diagonal_layup) # close enough to # t_composite_arr[-2] (dropped 2 plies- for symmetry instead of 3- optimal)
-
-# middle_layup = [+45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45,
-#                   +45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45,
-#                   +45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45 ]
-# t_middle =  t_ply*len(middle_layup) # close enough to # t_composite_arr[-2] (dropped 4 plies- for symmetry instead of 5- optimal)
-
-
-# iteration 3: buckling based sizing
-# baseline_layup = [+45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45, 
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45] # conservative, 15 ply design 
-# t_baseline = t_ply*len(baseline_layup) #t_composite_arr[-1] # exact
-
-# top_layup = baseline_layup
-# t_top = t_baseline
-
-# diagonal_layup = [+45, -45, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, -45, +45,
-#                   +45, -45, 0, 0, -45, +45,
-#                         90,
-#                 +45, -45, 0, 0, -45, +45,
-#                 +45, -45, 0, 0, -45, +45,
-#                       90,
-#               +45, -45, 0, 0, -45, +45,
-#               +45, -45, 0, 0, -45, +45,
-#                     90,
-#             +45, -45, 0, 0, -45, +45]
-# t_diagonal =  t_ply*len(diagonal_layup) # close enough to # t_composite_arr[-2] (dropped 2 plies- for symmetry instead of 3- optimal)
-
-# middle_layup = [+45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45,
-#                   +45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45,
-#                   +45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45,
-#                   +45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45]
-# t_middle =  t_ply*len(middle_layup) # close enough to # t_composite_arr[-2] (dropped 4 plies- for symmetry instead of 5- optimal)
-
-
-
-# iteration 4: buckling based sizing
-# INCREASED THE THICKNESS OF MIDDLE PANELS TO MITIGATE SHEAR BUCKLING
-# ADDED A STIFF 0 DEGREE BLOCK IN THE MIDDLE 
-# top_layup = [+45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45, 
-#                   0, 0, 0, 0, 0, 0, 0, 0,
-#                   0, 0, 0, 0, 0, 0, 0, 0,
-#                   0, 0, 0, 0, 0, 0, 0, 0,
-#                   0, 0, 0, 0, 0, 0, 0, 0,
-#                   0, 0, 0, 0, 0, 0, 0, 0,
-#                   0, 0, 0, 0, 0, 0, 0, 0,
-#                   0, 0, 0, 0, 0, 0, 0, 0,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                   +45, -45, 0, 0, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, 0, -45, +45] # conservative, 15 ply design 
-# t_top = t_ply*len(top_layup) #t_composite_arr[-1] # exact
-
-# # ADDED FOUR MORE +-45 plies IN TOTAL. Loc: at and near top/bottom. mitigate shear buckling
-# # ADDED FOUR MORE 0 deg plies. mitigate compressive buckling
-# diagonal_layup = [+45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
-#                           90,
-#                   +45, -45, 0, 0, -45, +45,
-#                   +45, -45, 0, 0, -45, +45,
-#                         90,
-#                 +45, -45, 0, 0, -45, +45,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                   0, 0, 0, 0,
-#                 +45, -45, 0, 0, -45, +45,
-#                       90,
-#               +45, -45, 0, 0, -45, +45,
-#               +45, -45, 0, 0, -45, +45,
-#                     90,
-#             +45, -45, +45, -45, 0, 0, -45, +45, -45, +45]
-# t_diagonal =  t_ply*len(diagonal_layup) # close enough to # t_composite_arr[-2] (dropped 2 plies- for symmetry instead of 3- optimal)
-
-
-# # ADDED 22 MORE +-45 plies IN TOTAL.  Loc: at and near top/bottom
-# middle_layup = [+45, -45, +45, -45, +45, -45, +45, -45,+45, -45, +45, -45,  0, -45, +45, -45, +45, -45, +45, -45, +45, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45,
-#                   +45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45,
-#                   +45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45, 0, -45, +45,
-#                   +45, -45, 0, -45, +45,
-#                           90,
-#                   +45, -45,  +45, -45, +45, -45, +45, -45, +45, -45, 0, -45, +45, -45, +45, -45, +45, -45, +45, -45, +45, -45, +45]
-# t_middle =  t_ply*len(middle_layup) # close enough to # t_composite_arr[-2] (dropped 4 plies- for symmetry instead of 5- optimal)
-
-
-
 # iteration 5: buckling based sizing
 # dispersed the stiff middle block in the laminate
 block_A = [+45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
@@ -459,7 +279,7 @@ block_D = block_C[::-1]
 
 block_E = [90, 90, 0, 90, 0, 90, 90]
 
-
+# panel 3 
 top_layup = [+45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
                           90,
              +45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
@@ -483,6 +303,7 @@ t_top = t_ply*len(top_layup) #t_composite_arr[-1] # exact
 # ADDED FOUR MORE 0 deg plies. mitigate compressive buckling
 
 # dropped some zeros
+# panel 2
 diagonal_layup = [+45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
                           90,
              +45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
@@ -503,6 +324,7 @@ diagonal_layup = [+45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
 t_diagonal =  t_ply*len(diagonal_layup) # close enough to # t_composite_arr[-2] (dropped 2 plies- for symmetry instead of 3- optimal)
 
 
+# panel 1
 # ADDED 22 MORE +-45 plies IN TOTAL.  Loc: at and near top/bottom
 middle_layup = [+45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
                           90,
@@ -623,16 +445,16 @@ middle_stress_sigma12 = middle_laminate.sigma12
 # print(f"sigma22: {middle_stress_sigma22 * 10**-6} MPa")
 # print(f"sigma12: {middle_stress_sigma12 * 10**-6} MPa")
 
-
+    
 # part A: check max stress condition on given laminates. Plot reserve factors.
-isFPF_top = is_MaxStress_FPF(top_laminate)[0]
-isFPF_diagonal = is_MaxStress_FPF(diagonal_laminate)[0]
-isFPF_middle = is_MaxStress_FPF(middle_laminate)[0]
+isFPF_top, loading_ratio_top = is_MaxStress_FPF(top_laminate)
+isFPF_diagonal,  loading_ratio_diagonal = is_MaxStress_FPF(diagonal_laminate)
+isFPF_middle,  loading_ratio_middle = is_MaxStress_FPF(middle_laminate)
 
 print('FPF Check')
-print(f'Top Laminate FPF?: {isFPF_top}')
-print(f'Diagonal Laminate FPF?: {isFPF_diagonal}')
-print(f'Middle Laminate FPF?: {isFPF_middle}')
+print(f'Top Laminate FPF?: {isFPF_top}, loading_ratio: {loading_ratio_top}')
+print(f'Diagonal Laminate FPF?: {isFPF_diagonal}, loading_ratio: {loading_ratio_diagonal}')
+print(f'Middle Laminate FPF?: {isFPF_middle}, loading_ratio: {loading_ratio_middle}')
 
 # part B: check for buckling
 

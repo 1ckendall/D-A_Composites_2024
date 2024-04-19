@@ -152,6 +152,21 @@ stress_panel_2C_stiffners=sig_stiffner[81:99]
 stress_panel_1top_stiffners=sig_stiffner[0:9]
 stress_panel_1bot_stiffners=sig_stiffner[135:144]
 
+print()
+print("CHARLIE OUTPUT:")
+print()
+print(f"{max(stress_panel_3T_stiffners)/1E6} MPa")
+print(f"{min(stress_panel_3C_stiffners)/1E6} MPa")
+print()
+print(f"{max(stress_panel_2T_stiffners)/1E6} MPa")
+print(f"{min(stress_panel_2C_stiffners)/1E6} MPa")
+print()
+print(f"{max(stress_panel_1top_stiffners)/1E6} MPa")
+print(f"{min(stress_panel_1bot_stiffners)/1E6} MPa")
+print()
+print("END CHARLIE OUTPUT")
+print()
+
 
 '''
 shear_force_1_R=np.max(shear_val[0:9]) and np.max(shear_val[135:144])
@@ -163,10 +178,10 @@ shear_force_2_CL=np.max(shear_val[81:99])
 shear_force_3_C=np.max(shear_val[99:117])
 shear_force_2_CR=np.max(shear_val[117:135])
 '''
-print('shear force value on plate 1= ',shear_force_1_R)
-print('Normal Force on plate 1=', force_panel_1_L)
-print("shear force value on plate 3=", shear_force_3_C)
-print("Normal Force", force_panel_3_C)
+# print('shear force value on plate 1= ',shear_force_1_R)
+# print('Normal Force on plate 1=', force_panel_1_L)
+# print("shear force value on plate 3=", shear_force_3_C)
+# print("Normal Force", force_panel_3_C)
 
 
 # total force on panel due to bending on panel 3

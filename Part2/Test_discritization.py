@@ -186,10 +186,10 @@ def compute_forces(T_skin,Eskin_val,A_stiffner,Estiffner_val):
     for i in range(num_points):
         if stiff_loc[i]== A_stiffner[1]:
             E_stiffner[i]=Estiffner_val[1]
-        elif stiff_loc[i]==A_stiffner[3]:
-            E_stiffner[i]=Estiffner_val[3]
         elif stiff_loc[i]==A_stiffner[2]:
              E_stiffner[i]=Estiffner_val[2]
+        elif stiff_loc[i]==A_stiffner[3]:
+            E_stiffner[i]=Estiffner_val[3]
     '''
     E_stiffner.extend([Estiffner_val[1]]*8)
     E_stiffner.extend([Estiffner_val[0]])
@@ -262,7 +262,8 @@ def compute_forces(T_skin,Eskin_val,A_stiffner,Estiffner_val):
         sig_boom=sig_z[i]
         sig_skin1 = (E_skin[i-1]/E_booms[i])*sig_boom
         sig_skin2 = (E_skin[i]/E_booms[i])*sig_boom
-        sig_stiff = (E_stiffner[i]/E_booms[i])*sig_boom
+        sig_stiff = ((E_stiffner[i]*stiff_loc[i])/(E_booms[i]*B_areas[i]))*sig_boom
+        #print(((E_stiffner[i]*stiff_loc[i])/(E_booms[i]*B_areas[i])))
         sig_stiffner.append(sig_stiff)
         skin1contri.append(sig_skin1)
         skin2contri.append(sig_skin2)

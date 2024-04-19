@@ -68,6 +68,6 @@ stress_panel_2C_stiffners=sig_stiffner[81:99]
 
 stress_panel_1top_stiffners=sig_stiffner[0:9]
 stress_panel_1bot_stiffners=sig_stiffner[135:144]
-print(sig_z)
-print(stress_panel_2T_stiffners)
-print(stress_panel_3C_stiffners)
+#print(sig_z)
+#print(stress_panel_2T_stiffners)
+#(stress_panel_3C_stiffners)

@@ -16,7 +16,13 @@ S = 100 * 10 ** 6  # [Pa]
 rho = 1610  # [kg/m^3]
 t_ply = 0.135 * (10 ** -3)  # [m]
 
-# Initializing 
+# Initializing
+print()
+print()
+print()
+print()
+print('Start Here')
+ 
 #----------------------------------------------------------------------Laminate Design
 Panel_3= top_layup =[+45, -45, +45, -45, 0, 0, -45, +45, -45, +45,
                         90,
@@ -117,8 +123,8 @@ Eskin_val=[(45.23*10**9),(60.22*10**9),(71.21*10**9)]
 T_skin=[T_p1,T_p2,T_p3]
 
 #stiffner parameters
-A_stiffner=[0,0.000119,0.000149,0.000179]
-Estiffner_val=[0, 48.216e9, 71.265e9, 74.07e9]
+A_stiffner=[0,9.029725877128164e-05,0.00011216725,0.0002836172587712817 ]
+Estiffner_val=[0, 62.690732, 64.03102162, 61.896698]
 
 
 force_val,shear_val,weight,sig_stiffner,sig_boom=compute_forces(T_skin,Eskin_val,A_stiffner,Estiffner_val)
@@ -178,15 +184,19 @@ shear_force_2_CL=np.max(shear_val[81:99])
 shear_force_3_C=np.max(shear_val[99:117])
 shear_force_2_CR=np.max(shear_val[117:135])
 '''
-# print('shear force value on plate 1= ',shear_force_1_R)
-# print('Normal Force on plate 1=', force_panel_1_L)
-# print("shear force value on plate 3=", shear_force_3_C)
-# print("Normal Force", force_panel_3_C)
+print('shear force value on plate 1= ',shear_force_1_R)
+print('Normal Force on plate 1=', force_panel_1_L)
+print()
+print('shear force value on plate 2= ',shear_force_2_CR)
+print('Normal Force on plate 2=', force_panel_2_CR)
+print()
+print("shear force value on plate 3=", shear_force_3_C)
+print("Normal Force", force_panel_3_C)
 
 
 # total force on panel due to bending on panel 3
 Ftot= 1356987.7871114907 # N
-shear_panel = 444556.59538926 # N/m
+shear_panel = 63785.71865925585 # N/m
 ds=0.13089*2 #m
 a=0.5 #m
 b=2.35619 #m
@@ -210,8 +220,8 @@ bucklepanel_3=stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA_stiffner,EI_st
 
 
 #---------------------------------- Panel 2 testing
-Ftot= 1356987.7871114907 # N
-shear_panel = 444556.59538926 # N/m
+Ftot=  1161587.80189536 # N
+shear_panel = 2042047.799176393# N/m
 ds=0.13089*2 #m
 a=0.5 #m
 b=2.35619 #m
@@ -224,8 +234,8 @@ bucklepanel_2=stiffened_panel_buckling(Ftot,shear_panel,ds,a,b,EA_stiffner,EI_st
 
 #-------------------------- Panel 1 testing
 
-Ftot= 444556.59538926004# N
-shear_panel = 2890263.7951425994 # N/m
+Ftot= 467849.257865811# N
+shear_panel = 2923769.2868696 # N/m
 ds=0.13089*2 #m
 a=0.5 #m
 b=2.35619 #m

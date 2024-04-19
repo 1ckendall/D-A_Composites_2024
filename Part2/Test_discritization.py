@@ -143,23 +143,23 @@ def compute_forces(T_skin,Eskin_val,A_stiffner,Estiffner_val):
         if i % 2 == 0:  # Check if index is even
             stiff_loc[i]=A_stiffner[0]
         else:
-            if i <= 9:
+            if i <= 8:
                 stiff_loc[i]=A_stiffner[1]
-            elif i <= 27:
+            elif i>10 and i <= 26:
                 stiff_loc[i]=A_stiffner[2]
-            elif i <= 45:
+            elif i>28 and i <= 44:
                 stiff_loc[i]=A_stiffner[3]
-            elif i <= 63:
+            elif i>46 and i <= 62:
                 stiff_loc[i]=A_stiffner[2]
-            elif i <= 81:
+            elif i>64 and i <= 80:
                 stiff_loc[i]=A_stiffner[1]
-            elif i <= 99:
+            elif i>82 and i <= 98:
                 stiff_loc[i]=A_stiffner[2]
-            elif i <= 117:
+            elif i>100 and i <= 116:
                 stiff_loc[i]=A_stiffner[3]
-            elif i <= 135:
+            elif i>118 and i <= 134:
                 stiff_loc[i]=A_stiffner[2]
-            elif i <= 144:
+            elif i>136 and i <= 144:
                 stiff_loc[i]=A_stiffner[1]
     #print(stiff_loc)
     '''

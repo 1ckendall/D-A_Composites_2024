@@ -79,19 +79,9 @@ def create_circle(num_points,R):
     
     return x, y, arc_length, X,Y
 
-#-------------------------------------------------------------skin parameters-------------------------------------------
-
-# skin parameters
-t_ply=0.135e-3
-Eskin_val=[(45.23*10**9),(60.22*10**9),(71.21*10**9)]
-T_skin=[11*t_ply,13*t_ply,15*t_ply]
-
-#stiffner parameters
-A_stiffner=[0,6.823e-5,0.000230,0.000160]
-Estiffner_val=[0, 48.216e9, 71.265e9, 74.07e9]
 
 #------------------------------------------------------------ Initializing----------------------------------------------
-def compute_forces(T_skin,Eskin_val,A_stiffner):
+def compute_forces(T_skin,Eskin_val,A_stiffner,Estiffner_val):
 
    # Geometry
     D_outer = 6 # [m]
@@ -148,7 +138,31 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
     E_skin.extend([Eskin_val[0]]*9)
 
     # Stiffner Area Addition
-    stiff_loc=[]#np.zeros(num_points)#
+    stiff_loc=np.zeros(num_points)
+    for i in range(num_points):
+        if i % 2 == 0:  # Check if index is even
+            stiff_loc[i]=A_stiffner[0]
+        else:
+            if i <= 9:
+                stiff_loc[i]=A_stiffner[1]
+            elif i <= 27:
+                stiff_loc[i]=A_stiffner[2]
+            elif i <= 45:
+                stiff_loc[i]=A_stiffner[3]
+            elif i <= 63:
+                stiff_loc[i]=A_stiffner[2]
+            elif i <= 81:
+                stiff_loc[i]=A_stiffner[1]
+            elif i <= 99:
+                stiff_loc[i]=A_stiffner[2]
+            elif i <= 117:
+                stiff_loc[i]=A_stiffner[3]
+            elif i <= 135:
+                stiff_loc[i]=A_stiffner[2]
+            elif i <= 144:
+                stiff_loc[i]=A_stiffner[1]
+    #print(stiff_loc)
+    '''
     stiff_loc.extend([A_stiffner[1]]*8)
     stiff_loc.extend([A_stiffner[0]])
     stiff_loc.extend([A_stiffner[3]]*17)
@@ -166,9 +180,16 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
     stiff_loc.extend([A_stiffner[2]]*17)
     stiff_loc.extend([A_stiffner[0]])
     stiff_loc.extend([A_stiffner[1]]*9)
-
+    '''
     # Elasticity matrices
-    E_stiffner=np.zeros(num_points)#[]
+    E_stiffner=np.zeros(num_points)
+    for i in range(num_points):
+        if stiff_loc[i]== A_stiffner[1]:
+            E_stiffner[i]=Estiffner_val[1]
+        elif stiff_loc[i]==A_stiffner[3]:
+            E_stiffner[i]=Estiffner_val[3]
+        elif stiff_loc[i]==A_stiffner[2]:
+             E_stiffner[i]=Estiffner_val[2]
     '''
     E_stiffner.extend([Estiffner_val[1]]*8)
     E_stiffner.extend([Estiffner_val[0]])
@@ -202,6 +223,7 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
 
         # Boom Area = Stringer Area + skin 1 contribution + skin 2 contribution
         Sai = stiff_loc[i]
+        #print(Sai)
         B1i = (Panel_Areas[i-1]/6)*(2+(sig_s1/sig_boom))
         B2i = (Panel_Areas[i]/6)*(2+(sig_s2/sig_boom))
         B_area = Sai+B1i+B2i
@@ -244,7 +266,7 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
         sig_stiffner.append(sig_stiff)
         skin1contri.append(sig_skin1)
         skin2contri.append(sig_skin2)
-
+    
     for i in range(num_points):
         sigmaval=skin1contri[i]+((skin1contri[i]-skin2contri[i-1])/2)
         sig_skin.append(sigmaval)
@@ -263,7 +285,6 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
 
     weight=(np.sum(Panel_Areas)*1610)+(np.sum(stiff_loc)*1610)
 
-    
     plt.scatter(x[0:9],y[0:9],color='blue',marker='s',s=33)
     plt.scatter(x[9:27],y[9:27],color='red',marker='s',s=66)
     plt.scatter(x[27:45],y[27:45],color='black',marker='s',s=100)
@@ -273,18 +294,29 @@ def compute_forces(T_skin,Eskin_val,A_stiffner):
     plt.scatter(x[99:117],y[99:117],color='black',marker='s',s=100)
     plt.scatter(x[117:135],y[117:135],color='red',marker='s',s=66)
     plt.scatter(x[135:144],y[135:144],color='blue',marker='s',s=33)
-    
+    '''
     plt.scatter(x[node],y[node],color='black',marker='o',s=150)
     #plt.scatter(x[node-num_points+1],y[node-num_points+1],color='blue',marker='o',s=150)
     plt.scatter(x[node-1],y[node-1],color='red',marker='o',s=150)
     plt.scatter(X[node],Y[node],color='green',marker='x')
+    '''
     plt.show()
 
-    return force_val, shear_val,weight
+    return force_val, shear_val, weight, sig_stiffner, sig_z
+
+#-------------------------------------------------------------skin parameters-------------------------------------------
+
+# skin parameters
+t_ply=0.135e-3
+Eskin_val=[(45.23*10**9),(60.22*10**9),(71.21*10**9)]
+T_skin=[11*t_ply,13*t_ply,15*t_ply]
+
+#stiffner parameters
+A_stiffner=[0,6.823e-5,0.000230,0.000160]
+Estiffner_val=[0, 48.216e9, 71.265e9, 74.07e9]
 
 '''
-force_val,shear_val=compute_forces(T_skin,Eskin_val,A_stiffner)
-
+force_val,shear_val, weight=compute_forces(T_skin,Eskin_val,A_stiffner)
 force_panel_1_R=np.sum(force_val[0:9])+np.sum(force_val[135:144])
 force_panel_2_TR=np.sum(force_val[9:27])
 force_panel_3_T=np.sum(force_val[27:45])
@@ -304,6 +336,7 @@ shear_force_3_C=np.sum(shear_val[99:117])
 shear_force_2_CR=np.sum(shear_val[117:135])
 
 print(shear_force_1_R)
+print(force_panel_1_R)
 print(shear_force_3_T)
 print(force_panel_3_T)
 '''

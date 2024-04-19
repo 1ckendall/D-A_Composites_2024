@@ -142,8 +142,16 @@ shear_force_2_CL=np.sum(shear_val[81:99])
 shear_force_3_C=np.sum(shear_val[99:117])
 shear_force_2_CR=np.sum(shear_val[117:135])
 
-print(sig_boom)
-print(sig_stiffner)
+#print(sig_boom)
+stress_panel_3T_stiffners=sig_stiffner[9:27]
+stress_panel_3C_stiffners=sig_stiffner[99:117]
+
+stress_panel_2T_stiffners=sig_stiffner[27:45]
+stress_panel_2C_stiffners=sig_stiffner[81:99]
+
+stress_panel_1top_stiffners=sig_stiffner[0:9]
+stress_panel_1bot_stiffners=sig_stiffner[135:144]
+
 
 '''
 shear_force_1_R=np.max(shear_val[0:9]) and np.max(shear_val[135:144])
